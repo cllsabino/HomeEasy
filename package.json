@@ -25,6 +25,7 @@
     "firebase": "^5.5.5",
     "npm": "^6.14.3",
     "rxjs": "^6.0.0",
+    "save": "^2.4.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
