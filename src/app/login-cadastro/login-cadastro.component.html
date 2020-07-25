@@ -12,14 +12,14 @@
                 <div class="sign-in-htm">
                     <div class="group">
                         <label for="user" class="label">Email</label>
-                        <input id="user" type="email" class="input">
+                        <input type="email" class="input" [(ngModel)] = "loginEmail">
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Senha</label>
-                        <input id="pass" type="password" class="input" data-type="password">
+                        <input type="password" class="input" data-type="password" [(ngModel)] = "loginPassword">
                     </div>
                     <div class="group">
-                        <input type="submit" class="button" value="Entrar">
+                        <input type="submit" class="button" value="Entrar" (click)="login()">
                     </div>
                     <div class="hr"></div>
                     <div class="foot-lnk">
@@ -28,19 +28,15 @@
                 </div>
                 <div class="sign-up-htm">
                     <div class="group">
-                        <label for="user" class="label">Nome</label>
-                        <input id="user" type="text" class="input">
-                    </div>
-                    <div class="group">
                         <label for="pass" class="label">Email</label>
-                        <input id="pass" type="text" class="input">
+                        <input type="text" class="input" [(ngModel)] = "registerEmail">
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Senha</label>
-                        <input id="pass" type="password" class="input" data-type="password">
+                        <input type="password" class="input" data-type="password" [(ngModel)] = "registerPassword">
                     </div>
                     <div class="group">
-                        <input type="submit" class="button" value="Cadastrar">
+                        <button value="Cadastrar" type="submit" class="button" (click) = "register()">Cadastrar</button>
                     </div>
                     <div class="hr"></div>
                     <div class="foot-lnk">
