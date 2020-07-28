@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
+import { Usuario } from './../Usuarios/usuario';
 
 @Component({
   selector: 'app-login-cadastro',
@@ -8,10 +9,8 @@ import { auth } from 'firebase/app';
   styleUrls: ['./login-cadastro.component.css']
 })
 export class LoginCadastroComponent implements OnInit {
-  loginEmail : string = "";
-  loginPassword : string = "";
-  registerEmail : string = "";
-  registerPassword : string ="";
+  userLogin : Usuario = {};
+  userRegister : Usuario = {};
 
   constructor(public afAuth : AngularFireAuth) { }
 
@@ -19,17 +18,17 @@ export class LoginCadastroComponent implements OnInit {
   }
 
   async login(){
-    const { loginEmail, loginPassword} = this
+    const { userLogin } = this
     try { 
-     const res = await this.afAuth.auth.signInWithEmailAndPassword(loginEmail, loginPassword);
+     const res = await this.afAuth.auth.signInWithEmailAndPassword(userLogin.email, userLogin.password);
     } catch (error) { 
       console.error(error); 
     }
   }
   async register(){
-    const { registerEmail, registerPassword} = this
+    const { userRegister} = this
     try { 
-     const res = await this.afAuth.auth.createUserWithEmailAndPassword(registerEmail, registerPassword);
+     const res = await this.afAuth.auth.createUserWithEmailAndPassword(userRegister.email, userRegister.password);
     } catch (error) { 
       console.error(error); 
     }
