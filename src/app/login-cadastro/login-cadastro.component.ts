@@ -18,7 +18,7 @@ export class LoginCadastroComponent implements OnInit {
   }
 
   async login(){
-    const { userLogin } = this
+    const { userLogin } = this;
     try { 
      const res = await this.afAuth.auth.signInWithEmailAndPassword(userLogin.email, userLogin.password);
     } catch (error) { 
@@ -26,7 +26,7 @@ export class LoginCadastroComponent implements OnInit {
     }
   }
   async register(){
-    const { userRegister} = this
+    const { userRegister } = this;
     try { 
      const res = await this.afAuth.auth.createUserWithEmailAndPassword(userRegister.email, userRegister.password);
     } catch (error) { 
