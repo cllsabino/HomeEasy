@@ -3,13 +3,14 @@
     padding: 0;
     }
     body{
-        background: #55ffe5;
+        background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url(https://www.qinetwork.com.br/wp-content/uploads/2016/12/51857-dinamica-de-recrutamento-e-selecao-recrutar-sem-perder-tempo62.png);;
         font-size: 14px;
         font-family: 'Poppins', sans-serif;
     }
     .container{
         width: 80%;
         margin: 50px auto;
+        color: #fff;
     }
     .contact-box{
         background: #ffffff;
@@ -22,7 +23,7 @@
     .contact-right{
         flex-basis: 40%;
         padding: 40px;
-        background: #1c00b5;
+        background:#10a5e0;
         color: #fff;
     }
     h1{
@@ -57,10 +58,10 @@
     label{
         margin-bottom: 6px;
         display: block;
-        color: #1c00b5;
+        color: #10a5e0;
     }
     button{
-        background: #1c00b5;
+        background: #10a5e0;
         width: 100px;
         border: none;
         outline: none;
@@ -71,7 +72,7 @@
         box-shadow: 0px 5px 15px 0px rgba(28,0,181,0.3);
     }
     .contact-left h3{
-    color: #1c00b5;
+    color:#10a5e0;
     font-weight: 600;
     margin-bottom: 30px;
     }
