@@ -40,7 +40,7 @@
 .button:hover {
     background-color: rgb(0, 173, 204);
 }
-h1, h2{
+h1, h2, h5{
     text-align: center;
 }
 .column {
