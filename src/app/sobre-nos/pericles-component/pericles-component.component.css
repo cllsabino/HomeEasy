@@ -1,26 +1,57 @@
-header{
-    background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url(https://www.qinetwork.com.br/wp-content/uploads/2016/12/51857-dinamica-de-recrutamento-e-selecao-recrutar-sem-perder-tempo62.png);
-}
-.infousuario {
-    text-align: center;
-
-}
-.avatar {
-    margin-top: 20px;
-    border: 9px solid #8db7d2;
-    border-radius: 50%;
-}
-.nome {
+*{
     margin: 0;
-    color: #ffffff;
-    margin-top: 20px;
+    padding: 0;
+    box-sizing: border-box;
 }
 .container{
-
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #10a5e0;
+    font-family: 'Poppins', sans-serif;
+    padding: 0 20px;   
+}
+.card-container{
+    display: flex;
+    width: 600px;
+    height: auto;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 1px 1px 4px 2px rgba(0,0,0,.2);
+}
+.header{
+    border-right: 1px solid #ddd;
+}
+.descricao{
+    background: #fbfbfb;
+}
+.header, .descricao{
+    padding: 20px;
+    text-align: center;
+}
+.header a{
+position: relative;
+display: block;
+}
+.header img{
+    border-radius: 50%;
+    box-shadow: 0 0 0 8px rgbd(0,0,0, .06);
+    margin: 20px 30px;
+    transition: 0.2s;
+}
+.header a:hover img{
+    box-shadow: 0 0 0 12px rgbd(0,0,0, .1);
+}
+.header h2{
+    color: #f0522a;
+}
+.header h4{
+    margin-bottom: 20px;
+}
+.descricao{
     position: relative;
-    width: 700px;
-    height: 100px;
-    margin: 24px auto  ;
-    color: #ffffff;
+}
+.descricao p{
+    margin: 20px 30px;
 }
