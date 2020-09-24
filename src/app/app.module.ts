@@ -12,6 +12,9 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { DuvidasComponent } from './duvidas/duvidas.component';
 import { SobreNosComponent } from './sobre-nos/sobre-nos.component';
 import { ContatoComponent } from './contato/contato.component';
+import { CarlosComponentComponent } from './sobre-nos/carlos-component/carlos-component.component';
+import { PericlesComponentComponent } from './sobre-nos/pericles-component/pericles-component.component';
+import { AlvaroComponentComponent } from './sobre-nos/alvaro-component/alvaro-component.component';
 
 const appRoutes : Routes = [
   {path : '', redirectTo: 'home', pathMatch: 'full'},
@@ -29,7 +32,10 @@ const appRoutes : Routes = [
     HomeComponent,
     DuvidasComponent,
     SobreNosComponent,
-    ContatoComponent
+    ContatoComponent,
+    CarlosComponentComponent,
+    PericlesComponentComponent,
+    AlvaroComponentComponent
   ],
   imports: [
     BrowserModule,
