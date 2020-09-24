@@ -1,0 +1,26 @@
+header{
+    background-image: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url(https://www.qinetwork.com.br/wp-content/uploads/2016/12/51857-dinamica-de-recrutamento-e-selecao-recrutar-sem-perder-tempo62.png);
+}
+.infousuario {
+    text-align: center;
+
+}
+.avatar {
+    margin-top: 20px;
+    border: 9px solid #8db7d2;
+    border-radius: 50%;
+}
+.nome {
+    margin: 0;
+    color: #ffffff;
+    margin-top: 20px;
+}
+.container{
+
+
+    position: relative;
+    width: 700px;
+    height: 100px;
+    margin: 24px auto  ;
+    color: #ffffff;
+}
