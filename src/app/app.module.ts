@@ -15,6 +15,8 @@ import { SobreNosComponent } from './sobre-nos/sobre-nos.component';
 import { AlvaroComponentComponent } from './sobre-nos/alvaro-component/alvaro-component.component';
 import { CarlosComponentComponent } from './sobre-nos/carlos-component/carlos-component.component';
 import { PericlesComponentComponent } from './sobre-nos/pericles-component/pericles-component.component';
+import { RecuperarSenhaComponent } from './login-cadastro/recuperar-senha/recuperar-senha.component';
+import { LoginServiceService } from './login-cadastro/login-service.service';
 
 const appRoutes : Routes = [
   {path : '', redirectTo: 'home', pathMatch: 'full'},
@@ -25,7 +27,8 @@ const appRoutes : Routes = [
   {path : 'sobrenos', component : SobreNosComponent},
   {path : 'alvaro', component : AlvaroComponentComponent},
   {path : 'carlos', component : CarlosComponentComponent},
-  {path : 'pericles', component : PericlesComponentComponent}
+  {path : 'pericles', component : PericlesComponentComponent},
+  {path : 'recuperar-senha', component : RecuperarSenhaComponent}
 ];
 
 @NgModule({
@@ -38,17 +41,18 @@ const appRoutes : Routes = [
     SobreNosComponent,
     AlvaroComponentComponent,
     CarlosComponentComponent,
-    PericlesComponentComponent
+    PericlesComponentComponent,
+    RecuperarSenhaComponent
   ],
   imports: [
-  BrowserModule,
+    BrowserModule,
     FormsModule,
     RouterModule.forRoot(appRoutes), 
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
   ], 
-  providers: [],
+  providers: [LoginServiceService],
   bootstrap: [AppComponent],
   exports: [RouterModule]
 })

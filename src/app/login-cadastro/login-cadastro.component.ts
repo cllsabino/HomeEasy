@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { auth } from 'firebase/app';
+
 import { Usuario } from './../Usuarios/usuario';
+import { LoginServiceService } from './login-service.service';
 
 @Component({
   selector: 'app-login-cadastro',
@@ -9,26 +9,25 @@ import { Usuario } from './../Usuarios/usuario';
   styleUrls: ['./login-cadastro.component.css']
 })
 export class LoginCadastroComponent implements OnInit {
-  userLogin : Usuario = {};
+  userLogin : Usuario = {}; 
   userRegister : Usuario = {};
 
-  constructor(public afAuth : AngularFireAuth) { }
+  constructor(private loginservico : LoginServiceService) { }
 
   ngOnInit() {
   }
 
   async login(){
-    const { userLogin } = this;
     try { 
-     const res = await this.afAuth.auth.signInWithEmailAndPassword(userLogin.email, userLogin.password);
+      await this.loginservico.login(this.userLogin);
     } catch (error) { 
       console.error(error); 
     }
   }
+
   async register(){
-    const { userRegister } = this;
     try { 
-     const res = await this.afAuth.auth.createUserWithEmailAndPassword(userRegister.email, userRegister.password);
+     await this.loginservico.register(this.userRegister);
     } catch (error) { 
       console.error(error); 
     }
