@@ -26,4 +26,8 @@ export class LoginServiceService {
      return this.afAuth.auth;
   }
 
+  sair(){
+     return this.afAuth.auth.signOut();
+  }
+
 }
