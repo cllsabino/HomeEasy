@@ -6,6 +6,7 @@ import { Usuario } from './../Usuarios/usuario';
 @Injectable({
   providedIn: 'root'
 })
+
 export class LoginServiceService {
 
   constructor(public afAuth : AngularFireAuth) { }
