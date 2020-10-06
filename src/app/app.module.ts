@@ -13,9 +13,8 @@ import { DuvidasComponent } from './duvidas/duvidas.component';
 import { ContatoComponent } from './contato/contato.component';
 import { PerfilComponent } from './perfil/perfil.component';
 import { SobreModule } from './sobre-nos/sobre.module';
-import { LoginCadastroComponent } from './login-cadastro/login-cadastro.component';
-import { RecuperarSenhaComponent } from './login-cadastro/recuperar-senha/recuperar-senha.component';
 import { LoginServiceService } from './login-cadastro/login-service.service';
+import { LoginModule } from './login-cadastro/login.module';
 
 @NgModule({
   declarations: [
@@ -24,8 +23,6 @@ import { LoginServiceService } from './login-cadastro/login-service.service';
     DuvidasComponent,
     ContatoComponent,
     PerfilComponent,
-    LoginCadastroComponent,
-    RecuperarSenhaComponent
   ],
   imports: [
     BrowserModule,
@@ -34,6 +31,7 @@ import { LoginServiceService } from './login-cadastro/login-service.service';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     SobreModule,
+    LoginModule,
     AppRoutingModule
   ], 
   providers: [ LoginServiceService ],
