@@ -6,10 +6,10 @@
 <body>
     <div class="form">
       <p>Recuperar Senha</p>
-      <form> 
-        <input type="email" class="input" placeholder="Digite seu email" [(ngModel)] = "userLogin.email"> 
+      <div class="group">
+        <input type="email" class="input" placeholder="Digite seu email" [(ngModel)] = "userLogin.email" email="email"> 
         <button (click)="recuperarsenha()">Recuperar</button>
-      </form>
+      </div>
     </div>
 </body>
 </html>

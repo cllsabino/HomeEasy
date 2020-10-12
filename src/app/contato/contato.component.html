@@ -12,32 +12,32 @@
     <p>Vamos adorar responder suas duvidas! É gratuito!</p>
     <div class="contact-box">
         <div class="contact-left"><h3>Mande sua pergunta</h3>
-            <form>
+            <div class="group" id="group">
                 <div class="input-row">
                     <div class="input-group">
                      <label>Nome</label>
-                     <input type="text" placeholder="Seu nome">
+                     <input type="text" placeholder="Seu nome" [(ngModel)] = "mensagem.nome">
                     </div>
                     <div class="input-group">
                         <label>Telefone</label>
-                        <input type="text" placeholder="Seu telefone">
+                        <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone">
                        </div>
                 </div>
                        <div class="input-row">
                        <div class="input-group">
                         <label>Email</label>
-                        <input type="email" placeholder="Seu Email">
+                        <input type="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email">
                        </div>
                        <div class="input-group">
                            <label>Assunto</label>
-                           <input type="text" placeholder="Assunto">
+                           <input type="text" placeholder="Assunto" [(ngModel)] = "mensagem.assunto">
                           </div>
                        </div>
 
                        <label>Mensagem</label>
-                       <textarea rows="5" placeholder="Digite a sua mensagem"></textarea>
-                       <button type="submit">ENVIAR</button>
-            </form>
+                       <textarea rows="5" placeholder="Digite a sua mensagem" [(ngModel)] = "mensagem.mensagem"></textarea>
+                       <button type="submit" (click)="enviarmensagem()">ENVIAR</button>
+                </div>
     </div>
         <div class="contact-right"><h3>Nos encontre em:</h3>
             <table>

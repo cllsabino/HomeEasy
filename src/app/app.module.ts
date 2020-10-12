@@ -5,6 +5,7 @@ import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
@@ -15,6 +16,7 @@ import { PerfilComponent } from './perfil/perfil.component';
 import { SobreModule } from './sobre-nos/sobre.module';
 import { LoginServiceService } from './login-cadastro/login-service.service';
 import { LoginModule } from './login-cadastro/login.module';
+import { ContatoService } from './contato/contato.service';
 
 @NgModule({
   declarations: [
@@ -30,11 +32,12 @@ import { LoginModule } from './login-cadastro/login.module';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
+    AngularFirestoreModule,
     SobreModule,
     LoginModule,
     AppRoutingModule
   ], 
-  providers: [ LoginServiceService ],
+  providers: [ LoginServiceService, ContatoService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
