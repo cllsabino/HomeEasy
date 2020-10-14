@@ -17,6 +17,8 @@ export class ContatoComponent implements OnInit {
   }
   
   enviarmensagem(){
-    this.contatoServico.salvarmensagem(this.mensagem);
+    this.contatoServico.salvarmensagem(this.mensagem).then((success) =>{
+      alert("Mensagem Enviada!");
+     });
   }
 }

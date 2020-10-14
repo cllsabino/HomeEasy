@@ -12,32 +12,33 @@
     <p>Vamos adorar responder suas duvidas! É gratuito!</p>
     <div class="contact-box">
         <div class="contact-left"><h3>Mande sua pergunta</h3>
-            <div class="group" id="group">
+            <form #f="ngForm">
                 <div class="input-row">
                     <div class="input-group">
                      <label>Nome</label>
-                     <input type="text" placeholder="Seu nome" [(ngModel)] = "mensagem.nome">
+                     <input type="text" placeholder="Seu nome" [(ngModel)] = "mensagem.nome" name="nome" required> 
                     </div>
                     <div class="input-group">
                         <label>Telefone</label>
-                        <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone">
+                        <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone" name="telefone" required>
                        </div>
                 </div>
                        <div class="input-row">
                        <div class="input-group">
                         <label>Email</label>
-                        <input type="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email">
+                        <input type="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email" name="email" required email #email="ngModel">
+                        <div class="erro" *ngIf="!email.valid && email.touched">O e-mail é obrigatório</div>
                        </div>
                        <div class="input-group">
                            <label>Assunto</label>
-                           <input type="text" placeholder="Assunto" [(ngModel)] = "mensagem.assunto">
+                           <input type="text" placeholder="Assunto" [(ngModel)] = "mensagem.assunto" name="assunto" required>
                           </div>
                        </div>
 
                        <label>Mensagem</label>
-                       <textarea rows="5" placeholder="Digite a sua mensagem" [(ngModel)] = "mensagem.mensagem"></textarea>
-                       <button type="submit" (click)="enviarmensagem()">ENVIAR</button>
-                </div>
+                       <textarea rows="5" placeholder="Digite a sua mensagem" [(ngModel)] = "mensagem.mensagem" name="mensagem" required></textarea>
+                       <button type="submit" [disabled]="!f.valid" (click)="enviarmensagem()">ENVIAR</button>
+                </form>
     </div>
         <div class="contact-right"><h3>Nos encontre em:</h3>
             <table>
@@ -52,7 +53,7 @@
                 <tr>
                     <td>Endereço: </td>
                     <td>Terezinha - PE, Canhotinho - PE, Bom conselho - PE</td>
-                </tr>
+                </tr>   
             </table>
     </div>
         

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { messaging } from 'firebase';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { map } from "rxjs/operators"
 
 import { Mensagem } from './../Usuarios/mensagem';
 
@@ -9,20 +10,22 @@ import { Mensagem } from './../Usuarios/mensagem';
   })
 
 export class ContatoService {
-  constructor(public afAuth : AngularFireDatabase) {
+  mensagemInfo: Observable<Mensagem[]>;
+  mensagemCollection: AngularFirestoreCollection<Mensagem>;
 
+  constructor(public afs : AngularFirestore) {
+    this.mensagemCollection = this.afs.collection('Mensagem');
+
+    this.mensagemInfo = this.mensagemCollection.snapshotChanges().pipe(
+      map(actions => actions.map(a => {
+        const data = a.payload.doc.data() as Mensagem;
+        return data;
+      }))
+    );
   }
-  mensagemInfo = this.afAuth.database.ref('mensagens');
 
-  salvarmensagem(mensage : Mensagem){
-    var contatinho = this.mensagemInfo.push(mensage);
-    return contatinho.set({
-      nome : mensage.nome,
-      email : mensage.email,
-      telefone : mensage.telefone,
-      assunto : mensage.assunto,
-      mensagem : mensage.messagem
-    })
+  salvarmensagem(mensagem : Mensagem){
+    return this.mensagemCollection.add(mensagem);
   }
 
 }

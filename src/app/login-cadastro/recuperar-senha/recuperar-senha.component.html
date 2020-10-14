@@ -4,12 +4,13 @@
     <title>recuperarsenha</title>
 </head>
 <body>
-    <div class="form">
+    <form class="forms" #f="ngForm"> 
       <p>Recuperar Senha</p>
       <div class="group">
-        <input type="email" class="input" placeholder="Digite seu email" [(ngModel)] = "userLogin.email" email="email"> 
-        <button (click)="recuperarsenha()">Recuperar</button>
+        <input type="email" class="input" placeholder="Digite seu email" [(ngModel)] = "userLogin.email" name="email" required email #email="ngModel"> 
+        <div *ngIf="!email.valid && email.touched">O e-mail é obrigatório</div><br>
+        <button type="submit" [disabled]="!f.valid" (click)="recuperarsenha()">Recuperar</button>
       </div>
-    </div>
+    </form>
 </body>
 </html>

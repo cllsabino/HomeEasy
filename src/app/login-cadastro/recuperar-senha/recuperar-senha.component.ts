@@ -20,7 +20,9 @@ export class RecuperarSenhaComponent implements OnInit {
 
   recuperarsenha(){
     try { 
-       this.loginservico.recuperarsenha(this.userLogin);
+       this.loginservico.recuperarsenha(this.userLogin).then((success) =>{
+        alert("O e-mail de recuperação de senha foi enviado!");
+       });
     } catch (error) { 
       console.error(error); 
     }
