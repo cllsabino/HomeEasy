@@ -12,7 +12,6 @@ import { LoginServiceService } from './login-service.service';
 export class LoginCadastroComponent implements OnInit {
   userLogin : Usuario = {}; 
   userRegister : Usuario = {};
-  error : any;
   
   constructor(private loginservico : LoginServiceService, private router : Router) { }
 
@@ -20,29 +19,21 @@ export class LoginCadastroComponent implements OnInit {
   }
 
   async login(){
-    await this.loginservico.login(this.userLogin)
-    .then(
-      (success) => {
-        this.router.navigate(["/perfil"])
-      }).catch(
-        (err) => {
-          console.log(err);
-          this.error = err;
-        }
-      )
+    try{
+      await this.loginservico.login(this.userLogin).then(
+        (success) => {this.router.navigate(["/feed"])})
+    }catch(error){
+      console.error(error);
+    }
   }
 
   async register(){
-    await this.loginservico.register(this.userRegister)
-    .then(
-      (success) => {
-        this.router.navigate(["/perfil"])
-      }).catch(
-        (err) => {
-          console.log(err);
-          this.error = err;
-        }
-      )
+    try{
+      await this.loginservico.register(this.userRegister).then(
+        (success) => {this.router.navigate(["/perfil"])})
+    }catch(error){
+      console.error(error);
+    }
   }
   
 }

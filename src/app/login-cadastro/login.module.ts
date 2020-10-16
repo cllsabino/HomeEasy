@@ -16,7 +16,7 @@ import { LoginRoutingModule } from './login.routing.module';
     declarations:[
         LoginCadastroComponent,
         RecuperarSenhaComponent
-    ],
+    ], 
     exports:[
 
     ],
