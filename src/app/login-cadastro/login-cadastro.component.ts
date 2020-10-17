@@ -10,8 +10,8 @@ import { LoginServiceService } from './login-service.service';
   styleUrls: ['./login-cadastro.component.css']
 })
 export class LoginCadastroComponent implements OnInit {
-  userLogin : Usuario = {}; 
-  userRegister : Usuario = {};
+  private userLogin : Usuario = {}; 
+  private userRegister : Usuario = {};
   
   constructor(private loginservico : LoginServiceService, private router : Router) { }
 
