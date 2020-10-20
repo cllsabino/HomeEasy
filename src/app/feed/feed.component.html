@@ -3,7 +3,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" charset="utf-8"></script>
   </head>
@@ -17,7 +16,8 @@
         <h3>HOME <span>EASY</span></h3>
       </div>
       <div class="right_area">
-        <a href="#" class="logout_btn">Sair</a>
+        <a [hidden]="checar==true" class="logout_btn" (click)="sair()">Sair</a>
+        <a routerLink="/login" [hidden]="checar==false" class="logout_btn">Entrar</a>
       </div>
     </header>
     <div class="mobile_nav">
@@ -26,7 +26,7 @@
         <i class="fa fa-bars nav_btn"></i>
       </div>
       <div class="mobile_nav_items">
-        <a href="#"><i class="fas fa-desktop"></i><span>Meu perfil</span></a>
+        <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
         <a href="#"><i class="fas fa-table"></i><span>Tables</span></a>
         <a href="#"><i class="fas fa-th"></i><span>Categorias</span></a>
         <a href="#"><i class="fas fa-info-circle"></i><span>Informações</span></a>
@@ -38,16 +38,34 @@
         <img src="https://th.bing.com/th/id/OIP.STH6NxGwG8NeqyNaeE25LAHaFf?pid=Api&w=600&h=445&rs=1" class="profile_image" alt="">
         <h4>Usuário</h4>
       </div>
-      <a href="#"><i class="fas fa-desktop"></i><span>Meu perfil</span></a>
+      <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
         <a href="#"><i class="fas fa-table"></i><span>Meus serviços</span></a>
         <a href="#"><i class="fas fa-th"></i><span>Categorias</span></a>
         <a href="#"><i class="fas fa-info-circle"></i><span>Informações</span></a>
         <a href="#"><i class="fas fa-sliders-h"></i><span>Configurações</span></a>>
     </div>
     <div class="content">
-      <div class="card">
-  Coisas do Feed
+      <div class="cards">
+        
+        <div class="column" >
+          <h2>Serviços Domésticos</h2>
+          <div *ngFor="let serve of servicosDomesticoarray">
+           <div class="card">
+              {{serve.nome}}
+           </div>
+          </div>
+        </div>
+   
+        <div class="column">
+          <h2>Serviços para Reformas</h2>
+          <div  *ngFor="let serve of servicosReformaarray">
+            <div class="card">
+              {{serve.nome}}
+           </div>
+         </div>
+        </div>
      </div>
+
     </div>
     <script type="text/javascript">
     $(document).ready(function(){

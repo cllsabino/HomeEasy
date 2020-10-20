@@ -10,7 +10,6 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 import { HomeComponent } from './home/home.component';
-import { DuvidasComponent } from './duvidas/duvidas.component';
 import { ContatoComponent } from './contato/contato.component';
 import { SobreModule } from './sobre-nos/sobre.module';
 import { LoginServiceService } from './login-cadastro/login-service.service';
@@ -18,12 +17,12 @@ import { LoginModule } from './login-cadastro/login.module';
 import { ContatoService } from './contato/contato.service';
 import { FeedModule } from './feed/feed.module';
 import { PerfilModule } from './perfil/perfil.module';
+import { ServicosService } from './feed/servicos.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    DuvidasComponent,
     ContatoComponent,
   ],
   imports: [
@@ -39,7 +38,7 @@ import { PerfilModule } from './perfil/perfil.module';
     PerfilModule,
     AppRoutingModule
   ], 
-  providers: [ LoginServiceService, ContatoService ],
+  providers: [ LoginServiceService, ContatoService, ServicosService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
