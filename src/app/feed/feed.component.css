@@ -38,7 +38,6 @@ body{
     font-weight: 600;
     color: #10a5e0;
     transition: 0.5s;
-    transition-property: background;
   }
   
   .logout_btn:hover{
@@ -89,7 +88,6 @@ body{
     padding-left: 40px;
     box-sizing: border-box;
     transition: 0.5s;
-    transition-property: background;
   }
   
   .sidebar a:hover{
@@ -135,7 +133,6 @@ body{
     margin-top: 60px;
     padding: 20px;
     margin-left: 250px;
-    background: url(background.png) no-repeat;
     background-position: center;
     background-size: cover;
     height: 100vh;
@@ -166,7 +163,6 @@ body{
     opacity: 0.8;
   }
   
-  /* Responsive CSS */
   
   @media screen and (max-width: 780px){
     .sidebar{
@@ -235,7 +231,6 @@ body{
       text-decoration: none;
       box-sizing: border-box;
       transition: 0.5s;
-      transition-property: background;
     }
   
     .mobile_nav_items a:hover{
