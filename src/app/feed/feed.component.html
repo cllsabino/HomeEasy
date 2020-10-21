@@ -8,71 +8,76 @@
   </head>
   <body>
     <input type="checkbox" id="check">
+
     <header>
-      <label for="check">
-        <i class="fas fa-bars" id="sidebar_btn"></i>
-      </label>
-      <div class="left_area">
-        <h3>HOME <span>EASY</span></h3>
-      </div>
-      <div class="right_area">
-        <a [hidden]="checar==true" class="logout_btn" (click)="sair()">Sair</a>
-        <a routerLink="/login" [hidden]="checar==false" class="logout_btn">Entrar</a>
-      </div>
+      <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand home" routerLink="/home">Home Easy</a>
+        <label for="check">
+          <i class="fas fa-bars" id="sidebar_btn"></i>
+        </label>
+        <ul class="nav justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/sobrenos">Sobre Nós</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contato">Contato</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Entrar/Sair</a>
+          </li>
+        </ul>
+        <form #f="ngForm"class="form-inline">
+          <input class="form-control mr-sm-2" name="nome "type="search" placeholder="Procure um serviço" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+        </form>
+      </nav>
     </header>
-    <div class="mobile_nav">
-      <div class="nav_bar">
-        <img src="https://th.bing.com/th/id/OIP.STH6NxGwG8NeqyNaeE25LAHaFf?pid=Api&w=600&h=445&rs=1" class="mobile_profile_image" alt="">
-        <i class="fa fa-bars nav_btn"></i>
-      </div>
-      <div class="mobile_nav_items">
-        <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
-        <a href="#"><i class="fas fa-table"></i><span>Tables</span></a>
-        <a href="#"><i class="fas fa-th"></i><span>Categorias</span></a>
-        <a href="#"><i class="fas fa-info-circle"></i><span>Informações</span></a>
-        <a href="#"><i class="fas fa-sliders-h"></i><span>Configurações</span></a>
-      </div>
-    </div>
+    
     <div class="sidebar">
       <div class="profile_info">
-        <img src="https://th.bing.com/th/id/OIP.STH6NxGwG8NeqyNaeE25LAHaFf?pid=Api&w=600&h=445&rs=1" class="profile_image" alt="">
+        <img src="https://www.abrafac.org.br/wp-content/uploads/2020/06/perfil-icone.jpg" class="profile_image" alt="">
         <h4>Usuário</h4>
       </div>
-      <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
+        <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
         <a href="#"><i class="fas fa-table"></i><span>Meus serviços</span></a>
         <a href="#"><i class="fas fa-th"></i><span>Categorias</span></a>
         <a href="#"><i class="fas fa-info-circle"></i><span>Informações</span></a>
         <a href="#"><i class="fas fa-sliders-h"></i><span>Configurações</span></a>>
     </div>
+
     <div class="content">
-      <div class="cards">
-        
-        <div class="column" >
-          <h2>Serviços Domésticos</h2>
+
+      <div class="column" >
+        <h2>Serviços Domésticos</h2>
+        <ul class="list-group list-group-horizontal ulserve">
           <div *ngFor="let serve of servicosDomesticoarray">
-           <div class="card">
-              {{serve.nome}}
-           </div>
+            <li class="list-group-item">
+              <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                  <h5 class="card-title">{{ serve.nome }}</h5>
+                </div>
+              </div>
+            </li>
           </div>
-        </div>
-   
-        <div class="column">
-          <h2>Serviços para Reformas</h2>
+        </ul>
+      </div>
+ 
+      <div class="column">
+        <h2>Serviços para Reformas</h2>
+        <ul class="list-group list-group-horizontal ulserve">
           <div  *ngFor="let serve of servicosReformaarray">
-            <div class="card">
-              {{serve.nome}}
-           </div>
-         </div>
-        </div>
-     </div>
+            <li class="list-group-item">
+              <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                  <h5 class="card-title">{{ serve.nome }}</h5>
+                </div>
+              </div>
+            </li>
+          </div>
+        </ul>
+      </div>
 
     </div>
-    <script type="text/javascript">
-    $(document).ready(function(){
-      $('.nav_btn').click(function(){
-        $('.mobile_nav_items').toggleClass('active');
-      });
-    });
-    </script>
+
   </body>
 </html>

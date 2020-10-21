@@ -17,7 +17,7 @@ export class FeedComponent implements OnInit {
   private servicosDomesticoSubscription : Subscription;
   private servicosReformaarray = new Array<Servico>();
   private servicosReformaSubscription : Subscription;
-  checar = null;
+  checar;
  
   constructor(
     private servico : ServicosService, 
@@ -28,6 +28,12 @@ export class FeedComponent implements OnInit {
     
     this.servicosReformaSubscription = this.servico.getReforma().subscribe(data => {
     this.servicosReformaarray = data;});
+
+    this.afAuth.getAuth().onAuthStateChanged(user => {
+      if(!user){this.checar = false;}
+      else{this.checar = true;}
+    });
+    console.log(this.checar);
  
   }
  
@@ -47,10 +53,4 @@ export class FeedComponent implements OnInit {
     }
   }
 
-  botaoentrarsair(){
-    this.afAuth.getAuth().onAuthStateChanged(user => {
-      if(!user) this.checar = false;
-      else this.checar = true; 
-    });
-  }
 }

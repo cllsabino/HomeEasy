@@ -26,8 +26,7 @@
                        <div class="input-row">
                        <div class="input-group">
                         <label>Email</label>
-                        <input type="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email" name="email" required email #email="ngModel">
-                        <div class="erro" *ngIf="!email.valid && email.touched">O e-mail é obrigatório</div>
+                        <input type="email" class ="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email" name="email" required email #email="ngModel">
                        </div>
                        <div class="input-group">
                            <label>Assunto</label>

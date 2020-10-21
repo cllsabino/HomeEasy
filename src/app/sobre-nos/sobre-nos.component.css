@@ -1,10 +1,14 @@
-.container {
-    font-family: Century Gothic;
+body{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+.container {
+    font-family: Century Gothic;
     height: 100vh;
     display: grid;
     box-sizing: border-box;
+    width: 100%;
 }
 *, *:before, *:after {
     box-sizing: inherit;
@@ -12,12 +16,14 @@
 .carder {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     margin: 8px;
+    background-color: #fff;
 }
 .descricao {
     width:100%;
-    position:relative;
     text-align: center;
     background-color:#10a5e0;
+    position:relative;
+
 }
 .nome {
     padding: 0 16px;
@@ -52,7 +58,8 @@ h1, h2, h5{
 .main{
     background-size:cover;
     background-position:center ;
-    height: 60%;
+    height: 80%;
+    
 }
 .logo img{
     float: left;
@@ -79,7 +86,6 @@ ul li a:hover{
 }
 .title{
     color: #fff;
-    text-align: center;
 }
 img {
     display: block;
