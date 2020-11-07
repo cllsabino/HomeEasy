@@ -4,6 +4,20 @@
     <title>Login e Cadastro</title>
 
 </head>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+      </div>
+    </div>
+   
+</nav>
+
 <body>
     <div class="login-wrap">
         <div class="login-html">
@@ -17,10 +31,10 @@
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Senha</label>
-                        <input type="password" class="input" data-type="password" [(ngModel)]="userLogin.password" name="password" required>
+                        <input type="password" class="input" data-type="password" [(ngModel)]="userLogin.senha" name="password" required>
                     </div>
                     <div class="group">
-                        <input type="submit" class="button" value="Entrar" [disabled]="!f.valid" (click)="login()">
+                        <input type="submit" class="button" value="Entrar" (click)="login()">
                     </div>
                     <div class="hr"></div>
                     <div class="foot-lnk">
@@ -29,12 +43,20 @@
                 </div>
                 <div class="sign-up-htm">
                     <div class="group">
+                        <label for="pass" class="label">Nome</label>
+                        <input type="text" class="input" [(ngModel)]="userRegister.nome" name="nome" required>
+                    </div>
+                    <div class="group">
+                        <label for="pass" class="label">Idade</label>
+                        <input type="number" class="input" [(ngModel)]="userRegister.idade" name="idade" required>
+                    </div>
+                    <div class="group">
                         <label for="pass" class="label">Email</label>
-                        <input type="email" class="input" [(ngModel)]="userRegister.email" name="email" required email>
+                        <input type="text" class="input" [(ngModel)]="userRegister.email" name="email" required email>
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Senha</label>
-                        <input type="password" class="input" data-type="password" [(ngModel)]="userRegister.password" name="password" required>
+                        <input type="password" class="input" data-type="password" [(ngModel)]="userRegister.senha" name="password" required>
                     </div>
                     <div class="group">
                         <button value="Cadastrar" type="submit" class="button" [disabled]="!f.valid" (click)="register()">Cadastrar</button>

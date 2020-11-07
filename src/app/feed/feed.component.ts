@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 import { ServicosService } from './servicos.service';
 import { LoginServiceService } from './../login-cadastro/login-service.service';
+import { UsuarioService } from './../perfil/usuario.service';
 import { Servico } from './../Usuarios/servico';
-import { getTypeNameForDebugging } from '@angular/core/src/change_detection/differs/iterable_differs';
 
 @Component({
   selector: 'app-feed',
@@ -17,40 +19,47 @@ export class FeedComponent implements OnInit {
   private servicosDomesticoSubscription : Subscription;
   private servicosReformaarray = new Array<Servico>();
   private servicosReformaSubscription : Subscription;
-  checar;
+  entrarSair : boolean;
+  userId : string;
  
   constructor(
     private servico : ServicosService, 
-    private afAuth : LoginServiceService,
-    private router : Router) { 
+    private loginService : LoginServiceService,
+    private usuarioService : UsuarioService,
+    private router : Router,
+    private afs : AngularFirestore, 
+    private afAuth : AngularFireAuth,
+    private active : ActivatedRoute
+    ) { }
+ 
+  ngOnInit() {
+
     this.servicosDomesticoSubscription = this.servico.getDomestico().subscribe(data => {
     this.servicosDomesticoarray = data;});
-    
+      
     this.servicosReformaSubscription = this.servico.getReforma().subscribe(data => {
     this.servicosReformaarray = data;});
-
-    this.afAuth.getAuth().onAuthStateChanged(user => {
-      if(!user){this.checar = false;}
-      else{this.checar = true;}
-    });
-    console.log(this.checar);
- 
+  
+    if(this.afAuth.auth.currentUser != null){
+      this.entrarSair = true;
+      this.userId = this.afAuth.auth.currentUser.uid;
+    } else this.entrarSair = false;
   }
- 
-  ngOnInit() {}
  
   ngOnDestroy(){
-   this.servicosDomesticoSubscription.unsubscribe();
-   this.servicosReformaSubscription.unsubscribe();
+    this.servicosDomesticoSubscription.unsubscribe();
+    this.servicosReformaSubscription.unsubscribe();
   }
-
+  
   async sair(){
     try{
-      await this.afAuth.sair().then(
+      await this.loginService.sair().then(
         (success) => {this.router.navigate(["/home"])});
-    }catch(error){
-      console.error(error);
+     }catch(error){
+       console.error(error);
     }
   }
+
+  porcurarservico(nome : string){}
 
 }

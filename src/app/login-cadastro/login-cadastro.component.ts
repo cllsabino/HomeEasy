@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from './login-service.service';
@@ -13,7 +15,12 @@ export class LoginCadastroComponent implements OnInit {
   private userLogin : Usuario = {}; 
   private userRegister : Usuario = {};
   
-  constructor(private loginservico : LoginServiceService, private router : Router) { }
+  constructor(
+    private loginservico : LoginServiceService, 
+    private router : Router,
+    private afs : AngularFirestore,
+    private afAuth : AngularFireAuth,
+    ) { }
 
   ngOnInit() {
   }
@@ -29,8 +36,15 @@ export class LoginCadastroComponent implements OnInit {
 
   async register(){
     try{
-      await this.loginservico.register(this.userRegister).then(
-        (success) => {this.router.navigate(["/perfil"])})
+      const novoUsuario = await this.afAuth.auth.createUserWithEmailAndPassword(this.userRegister.email, this.userRegister.senha);
+
+      const usuarioObject = Object.assign({}, this.userRegister);
+      usuarioObject.id = novoUsuario.user.uid;
+      delete usuarioObject.email;
+      delete usuarioObject.senha;
+
+      await this.afs.collection("Usuarios").doc(novoUsuario.user.uid).set(usuarioObject).then(
+        (success) => {this.router.navigate(['/feed'])});
     }catch(error){
       console.error(error);
     }

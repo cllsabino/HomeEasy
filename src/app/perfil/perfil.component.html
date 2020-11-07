@@ -1,3 +1,62 @@
-<p>
-  perfil works!
-</p>
+<html lang="en">
+  <head>
+    <title>Perfil</title>
+  <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', usuario.id]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+    
+    <div class="container" style="margin-top:30px">
+      <div class="row">
+        <div class="col-sm-4">
+          <h2>{{ usuario.nome }}</h2>
+          <div class="img">
+            <img *ngIf="usuario.foto" [src]="usuario.foto">
+          </div><br>
+          <h3>Minhas Informações</h3>
+          <p>Idade: {{usuario.idade}}</p>
+          <p>Telefone: {{usuario.telefone}}</p>
+          <button class="btn btn-primary" routerLink="/editar">Editar informações</button>
+          <br>
+          <div *ngIf="esconderServico">
+            <h3>Meus Serviços</h3>
+            <ul class="nav nav-pills flex-column icone">
+              <li class="nav-item" *ngFor="let serve of usuario.servicos">
+                <a class="nav-link active" href="#">{{serve.nome}}</a>
+              </li>
+            </ul>
+          </div>
+          
+        </div>
+
+        <div class="col-sm-8" *ngIf="esconderServico">
+          <h2>Meus Serviços</h2>
+          <h5>{{servico}}</h5>
+          <div class="img">
+            <img heigth=200px width="500px" src="https://blog.novasafra.com.br/wp-content/uploads/2018/02/171126-5-qualidades-para-ser-um-cozinheiro-de-primeira.jpg">
+          </div>
+          <button type="button" class="btn btn-primary">Editar</button>
+          <br>
+        </div>
+      </div>
+    </div>
+  
+  </body>
+
+</html>

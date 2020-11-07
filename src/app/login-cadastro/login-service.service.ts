@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { AngularFireAuth } from '@angular/fire/auth';
+import { map } from 'rxjs/operators';
 import { Usuario } from './../Usuarios/usuario';
 
 @Injectable({
@@ -12,11 +13,7 @@ export class LoginServiceService {
   constructor(public afAuth : AngularFireAuth) { }
 
   login(user : Usuario){
-     return this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
-  }
-
-  register(user : Usuario){
-     return this.afAuth.auth.createUserWithEmailAndPassword(user.email, user.password);
+     return this.afAuth.auth.signInWithEmailAndPassword(user.email, user.senha);
   }
 
   recuperarsenha(user : Usuario){
@@ -30,5 +27,9 @@ export class LoginServiceService {
   sair(){
      return this.afAuth.auth.signOut();
   }
+
+  isAuth() {
+   return this.afAuth.authState.pipe(map(auth => auth));
+ }
 
 }

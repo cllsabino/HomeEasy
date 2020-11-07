@@ -1,75 +1,59 @@
-<html lang="en" dir="ltr">
+<html lang="en">
+
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" charset="utf-8"></script>
   </head>
-  <body>
-    <input type="checkbox" id="check">
 
-    <header>
-      <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand home" routerLink="/home">Home Easy</a>
-        <label for="check">
-          <i class="fas fa-bars" id="sidebar_btn"></i>
-        </label>
-        <ul class="nav justify-content-center">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/sobrenos">Sobre Nós</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/contato">Contato</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Entrar/Sair</a>
-          </li>
-        </ul>
-        <form #f="ngForm"class="form-inline">
-          <input class="form-control mr-sm-2" name="nome "type="search" placeholder="Procure um serviço" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
-        </form>
-      </nav>
-    </header>
-    
-    <div class="sidebar">
-      <div class="profile_info">
-        <img src="https://www.abrafac.org.br/wp-content/uploads/2020/06/perfil-icone.jpg" class="profile_image" alt="">
-        <h4>Usuário</h4>
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
       </div>
-        <a routerLink="/perfil"><i class="fas fa-desktop"></i><span>Meu Perfil</span></a>
-        <a href="#"><i class="fas fa-table"></i><span>Meus serviços</span></a>
-        <a href="#"><i class="fas fa-th"></i><span>Categorias</span></a>
-        <a href="#"><i class="fas fa-info-circle"></i><span>Informações</span></a>
-        <a href="#"><i class="fas fa-sliders-h"></i><span>Configurações</span></a>>
     </div>
+   
+    <form #f="ngForm"class="form-inline">
+      <input class="form-control mr-sm-2" [(ngModel)]="procurarservico" name="nome "type="search" placeholder="Procure um serviço!" aria-label="Search">
+      <button class="btn btn-outline-success btn-light my-2 my-sm-0" type="submit">Buscar</button>
+    </form>
+  </header>
+
+  <body>
 
     <div class="content">
 
-      <div class="column" >
-        <h2>Serviços Domésticos</h2>
+      <div class="column">
+        <h2>Serviços Domésticos</h2>        
         <ul class="list-group list-group-horizontal ulserve">
           <div *ngFor="let serve of servicosDomesticoarray">
             <li class="list-group-item">
               <div class="card" style="width: 18rem;">
                 <div class="card-body">
                   <h5 class="card-title">{{ serve.nome }}</h5>
+                  <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.nome]">Detalhes</button>
                 </div>
               </div>
             </li>
           </div>
         </ul>
       </div>
- 
+
       <div class="column">
-        <h2>Serviços para Reformas</h2>
+        <h2>Serviços para Reformas</h2>        
         <ul class="list-group list-group-horizontal ulserve">
-          <div  *ngFor="let serve of servicosReformaarray">
+          <div *ngFor="let serve of servicosReformaarray">
             <li class="list-group-item">
               <div class="card" style="width: 18rem;">
                 <div class="card-body">
                   <h5 class="card-title">{{ serve.nome }}</h5>
+                  <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.nome]">Detalhes</button>
                 </div>
               </div>
             </li>
@@ -80,4 +64,5 @@
     </div>
 
   </body>
+
 </html>

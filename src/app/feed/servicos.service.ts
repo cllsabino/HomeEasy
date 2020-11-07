@@ -18,7 +18,7 @@ export class ServicosService {
  }
 
  // pega serviço específico
- getServico(id : string){}
+ getServico(nome : string){}
 
  //pega serviços domésticos
  getDomestico(){
@@ -46,5 +46,7 @@ export class ServicosService {
      })
    );
  }
+
+
 
 }
