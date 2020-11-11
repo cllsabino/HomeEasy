@@ -1,14 +1,68 @@
-<html lang="en">
+<html>
   <head>
     <title>Editar</title>
   <meta charset="utf-8">  
   </head>
 
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
   <body>
-    <div class="h3">Mudar foto de perfil</div>
-    <input type="file" (change)="upload($event)" accept="*.png.jpg">
-    <button (click)="editarImagem()">enviar</button>
-    
+    <h3>Mudar Informações do Perfil</h3>
+    <form #f="ngForm">
+      <div class="form-group">
+        <label>Nome:</label>
+        <input type="text" class="form-control" [(ngModel)]="usuario.nome" name="nome" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Idade:</label>
+          <input type="number" class="form-control" [(ngModel)]="usuario.idade" name="idade" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label>Telefone:</label>
+          <input type="tel" class="form-control" [(ngModel)]="usuario.telefone" name="telefone" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Endereço:</label>
+        <input type="text" class="form-control" [(ngModel)]="usuario.endereco" name="endereco" required> 
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Estado:</label>
+          <select class="form-control" [(ngModel)]="usuario.estado" name="estado">
+            <option selected>Choose...</option>
+            <option>Pernambuco</option>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputCity">Cidade:</label>
+          <input type="text" class="form-control" id="inputCity" [(ngModel)]="usuario.cidade" name="cidade">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="!f.valid" (click)="editarInfo()">Editar Informações</button>
+    </form>
+    <div class="form-group">
+      <h3>Mudar Foto de Perfil</h3>
+      <label for="inputState">Foto de Perfil:</label><br>
+      <input type="file" (change)="upload($event)" accept="*.png.jpg"><br><br>
+      <button type="submit" class="btn btn-primary" (click)="editarImg()">Editar Foto de Perfil</button>
+    </div>
+      
   </body>
 
 </html>

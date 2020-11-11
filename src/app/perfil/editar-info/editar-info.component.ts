@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
+
+import { Usuario } from 'src/app/Usuarios/usuario';
 
 @Component({
   selector: 'app-editar-info',
@@ -8,23 +11,37 @@ import { AngularFireStorage } from '@angular/fire/storage';
   styleUrls: ['./editar-info.component.css']
 })
 export class EditarInfoComponent implements OnInit {
-  userId;
-  caminho : string;
+  private userId;
+  private imagem : string;
+  private entrarSair : boolean;
+  private usuario : Usuario = {};
 
   constructor(
     private storage : AngularFireStorage,
-    private afAuth : AngularFireAuth
+    private afAuth : AngularFireAuth,
+    private afs : AngularFirestore
     ) { }
 
   ngOnInit() {
-    this.userId = this.afAuth.auth.currentUser.uid;
+    if(this.afAuth.auth.currentUser != null){
+      this.userId = this.afAuth.auth.currentUser.uid;
+      this.entrarSair = true;
+    } 
+    else this.entrarSair = false;
   }
 
   upload($event){
-    this.caminho = $event.target.files[0];
+    this.imagem = $event.target.files[0];
   }
-  editarImagem(){
-    this.storage.ref('Usuarios/' + this.afAuth.auth.currentUser.uid + '/fotoPerfil.jpg').put(this.caminho);
+  editarImg(){
+    this.storage.ref('Usuarios/' + this.userId + '/fotoPerfil.jpg').put(this.imagem).then(
+      (success) => {alert("Foto de Perfil Alterada")});
+  }
+  editarInfo(){
+    this.usuario.id = this.userId;
+    delete this.usuario.servicos;
+    this.afs.collection("Usuarios").doc(this.userId).set(this.usuario).then(
+      (success) => {alert("Informações Alteradas")});
   }
 
 }

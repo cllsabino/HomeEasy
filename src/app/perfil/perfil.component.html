@@ -1,4 +1,4 @@
-<html lang="en">
+<html>
   <head>
     <title>Perfil</title>
   <meta charset="utf-8">  
@@ -31,21 +31,16 @@
           </div><br>
           <h3>Minhas Informações</h3>
           <p>Idade: {{usuario.idade}}</p>
-          <p>Telefone: {{usuario.telefone}}</p>
-          <button class="btn btn-primary" routerLink="/editar">Editar informações</button>
+          <p *ngIf="usuario.telefone">Telefone: {{usuario.telefone}}</p>
+          <p *ngIf="usuario.estado">Estado: {{usuario.estado}}</p>
+          <p *ngIf="usuario.cidade">Cidade: {{usuario.cidade}}</p>
+          <p *ngIf="usuario.endereco">Endereço: {{usuario.endereco}}</p>
+          <button class="btn btn-primary" routerLink="/editar">Adicionar ou Editar informações</button>
           <br>
-          <div *ngIf="esconderServico">
-            <h3>Meus Serviços</h3>
-            <ul class="nav nav-pills flex-column icone">
-              <li class="nav-item" *ngFor="let serve of usuario.servicos">
-                <a class="nav-link active" href="#">{{serve.nome}}</a>
-              </li>
-            </ul>
-          </div>
           
         </div>
 
-        <div class="col-sm-8" *ngIf="esconderServico">
+        <div class="col-sm-8">
           <h2>Meus Serviços</h2>
           <h5>{{servico}}</h5>
           <div class="img">

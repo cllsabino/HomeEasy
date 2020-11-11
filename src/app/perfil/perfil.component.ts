@@ -53,7 +53,6 @@ export class PerfilComponent implements OnInit {
 
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
-    this.imgSubscription.unsubscribe();
   }
   
   async sair(){

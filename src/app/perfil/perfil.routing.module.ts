@@ -7,7 +7,7 @@ import { EditarInfoComponent } from './editar-info/editar-info.component';
 
 const perfilRoutes : Routes = [
     {path : 'usuario/:id', component : PerfilComponent, canActivate : [AuthGuardGuard] },
-    {path : 'editar', component : EditarInfoComponent} 
+    {path : 'editar', component : EditarInfoComponent, canActivate : [AuthGuardGuard] } 
     
 ];
 

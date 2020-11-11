@@ -5,8 +5,11 @@ export class Usuario {
     senha? : string;
     nome? : string;
     idade? : string;
-    servicos? : Servico [] = new Array();
     telefone? : string;
     id? : string;
     foto? : string;
+    endereco? : string;
+    estado? : string;
+    cidade? : string;
+    servicos? : Servico [] = new Array();
 }
