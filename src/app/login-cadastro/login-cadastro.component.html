@@ -15,6 +15,10 @@
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
       </div>
     </div>
+
+    <div *ngIf="mensagemErro" class="alert alert-danger" role="alert">
+        {{mensagemErro}}
+    </div>
    
 </nav>
 

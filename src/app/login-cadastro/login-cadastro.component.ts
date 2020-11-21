@@ -14,6 +14,7 @@ import { LoginServiceService } from './login-service.service';
 export class LoginCadastroComponent implements OnInit {
   private userLogin : Usuario = {}; 
   private userRegister : Usuario = {};
+  private mensagemErro : string = null;
   
   constructor(
     private loginservico : LoginServiceService, 
@@ -30,7 +31,17 @@ export class LoginCadastroComponent implements OnInit {
       await this.loginservico.login(this.userLogin).then(
         (success) => {this.router.navigate(["/feed"])})
     }catch(error){
-      console.error(error);
+      switch (error.code) {
+        case 'auth/wrong-password':
+          this.mensagemErro = "Senha Incorreta!";
+        break;
+        case 'auth/user-not-found':
+          this.mensagemErro = "E-mail Não Cadastrado!";
+        break;
+        case 'auth/invalid-email':
+          this.mensagemErro = "E-mail Inválido!";
+        break;
+      }
     }
   }
 
@@ -46,7 +57,14 @@ export class LoginCadastroComponent implements OnInit {
       await this.afs.collection("Usuarios").doc(novoUsuario.user.uid).set(usuarioObject).then(
         (success) => {this.router.navigate(['/feed'])});
     }catch(error){
-      console.error(error);
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          this.mensagemErro = "E-mail Já Cadastrado!";
+        break;
+        case 'auth/invalid-email':
+          this.mensagemErro = "E-mail Inválido!";
+        break;
+      }
     }
   }
   
