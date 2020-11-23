@@ -20,6 +20,7 @@ import { FeedModule } from './feed/feed.module';
 import { PerfilModule } from './perfil/perfil.module';
 import { ServicosService } from './feed/servicos.service';
 import { UsuarioService } from './perfil/usuario.service';
+import { ProfissionalModule } from './profissional/profissional.module';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { UsuarioService } from './perfil/usuario.service';
     LoginModule,
     FeedModule,
     PerfilModule,
+    ProfissionalModule,
     AppRoutingModule
   ], 
   providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService ],

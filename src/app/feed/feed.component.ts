@@ -15,12 +15,12 @@ import { Servico } from './../Usuarios/servico';
   styleUrls: ['./feed.component.css']
 })
 export class FeedComponent implements OnInit {
-  private servicosDomesticoarray = new Array<Servico>();
-  private servicosDomesticoSubscription : Subscription;
-  private servicosReformaarray = new Array<Servico>();
+  private servicosDomesticosArray = new Array<Servico>();
+  private servicosDomesticosSubscription : Subscription;
+  private servicosReformaArray = new Array<Servico>();
   private servicosReformaSubscription : Subscription;
-  entrarSair : boolean;
-  userId : string;
+  private entrarSair : boolean;
+  private userId : string; 
  
   constructor(
     private servico : ServicosService, 
@@ -33,12 +33,11 @@ export class FeedComponent implements OnInit {
     ) { }
  
   ngOnInit() {
+    this.servicosDomesticosSubscription = this.servico.getDomestico().subscribe(data => {
+    this.servicosDomesticosArray = data;});
 
-    this.servicosDomesticoSubscription = this.servico.getDomestico().subscribe(data => {
-    this.servicosDomesticoarray = data;});
-      
     this.servicosReformaSubscription = this.servico.getReforma().subscribe(data => {
-    this.servicosReformaarray = data;});
+    this.servicosReformaArray = data;});
   
     if(this.afAuth.auth.currentUser != null){
       this.entrarSair = true;
@@ -47,7 +46,7 @@ export class FeedComponent implements OnInit {
   }
  
   ngOnDestroy(){
-    this.servicosDomesticoSubscription.unsubscribe();
+    this.servicosDomesticosSubscription.unsubscribe();
     this.servicosReformaSubscription.unsubscribe();
   }
   
@@ -61,5 +60,8 @@ export class FeedComponent implements OnInit {
   }
 
   porcurarservico(nome : string){}
+
+
+
 
 }

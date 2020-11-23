@@ -11,5 +11,6 @@ export class Usuario {
     endereco? : string;
     estado? : string;
     cidade? : string;
+    cpfCNPJ? : number;
     servicos? : Servico [] = new Array();
 }

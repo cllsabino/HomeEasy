@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { Usuario } from './../Usuarios/usuario';
 import { UsuarioService } from './usuario.service';
 import { LoginServiceService } from './../login-cadastro/login-service.service';
-
+import { Servico } from './../Usuarios/servico';
 
 @Component({
   selector: 'app-perfil',
@@ -20,7 +20,6 @@ export class PerfilComponent implements OnInit {
   userId : string;
   userSubscription : Subscription;
   imgSubscription : Subscription;
-  esconderServico;
   entrarSair : boolean;
 
   constructor(
@@ -42,12 +41,13 @@ export class PerfilComponent implements OnInit {
 
     this.userId = this.afAuth.auth.currentUser.uid;
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
-      this.usuario = data;
+      this.usuario = data; 
     });
-
+    
     this.imgSubscription = this.storage.ref('Usuarios/' + this.afAuth.auth.currentUser.uid + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
+  
 
   }
 
@@ -64,8 +64,5 @@ export class PerfilComponent implements OnInit {
     }
   }
 
-  fotoPerfil(){
-    
-  }
 
 }

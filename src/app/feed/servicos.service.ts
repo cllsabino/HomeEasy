@@ -8,21 +8,24 @@ import { Servico } from '../Usuarios/servico';
   providedIn: 'root'
 })
 export class ServicosService {
-  servicoDomesticoCollection : AngularFirestoreCollection<Servico>;
-  servicoReformaCollection : AngularFirestoreCollection<Servico>;
+  servicoCollection : AngularFirestoreCollection<Servico>;
+  domesticoCollection : AngularFirestoreCollection<Servico>;
+  reformaCollection : AngularFirestoreCollection<Servico>;
+
 
  constructor(private afs : AngularFirestore) { 
-   this.servicoDomesticoCollection = this.afs.collection('Serviços').doc('Serviços Domésticos').collection('Domestico');
+  this.servicoCollection = this.afs.collection('Serviços');
+  this.domesticoCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Doméstico'));
+  this.reformaCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Reforma'));
 
-   this.servicoReformaCollection = this.afs.collection('Serviços').doc('Serviços de Reforma').collection('Reforma');
  }
 
  // pega serviço específico
  getServico(nome : string){}
 
- //pega serviços domésticos
- getDomestico(){
-   return this.servicoDomesticoCollection.snapshotChanges().pipe(
+ //pega todos os serviços 
+ getServicos(){
+   return this.servicoCollection.snapshotChanges().pipe(
      map(actions => {
        return actions.map(a => {
          const data = a.payload.doc.data() as Servico;
@@ -33,19 +36,37 @@ export class ServicosService {
      })
    );
  }
- //pega serviços de reforma
- getReforma(){
-   return this.servicoReformaCollection.snapshotChanges().pipe(
-     map(actions => {
-       return actions.map(a => {
-         const data = a.payload.doc.data() as Servico;
-         const id = a.payload.doc.id;
+ //adiciona um servico 
+ addServico(servico : Servico){
+  return this.servicoCollection.add(servico);
+}
+//pega servicos domesticos
+getDomestico(){
+  return this.domesticoCollection.snapshotChanges().pipe(
+    map(actions => {
+      return actions.map(a => {
+        const data = a.payload.doc.data() as Servico;
+        const id = a.payload.doc.id;
 
-         return { id, ...data};
-       })
-     })
-   );
- }
+        return { id, ...data};
+      })
+    })
+  );
+}
+//pega servicos de reforma
+getReforma(){
+  return this.reformaCollection.snapshotChanges().pipe(
+    map(actions => {
+      return actions.map(a => {
+        const data = a.payload.doc.data() as Servico;
+        const id = a.payload.doc.id;
+
+        return { id, ...data};
+      })
+    })
+  );
+}
+
 
 
 
