@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Seja Um Profissional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <meta charset="utf-8">  
   </head>
 
@@ -21,7 +22,39 @@
   </header>
 
   <body>
-    <p>Em Construção!</p>
+    <div class="container">
+      <h1>Seja um Profissional</h1>
+      <p>Cadastre agora e veja todos os serviços ofertados!</p>
+      <div class="contact-box">
+          <div class="contact-left"><h3>CADASTRO</h3>
+              <form #f="ngForm">
+                  <div class="input-row">
+                      <div class="input-group">
+                       <label>Nome</label>
+                       <input type="text" placeholder="Seu nome" [(ngModel)] = "mensagem.nome" name="nome" required> 
+                      </div>
+                      <div class="input-group">
+                          <label>Telefone</label>
+                          <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone" name="telefone" required>
+                         </div>
+                  </div>
+                         <div class="input-row">
+                         <div class="input-group">
+                          <label>Email</label>
+                          <input type="email" class ="email" placeholder="Seu Email" [(ngModel)] = "mensagem.email" name="email" required email #email="ngModel">
+                         <button type="submit" [disabled]="!f.valid" (click)="enviarmensagem()">ENVIAR</button>
+                  </form>
+      </div>
+          
+  
+  </div>
+  
+  </body>
+  
+  
+  
+  </html>
+  
 
   </body>
 
