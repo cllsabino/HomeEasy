@@ -10,7 +10,7 @@
     <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="btn btn-primary" [routerLink]="['/usuario', usuario.id]" role="button">Perfil</a>
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
         <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
         <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
@@ -23,7 +23,7 @@
 
   <body>
 
-    <div class="container">
+    <div class="container" *ngIf="!entrarSair">
       <h1>Seja um Profissional</h1>
       <p>Cadastre agora e veja todos os serviços ofertados!</p>
       <div class="contact-box">
@@ -51,6 +51,16 @@
            </div>
        </div>
           
+    </div>
+
+    <div class="conteiner" *ngIf="entrarSair">
+      <div class="column">
+        <h3>Escolha um serviço</h3>
+        <select class="btn btn-info dropdown-toggle" [(ngModel)]="servicoSelecionado" required>
+          <option *ngFor="let serve of servicosArray" [ngValue]="serve">{{serve.nome}}</option>
+        </select>
+        <button type="button" class="btn btn-primary" (click)="inscreverServico()">Inscreva-se</button>
+      </div>
     </div>
   
   </body>

@@ -39,7 +39,6 @@ export class EditarInfoComponent implements OnInit {
   }
   editarInfo(){
     this.usuario.id = this.userId;
-    delete this.usuario.servicos;
     this.afs.collection("Usuarios").doc(this.userId).set(this.usuario).then(
       (success) => {alert("Informações Alteradas")});
   }

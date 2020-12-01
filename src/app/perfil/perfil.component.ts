@@ -16,11 +16,11 @@ import { Servico } from './../Usuarios/servico';
   styleUrls: ['./perfil.component.css']
 })
 export class PerfilComponent implements OnInit {
-  usuario : Usuario = {};
-  userId : string;
-  userSubscription : Subscription;
-  imgSubscription : Subscription;
-  entrarSair : boolean;
+  private usuario : Usuario = {};
+  private userId : string;
+  private userSubscription : Subscription;
+  private imgSubscription : Subscription;
+  private entrarSair : boolean;
 
   constructor(
     private afs : AngularFirestore, 
@@ -36,10 +36,11 @@ export class PerfilComponent implements OnInit {
     
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null) this.entrarSair = true;
-    else this.entrarSair = false;
+    if(this.afAuth.auth.currentUser != null){
+      this.entrarSair = true;
+      this.userId = this.afAuth.auth.currentUser.uid;
+    }else this.entrarSair = false;
 
-    this.userId = this.afAuth.auth.currentUser.uid;
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data; 
     });

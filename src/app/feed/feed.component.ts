@@ -21,6 +21,7 @@ export class FeedComponent implements OnInit {
   private servicosReformaSubscription : Subscription;
   private entrarSair : boolean;
   private userId : string; 
+  private pesquisarServico : string;
  
   constructor(
     private servico : ServicosService, 
@@ -59,7 +60,8 @@ export class FeedComponent implements OnInit {
     }
   }
 
-  porcurarservico(nome : string){}
+  porcurarservico(){
+  }
 
 
 

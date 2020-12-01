@@ -5,7 +5,7 @@ import { ProfissionalComponent } from './profissional.component';
 import { AuthGuardGuard } from './../guardas/auth-guard.guard';
 
 const profissionalRoutes : Routes = [
-    {path : 'profissional', component : ProfissionalComponent, canActivate : [AuthGuardGuard]},
+    {path : 'profissional', component : ProfissionalComponent},
 ];
 
 @NgModule({

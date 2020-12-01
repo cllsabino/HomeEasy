@@ -1,5 +1,3 @@
-import { Servico } from './servico';
-
 export class Usuario {
     email? : string;
     senha? : string;
@@ -12,5 +10,4 @@ export class Usuario {
     estado? : string;
     cidade? : string;
     cpfCNPJ? : number;
-    servicos? : Servico [] = new Array();
 }

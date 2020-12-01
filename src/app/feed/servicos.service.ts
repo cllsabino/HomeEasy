@@ -3,6 +3,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { map } from 'rxjs/operators';
 
 import { Servico } from '../Usuarios/servico';
+import { Usuario } from 'src/app/Usuarios/usuario';
 
 @Injectable({
   providedIn: 'root'
@@ -11,18 +12,19 @@ export class ServicosService {
   servicoCollection : AngularFirestoreCollection<Servico>;
   domesticoCollection : AngularFirestoreCollection<Servico>;
   reformaCollection : AngularFirestoreCollection<Servico>;
-
+  usuariosCollection : AngularFirestoreCollection<Usuario>;
 
  constructor(private afs : AngularFirestore) { 
   this.servicoCollection = this.afs.collection('Serviços');
+  this.usuariosCollection = this.afs.collection('Usuarios');
   this.domesticoCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Doméstico'));
   this.reformaCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Reforma'));
-
  }
 
  // pega serviço específico
- getServico(nome : string){}
-
+ getServico(nome : string){
+   return this.afs.collection('Serviços', ref => ref.where('nome', '==', nome));
+ }
  //pega todos os serviços 
  getServicos(){
    return this.servicoCollection.snapshotChanges().pipe(
@@ -66,7 +68,11 @@ getReforma(){
     })
   );
 }
-
+//add usuario num serviço
+addUsuario(usuario : Usuario, serve : Servico){
+  this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').add(usuario);
+  this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').add(serve);
+}
 
 
 
