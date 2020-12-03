@@ -27,42 +27,38 @@
 
   <body>
 
-    <div class="content">
-
-      <div class="column">
-        <h2>Serviços Domésticos</h2>        
-        <ul class="list-group list-group-horizontal ulserve">
-          <div *ngFor="let serve of servicosDomesticosArray">
-            <li class="list-group-item">
-              <div class="card" style="width: 18rem;">
-                <div class="card-body">
-                  <h5 class="card-title">{{ serve.nome }}</h5>
-                  <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.nome]">Ver Profissionais</button>
-                </div>
-              </div>
-            </li>
-          </div>
+    <div class="wrapper">
+      <div class="links">
+        <ul>
+          <li data-view="list-view" class="li-list active">
+          <i class="fas fa-th-list"></i>
+          Categorias</li>
+          <li data-view="grid-view" class="li-grid">
         </ul>
       </div>
-
-      <div class="column">
-        <h2>Serviços de Reforma</h2>        
-        <ul class="list-group list-group-horizontal ulserve">
-          <div *ngFor="let serve of servicosReformaArray">
-            <li class="list-group-item">
-              <div class="card" style="width: 18rem;">
-                <div class="card-body">
-                  <h5 class="card-title">{{ serve.nome }}</h5>
-                  <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.nome]">Ver Profissionais</button>
-                </div>
-              </div>
-            </li>
+      <div class="view_main">
+        <div class="view_wrap list-view" style="display: block;">
+          <div class="view_item">
+            <div class="vi_left">
+              <img src="https://www.regularizedomestica.com.br/wp-content/uploads/2018/11/banner.png">
+            </div>
+            <div class="vi_right">
+              <p class="title">Domésticos</p>
+              <p class="content">Serviços domésticos.</p>
+              <div class="btn">Ver mais</div>
+            </div>
           </div>
-        </ul>
-      </div>
-
-    </div>
-
-  </body>
-
-</html>
+          <div class="view_item">
+            <div class="vi_left">
+              <img src="http://abcengenhar.com.br/style/images/icons/reforma-01.png">
+            </div>
+            <div class="vi_right">
+              <p class="title">Reformas</p>
+              <p class="content">Serviços de reformas.</p>
+              <div class="btn">Ver mais</div>
+            </div>
+          </div>	
+    <script src="scripts.js"></script>
+    
+    </body>
+    </html>
