@@ -30,10 +30,7 @@ export class PerfilComponent implements OnInit {
     private loginService : LoginServiceService,
     private usuarioService : UsuarioService,
     private active : ActivatedRoute
-    ) { 
-
-    }
-    
+    ) { }
 
   ngOnInit() {
     if(this.afAuth.auth.currentUser != null){
@@ -48,7 +45,6 @@ export class PerfilComponent implements OnInit {
     this.imgSubscription = this.storage.ref('Usuarios/' + this.afAuth.auth.currentUser.uid + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
-  
 
   }
 

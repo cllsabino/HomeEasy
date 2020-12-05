@@ -22,9 +22,12 @@ export class ServicosService {
  }
 
  // pega serviço específico
- getServico(nome : string){
+ getServicoPorNome(nome : string){
    return this.afs.collection('Serviços', ref => ref.where('nome', '==', nome));
  }
+ getServicoPorId(id : string){
+  return this.afs.collection('Serviços', ref => ref.where('id', '==', id));
+}
  //pega todos os serviços 
  getServicos(){
    return this.servicoCollection.snapshotChanges().pipe(
@@ -73,7 +76,18 @@ addUsuario(usuario : Usuario, serve : Servico){
   this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').add(usuario);
   this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').add(serve);
 }
+//pegar usuarios de um serviço
+getUsuarios(id : string){
+  return this.afs.collection('Serviços').doc(id).collection("Usuarios").snapshotChanges().pipe(
+    map(actions => {
+      return actions.map(a => {
+        const data = a.payload.doc.data() as Usuario;
+        const id = a.payload.doc.id;
 
-
+        return { id, ...data};
+      })
+    })
+  );
+}
 
 }

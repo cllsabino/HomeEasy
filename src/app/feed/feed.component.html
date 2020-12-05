@@ -28,14 +28,16 @@
   <body>
 
     <div class="wrapper">
+
       <div class="links">
         <ul>
           <li data-view="list-view" class="li-list active">
-          <i class="fas fa-th-list"></i>
-          Categorias</li>
-          <li data-view="grid-view" class="li-grid">
+            <i class="fas fa-th-list"></i>
+            Categorias
+          </li>
         </ul>
       </div>
+      
       <div class="view_main">
         <div class="view_wrap list-view" style="display: block;">
           <div class="view_item">
@@ -45,9 +47,24 @@
             <div class="vi_right">
               <p class="title">Domésticos</p>
               <p class="content">Serviços domésticos.</p>
-              <div class="btn">Ver mais</div>
+              <button class="btn"(click)="mostrarConteudoDO()">Ver mais</button><br>
+            </div>
+            <div [hidden] = "!mostrarContentDO">
+              <ul class="list-group list-group-horizontal ulserve">
+                <div *ngFor="let serve of servicosDomesticosArray">
+                  <li class="list-group-item">
+                    <div class="card" style="width: 18rem;">
+                      <div class="card-body">
+                        <h5 class="card-title">{{ serve.nome }}</h5>
+                        <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.id]">Ver Profissionais</button>
+                      </div>
+                    </div>
+                  </li>
+                </div>
+              </ul>        
             </div>
           </div>
+
           <div class="view_item">
             <div class="vi_left">
               <img src="http://abcengenhar.com.br/style/images/icons/reforma-01.png">
@@ -55,10 +72,27 @@
             <div class="vi_right">
               <p class="title">Reformas</p>
               <p class="content">Serviços de reformas.</p>
-              <div class="btn">Ver mais</div>
+              <div class="btn" (click)="mostrarConteudoRE()">Ver mais</div>
+            </div>
+            <div [hidden] = "!mostrarContentRE">
+              <ul class="list-group list-group-horizontal ulserve">
+                <div *ngFor="let serve of servicosReformaArray">
+                  <li class="list-group-item">
+                    <div class="card" style="width: 18rem;">
+                      <div class="card-body">
+                        <h5 class="card-title">{{ serve.nome }}</h5>
+                        <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.id]">Ver Profissionais</button>
+                      </div>
+                    </div>
+                  </li>
+                </div>
+              </ul>      
             </div>
           </div>	
-    <script src="scripts.js"></script>
+
+        </div>
+      </div>
+    </div>
     
-    </body>
-    </html>
+  </body>
+</html>

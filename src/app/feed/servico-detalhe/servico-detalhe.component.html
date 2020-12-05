@@ -1,3 +1,46 @@
-<p>
-  EM CONSTRUÇÃO!
-</p>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header> 
+
+  <body>
+
+    <div class="container">
+      <ul class="list-group list-group-horizontal ulserve">
+        <li class="list-group-item card" *ngFor="let user of usuariosArray">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{ user.nome }}</h5>
+              <p class="card-text">Avaliação: 4,5</p>
+              <a href="#" class="link"><i class="fa fa-linkedin"></i></a>
+              <a href="#" class="link"><i class="fa fa-instagram"></i></a>
+              <a href="#" class="link"><i class="fa fa-twitter"></i></a>
+              <a href="#" class="link"><i class="fa fa-facebook"></i></a><br>
+              <a href="#" class="btn btn-primary">Detalhes</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+  </body>
+
+</html>

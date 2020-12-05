@@ -22,6 +22,8 @@ export class FeedComponent implements OnInit {
   private entrarSair : boolean;
   private userId : string; 
   private pesquisarServico : string;
+  private mostrarContentDO : boolean = false;
+  private mostrarContentRE : boolean = false;
  
   constructor(
     private servico : ServicosService, 
@@ -61,6 +63,13 @@ export class FeedComponent implements OnInit {
   }
 
   porcurarservico(){
+  }
+
+  mostrarConteudoDO(){
+    this.mostrarContentDO = !this.mostrarContentDO;
+  }
+  mostrarConteudoRE(){
+    this.mostrarContentRE = !this.mostrarContentRE;
   }
 
 

@@ -7,7 +7,7 @@ import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.compo
 
 const feedRoutes : Routes = [
     {path : 'feed', component : FeedComponent },
-    {path : 'serviço/:nome', component : ServicoDetalheComponent}
+    {path : 'serviço/:id', component : ServicoDetalheComponent}
 ];
 
 @NgModule({
