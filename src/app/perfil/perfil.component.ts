@@ -6,9 +6,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { Usuario } from './../Usuarios/usuario';
-import { UsuarioService } from './usuario.service';
-import { LoginServiceService } from './../login-cadastro/login-service.service';
 import { Servico } from './../Usuarios/servico';
+import { UsuarioService } from '../Servicos/usuario.service';
+import { ServicosService } from './../Servicos/servicos.service';
+import { LoginServiceService } from '../Servicos/login-service.service';
 
 @Component({
   selector: 'app-perfil',
@@ -21,7 +22,11 @@ export class PerfilComponent implements OnInit {
   private userSubscription : Subscription;
   private imgSubscription : Subscription;
   private entrarSair : boolean;
-
+  private servicosArray = new Array<Servico>();
+  private servicosSubscription : Subscription;
+  private servicoEstado : boolean = false;
+  private servicoDelete : Servico = {};
+  
   constructor(
     private afs : AngularFirestore, 
     private afAuth : AngularFireAuth,
@@ -29,6 +34,7 @@ export class PerfilComponent implements OnInit {
     private router : Router,
     private loginService : LoginServiceService,
     private usuarioService : UsuarioService,
+    private servico : ServicosService, 
     private active : ActivatedRoute
     ) { }
 
@@ -42,16 +48,19 @@ export class PerfilComponent implements OnInit {
       this.usuario = data; 
     });
     
-    this.imgSubscription = this.storage.ref('Usuarios/' + this.afAuth.auth.currentUser.uid + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
+    this.imgSubscription = this.storage.ref('Usuarios/' + this.userId + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
 
-  }
+    this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
+      this.servicosArray = data;
+    });
 
+  }
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
+    this.servicosSubscription.unsubscribe();
   }
-  
   async sair(){
     try{
       await this.loginService.sair().then(
@@ -59,6 +68,14 @@ export class PerfilComponent implements OnInit {
      }catch(error){
        console.error(error);
     }
+  }
+  mostrarBotaoDeletar(event, serve){
+    this.servicoEstado = true;
+    this.servicoDelete = serve;
+  }
+  deletarServico(event, serve){
+    this.servico.apagarServico(this.usuario, serve);
+    alert("Inscrição Cancelada!");
   }
 
 

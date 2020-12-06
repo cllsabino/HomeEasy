@@ -23,9 +23,14 @@
 
   <body>
 
-    <div class="container">
-      <h1>Seja um Profissional</h1>
-      <p>Em Construção</p>
+    <div class="conteiner">
+      <div class="column">
+        <h3>Escolha um serviço</h3>
+        <select class="btn btn-info dropdown-toggle" [(ngModel)]="servicoSelecionado" required>
+          <option *ngFor="let serve of servicosArray" [ngValue]="serve">{{serve.nome}}</option>
+        </select>
+        <button type="button" class="btn btn-primary" (click)="inscreverServico()">Inscreva-se</button>
+      </div>
     </div>
   
   </body>

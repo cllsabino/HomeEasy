@@ -4,7 +4,7 @@ import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument 
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
-import { Usuario } from './../Usuarios/usuario';
+import { Usuario } from '../Usuarios/usuario';
 
 
 @Injectable({

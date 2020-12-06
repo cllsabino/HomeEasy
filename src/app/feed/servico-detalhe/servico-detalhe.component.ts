@@ -4,8 +4,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 
-import { ServicosService } from './../servicos.service';
-import { LoginServiceService } from './../../login-cadastro/login-service.service';
+import { ServicosService } from '../../Servicos/servicos.service';
+import { LoginServiceService } from '../../Servicos/login-service.service';
 import { Usuario } from 'src/app/Usuarios/usuario';
 
 @Component({

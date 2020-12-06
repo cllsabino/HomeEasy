@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <meta charset="utf-8">  
   </head>
 
@@ -45,17 +46,26 @@
         <div class="col-sm-8">
 
           <div>
-            <h2>Meus Serviços</h2>
-          </div>
-
-          <div>
             <h2>Meus Pedidos</h2>
-            <h5>{{servico}}</h5>
-            <div class="img">
-              <img heigth=200px width="500px" src="https://blog.novasafra.com.br/wp-content/uploads/2018/02/171126-5-qualidades-para-ser-um-cozinheiro-de-primeira.jpg">
-            </div>
-            <button type="button" class="btn btn-primary">Editar</button>
-            <br>
+            <button type="button" class="btn btn-primary">Detalhes</button>
+          </div>
+          <br>
+          <div>
+            <h2>Meus Serviços</h2>
+
+            <ul class="list-group list-group-horizontal ulserve">
+              <li class="list-group-item card" *ngFor="let serve of servicosArray">
+                <div class="card" style="width: 10rem;">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ serve.nome }}</h5><a clas="secondary-content"><i (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i></a>
+                    <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
+                      <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <button class="btn btn-primary" routerLink="/serprofissional">Cadastre-se num Serviço</button>
           </div>
 
         </div>

@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 
 import { ProfissionalComponent } from './profissional.component';
+import { AddprofissioanlComponent } from './addprofissioanl/addprofissioanl.component';
 import { ProfissionalRoutingModule } from './profissional.routing.module';
 
 @NgModule({
@@ -12,7 +13,8 @@ import { ProfissionalRoutingModule } from './profissional.routing.module';
         ProfissionalRoutingModule
     ],
     declarations:[
-        ProfissionalComponent
+        ProfissionalComponent,
+        AddprofissioanlComponent
     ], 
     exports:[],
     providers:[]

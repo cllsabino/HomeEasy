@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { LoginCadastroComponent } from "./login-cadastro.component";
 import { RecuperarSenhaComponent } from './recuperar-senha/recuperar-senha.component';
-import { LoginServiceService } from './login-service.service';
+import { LoginServiceService } from '../Servicos/login-service.service';
 import { LoginRoutingModule } from './login.routing.module';
 
 @NgModule({

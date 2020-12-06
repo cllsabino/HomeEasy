@@ -13,13 +13,13 @@ import { AppRoutingModule } from './app.routing.module';
 import { HomeComponent } from './home/home.component';
 import { ContatoComponent } from './contato/contato.component';
 import { SobreModule } from './sobre-nos/sobre.module';
-import { LoginServiceService } from './login-cadastro/login-service.service';
+import { LoginServiceService } from './Servicos/login-service.service';
 import { LoginModule } from './login-cadastro/login.module';
-import { ContatoService } from './contato/contato.service';
+import { ContatoService } from './Servicos/contato.service';
 import { FeedModule } from './feed/feed.module';
 import { PerfilModule } from './perfil/perfil.module';
-import { ServicosService } from './feed/servicos.service';
-import { UsuarioService } from './perfil/usuario.service';
+import { ServicosService } from './Servicos/servicos.service';
+import { UsuarioService } from './Servicos/usuario.service';
 import { ProfissionalModule } from './profissional/profissional.module';
 
 @NgModule({

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ContatoService } from './contato.service';
+import { ContatoService } from '../Servicos/contato.service';
 import { Mensagem } from './../Usuarios/mensagem';
 
 @Component({

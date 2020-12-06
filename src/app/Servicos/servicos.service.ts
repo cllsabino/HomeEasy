@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { map } from 'rxjs/operators';
 
 import { Servico } from '../Usuarios/servico';
@@ -43,7 +43,7 @@ export class ServicosService {
  }
  //adiciona um servico 
  addServico(servico : Servico){
-  return this.servicoCollection.add(servico);
+  return this.servicoCollection.doc(servico.id).set(servico);
 }
 //pega servicos domesticos
 getDomestico(){
@@ -73,8 +73,13 @@ getReforma(){
 }
 //add usuario num serviço
 addUsuario(usuario : Usuario, serve : Servico){
-  this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').add(usuario);
-  this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').add(serve);
+  this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).set(usuario);
+  this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).set(serve);
+}
+//deletar usuario de um servico
+apagarServico(usuario : Usuario, serve : Servico){
+  this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).delete();
+  this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).delete();
 }
 //pegar usuarios de um serviço
 getUsuarios(id : string){
@@ -82,6 +87,19 @@ getUsuarios(id : string){
     map(actions => {
       return actions.map(a => {
         const data = a.payload.doc.data() as Usuario;
+        const id = a.payload.doc.id;
+
+        return { id, ...data};
+      })
+    })
+  );
+}
+//pega serviços de um usuario
+getUserServico(id : string){
+  return this.afs.collection('Usuarios').doc(id).collection('Serviços').snapshotChanges().pipe(
+    map(actions => {
+      return actions.map(a => {
+        const data = a.payload.doc.data() as Servico;
         const id = a.payload.doc.id;
 
         return { id, ...data};

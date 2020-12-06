@@ -4,7 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import { Usuario } from './../Usuarios/usuario';
-import { LoginServiceService } from './login-service.service';
+import { LoginServiceService } from '../Servicos/login-service.service';
 
 @Component({
   selector: 'app-login-cadastro',

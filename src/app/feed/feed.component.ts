@@ -4,9 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 
-import { ServicosService } from './servicos.service';
-import { LoginServiceService } from './../login-cadastro/login-service.service';
-import { UsuarioService } from './../perfil/usuario.service';
+import { ServicosService } from '../Servicos/servicos.service';
+import { LoginServiceService } from '../Servicos/login-service.service';
+import { UsuarioService } from '../Servicos/usuario.service';
 import { Servico } from './../Usuarios/servico';
 
 @Component({
