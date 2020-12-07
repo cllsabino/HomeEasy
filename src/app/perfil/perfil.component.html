@@ -57,7 +57,11 @@
               <li class="list-group-item card" *ngFor="let serve of servicosArray">
                 <div class="card" style="width: 10rem;">
                   <div class="card-body">
-                    <h5 class="card-title">{{ serve.nome }}</h5><a clas="secondary-content"><i (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i></a>
+                    <h5 class="card-title">{{ serve.nome }}</h5>
+                    <a clas="secondary-content">
+                      <i  *ngIf="!servicoEstado" (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i>
+                      <i *ngIf="servicoEstado" (click)="limparBotao()" class="fa fa-compress"></i>
+                    </a>
                     <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
                       <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
                     </div>

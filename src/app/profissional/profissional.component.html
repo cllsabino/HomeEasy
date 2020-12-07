@@ -5,22 +5,6 @@
   <meta charset="utf-8">  
   </head>
 
-  <header class="navbar navbar-expand-lg navbar-light bg-primary">
-
-    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
-        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
-        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
-        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
-        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
-        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
-      </div>
-    </div>
-   
-  </header>
-
   <body>
 
     <section>
@@ -31,7 +15,8 @@
         <div class="info">
           <h2>Venha ser um profissional <br><span>Home easy!</span></h2>
           <p>Faça parte do Home Easy e forneça serviços para quem necessita.</p>
-          <a href="#" class="info-btn">Cadastrar</a>
+          <a *ngIf="!entrarSair" href="/login" class="info-btn">Cadastre-se</a>
+          <a *ngIf="entrarSair" href="/serprofissional" class="info-btn">Cadastrar</a>
         </div>
       </div>
     </section>

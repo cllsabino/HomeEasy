@@ -42,7 +42,8 @@ export class AddprofissioanlComponent implements OnInit {
     });
 
     this.servicosSubscription = this.servico.getServicos().subscribe(data => {
-      this.servicosArray = data;});
+      this.servicosArray = data;
+    });
   }
   ngOnDestroy(){
     if(this.afAuth.auth.currentUser != null){
@@ -62,5 +63,4 @@ export class AddprofissioanlComponent implements OnInit {
     this.servico.addUsuario(this.usuario, this.servicoSelecionado);
     alert("Inscrição Concluida!");
   }
-
 }
