@@ -50,7 +50,8 @@ body{
 
 .list-view .view_item {
 	background: #fff;
-	border: 1px solid #e2efe1;
+	box-shadow: 0px 0px 18px -8px rgba(118, 130, 183, 1);
+	border-radius: 10px;
 	margin: 10px;
 	padding: 10px 20px;
 	display: flex;
@@ -98,7 +99,8 @@ body{
 
 .grid-view .view_item {
 	display: inline-block;
-    border: 1px solid #e2efe1;
+	box-shadow: 0px 0px 18px -8px rgba(118, 130, 183, 1);
+	border-radius: 10px;
     width: 230px;
     padding: 25px;
     text-align: center;
