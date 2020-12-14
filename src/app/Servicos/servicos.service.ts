@@ -30,6 +30,11 @@ export class ServicosService {
   return this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').
     doc<Servico>(serve.id).valueChanges();
 }
+//pega um usuario especifico cadastrado num servico
+getServicoUsuario(id : string, idd : string){
+  return this.afs.collection('Serviços').doc(id).collection('Usuarios').
+    doc<Usuario>(idd).valueChanges();
+}
  //pega todos os serviços 
  getServicos(){
    return this.servicoCollection.snapshotChanges().pipe(
