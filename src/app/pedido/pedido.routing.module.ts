@@ -6,7 +6,7 @@ import { PedidoInfoComponent } from './pedido-info/pedido-info.component';
 
 const pedidoRoutes : Routes = [
     {path : 'pedido', component : PedidoComponent },
-    {path : 'pedido-info', component : PedidoComponent },
+    {path : 'pedido-info', component : PedidoInfoComponent },
 ];
 
 @NgModule({
