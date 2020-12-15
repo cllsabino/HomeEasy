@@ -18,11 +18,18 @@ body{
 	max-width: 1170px;
 	margin:auto;
 }
-
 .row{
 	display: flex;
 	flex-wrap: wrap;
 }
+.links ul li{
+	margin: 0 15px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	font-size: 20px;
+	cursor: pointer;
+  }
 
 .team-section .section-title{
 	flex-basis: 100%;
