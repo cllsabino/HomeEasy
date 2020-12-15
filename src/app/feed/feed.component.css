@@ -25,12 +25,10 @@ body{
 	padding: 10px;
 	border-radius: 3px;
 }
-
 .links ul{
 	display: flex;
 	justify-content: center;
 }
-
 .links ul li{
 	margin: 0 15px;
 	font-weight: 600;
