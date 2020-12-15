@@ -38,16 +38,18 @@
           <p *ngIf="usuario.endereco">Endereço: {{usuario.endereco}}</p>
           <button class="btn btn-primary" routerLink="/editar">Adicionar ou Editar informações</button>
           <br>
-          <div><br>
-          </div>
-          
         </div>
 
         <div class="col-sm-8">
 
           <div>
-            <h2>Meus Pedidos</h2>
-            <button type="button" class="btn btn-primary">Detalhes</button>
+            <h2>Pedidos Feitos</h2>
+            <a type="button" class="btn btn-primary" routerLink="/pedido">Faça um Pedido</a>
+          </div>
+          <br>
+          <div>
+            <h2>Pedidos Recebidos</h2>
+            <button type="button" class="btn btn-primary">Ainda sem Pedidos!</button>
           </div>
           <br>
           <div>
@@ -57,7 +59,11 @@
               <li class="list-group-item card" *ngFor="let serve of servicosArray">
                 <div class="card" style="width: 10rem;">
                   <div class="card-body">
-                    <h5 class="card-title">{{ serve.nome }}</h5><a clas="secondary-content"><i (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i></a>
+                    <h5 class="card-title">{{ serve.nome }}</h5>
+                    <a clas="secondary-content">
+                      <i  *ngIf="!servicoEstado" (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i>
+                      <i *ngIf="servicoEstado" (click)="limparBotao()" class="fa fa-compress"></i>
+                    </a>
                     <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
                       <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
                     </div>

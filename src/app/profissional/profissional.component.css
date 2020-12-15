@@ -19,7 +19,7 @@ section{
   background-position: center;
 }
 
-header{
+section header{
   position: relative;
   top: 0;
   width: 100%;
@@ -29,7 +29,7 @@ header{
   align-items: center;
 }
 
-header .logo{
+section header .logo{
   position: relative;
   color: #000;
   font-size: 30px;
@@ -39,7 +39,7 @@ header .logo{
   letter-spacing: 1px;
 }
 
-header .navigation a{
+section header .navigation a{
   color: #000;
   text-decoration: none;
   font-weight: 500;
@@ -50,11 +50,11 @@ header .navigation a{
   transition-property: background;
 }
 
-header .navigation a:not(:last-child){
+section header .navigation a:not(:last-child){
   margin-right: 30px;
 }
 
-header .navigation a:hover{
+section header .navigation a:hover{
   background: #fff;
 }
 

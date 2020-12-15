@@ -1,8 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-import { AngularFireModule } from '@angular/fire';
 import { environment } from '../environments/environment';
+import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
@@ -21,6 +21,7 @@ import { PerfilModule } from './perfil/perfil.module';
 import { ServicosService } from './Servicos/servicos.service';
 import { UsuarioService } from './Servicos/usuario.service';
 import { ProfissionalModule } from './profissional/profissional.module';
+import { PedidoModule } from './pedido/pedido.module';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { ProfissionalModule } from './profissional/profissional.module';
     FeedModule,
     PerfilModule,
     ProfissionalModule,
+    PedidoModule,
     AppRoutingModule
   ], 
   providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService ],

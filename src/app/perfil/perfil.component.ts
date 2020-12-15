@@ -73,6 +73,9 @@ export class PerfilComponent implements OnInit {
     this.servicoEstado = true;
     this.servicoDelete = serve;
   }
+  limparBotao(){
+    this.servicoEstado = false;
+  }
   deletarServico(event, serve){
     this.servico.apagarServico(this.usuario, serve);
     alert("Inscrição Cancelada!");

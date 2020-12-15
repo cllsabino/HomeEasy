@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+    
+    <div class="container" style="margin-top:30px">
+      <div class="row">
+        <div class="col-sm-4">
+          <h2>{{ usuario.nome }}</h2>
+          <div class="img">
+            <img *ngIf="usuario.foto" [src]="usuario.foto">
+          </div><br>
+          <h3>Informações</h3>
+          <p>Idade: {{usuario.idade}}</p>
+          <p *ngIf="usuario.telefone">Telefone: {{usuario.telefone}}</p>
+          <p *ngIf="usuario.estado">Estado: {{usuario.estado}}</p>
+          <p *ngIf="usuario.cidade">Cidade: {{usuario.cidade}}</p>
+          <p *ngIf="usuario.endereco">Endereço: {{usuario.endereco}}</p>
+          <br>          
+        </div>
+
+        <div class="col-sm-8">
+          <div>
+            <h2>Chat</h2>
+            <h4>Informe-se sobre detalhes desse profissional e de seu serviço</h4>
+            <a type="button" class="btn btn-primary">Convesar</a>
+          </div>
+          <br>
+          <div>
+            <h2>Avaliações</h2>
+            <h3>bla bvla bvpa mfa</h3>
+          </div>
+          <br>
+          <div>
+            <h2>Pedido</h2>
+            <a type="button" class="btn btn-primary" routerLink="/pedido">Fazer Pedido</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  
+  </body>
+
+</html>
