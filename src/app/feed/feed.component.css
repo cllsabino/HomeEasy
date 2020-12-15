@@ -1,5 +1,8 @@
 body{
 	background: #ebecf1;
+	height:100vh;
+    background-size:cover;
+    background-position:center;
 	color: black;
 	list-style: none;
 	font-family: 'Poppins', sans-serif;
@@ -43,9 +46,20 @@ body{
 }
 
 .view_main{
-	background: #fff;
-	border-radius: 3px;
-	padding: 15px;
+	position:center;
+	width: 1380px;
+	padding: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+
+.view_main .view_item:hover{
+	filter: blur(0px);
+	transform: scale(1.1);
+	opacity: 1;
 }
 button{
         background: #10a5e0;
@@ -62,7 +76,6 @@ button{
 
 .list-view .view_item {
 	background: #fff;
-	box-shadow: 0px 0px 18px -8px rgba(118, 130, 183, 1);
 	border-radius: 10px;
 	margin: 10px;
 	padding: 10px 20px;
@@ -111,7 +124,6 @@ button{
 
 .grid-view .view_item {
 	display: inline-block;
-	box-shadow: 0px 0px 18px -8px rgba(118, 130, 183, 1);
 	border-radius: 10px;
     width: 230px;
     padding: 25px;
@@ -132,7 +144,6 @@ button{
 }
 .card{
 	background: #fff;
-	box-shadow: 0px 0px 18px -8px rgba(118, 130, 183, 1);
 	border-radius: 10px;
 	margin: 10px;
 	padding: 10px 20px;
