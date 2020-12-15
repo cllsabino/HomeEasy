@@ -7,7 +7,18 @@ body{
 *{
 	box-sizing: border-box;
 }
-
+img{
+	height: 150px;
+	width: 150px;
+}
+.vi_left {
+	align-items: center;
+	text-align: center;
+}
+.vi_right{
+	align-items: center;
+	text-align: center;
+}
 .team-section{
 	background-color:#10a5e0;
 	min-height: 100vh;
@@ -22,14 +33,15 @@ body{
 	display: flex;
 	flex-wrap: wrap;
 }
-.links ul li{
+
+h3{
+	display: flex;
+	justify-content: center;
 	margin: 0 15px;
 	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 3px;
-	font-size: 20px;
-	cursor: pointer;
-  }
+	padding: 10px;
+	border-radius: 3px;
+}
 
 .team-section .section-title{
 	flex-basis: 100%;
@@ -123,6 +135,9 @@ body{
 
 .team-section .team-items .item .inner .info .social-links a:hover{
 	box-shadow: 0 0 10px #000;
+}
+.ulserve{
+	flex-wrap: wrap;
 }
 
 /*responsive*/

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { FeedComponent } from './feed.component';
 import { FeedRoutingModule } from "./feed.routing.module";
 import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.component';
-
+import { ProcurarServicoComponent } from './procurar-servico/procurar-servico.component';
 
 @NgModule({
     imports:[
@@ -15,7 +15,8 @@ import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.compo
     ],
     declarations:[
         FeedComponent, 
-        ServicoDetalheComponent
+        ServicoDetalheComponent,
+        ProcurarServicoComponent
     ], 
     exports:[
 
