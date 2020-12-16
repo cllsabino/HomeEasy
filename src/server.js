@@ -13,6 +13,4 @@ res.sendFile(path.join(__dirname  + '/dist/hoomeeasyindex.html'));
 });
 
 // Inicia a aplicação pela porta configurada
-app.listen(process.env.PORT || 3000, function(){
-  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
-});
+app.listen(process.env.PORT || 5000);
