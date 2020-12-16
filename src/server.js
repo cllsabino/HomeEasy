@@ -13,4 +13,4 @@ res.sendFile(path.join(__dirname+'/dist/hoomeeasy/index.html'));
 });
 
 // Inicia a aplicação pela porta configurada
-app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 3000);
