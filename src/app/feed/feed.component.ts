@@ -62,9 +62,6 @@ export class FeedComponent implements OnInit {
     }
   }
 
-  porcurarservico(){
-  }
-
   mostrarConteudoDO(){
     this.mostrarContentDO = !this.mostrarContentDO;
   }
