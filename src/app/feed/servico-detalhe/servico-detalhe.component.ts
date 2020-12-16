@@ -14,20 +14,20 @@ import { Usuario } from 'src/app/Usuarios/usuario';
   styleUrls: ['./servico-detalhe.component.css']
 })
 export class ServicoDetalheComponent implements OnInit {
-  private usuariosArray = new Array<Usuario>();
-  private usuariosSubscription : Subscription;
-  private serveID : string;
-  private serveIDSubscription : Subscription;
-  private entrarSair : boolean;
-  private userId : string;
+ usuariosArray = new Array<Usuario>();
+ usuariosSubscription : Subscription;
+ serveID : string;
+ serveIDSubscription : Subscription;
+ entrarSair : boolean;
+ userId : string;
 
   constructor(
-    private afs : AngularFirestore, 
-    private afAuth : AngularFireAuth,
-    private loginService : LoginServiceService,
-    private servico : ServicosService, 
-    private router : Router,
-    private active : ActivatedRoute
+    public afs : AngularFirestore, 
+    public afAuth : AngularFireAuth,
+    public loginService : LoginServiceService,
+    public servico : ServicosService, 
+    public router : Router,
+    public active : ActivatedRoute
   ) {}
 
   ngOnInit() {

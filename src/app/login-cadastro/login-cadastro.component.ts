@@ -12,15 +12,15 @@ import { LoginServiceService } from '../Servicos/login-service.service';
   styleUrls: ['./login-cadastro.component.css']
 })
 export class LoginCadastroComponent implements OnInit {
-  private userLogin : Usuario = {}; 
-  private userRegister : Usuario = {};
-  private mensagemErro : string = null;
+ userLogin : Usuario = {}; 
+ userRegister : Usuario = {};
+ mensagemErro : string = null;
   
   constructor(
-    private loginservico : LoginServiceService, 
-    private router : Router,
-    private afs : AngularFirestore,
-    private afAuth : AngularFireAuth,
+    public loginservico : LoginServiceService, 
+    public router : Router,
+    public afs : AngularFirestore,
+    public afAuth : AngularFireAuth,
     ) { }
 
   ngOnInit() {

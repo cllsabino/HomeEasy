@@ -3,6 +3,6 @@ export class Mensagem {
     email? : string;
     telefone? : string;
     assunto? : string;
-    messagem? : string;
+    mensagem? : string;
 
 }

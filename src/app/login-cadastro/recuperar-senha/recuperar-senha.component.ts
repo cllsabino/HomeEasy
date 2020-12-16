@@ -12,7 +12,7 @@ export class RecuperarSenhaComponent implements OnInit {
 
   userLogin : Usuario = {};
 
-  constructor(private loginservico : LoginServiceService) { }
+  constructor(public loginservico : LoginServiceService) { }
 
   ngOnInit() {
     

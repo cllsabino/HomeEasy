@@ -15,23 +15,23 @@ import { Usuario } from 'src/app/Usuarios/usuario';
   styleUrls: ['./perfil-pedido.component.css']
 })
 export class PerfilPedidoComponent implements OnInit {
-  private serveID : string;
-  private serveIDSubscription : Subscription;
-  private usuarioID : string;
-  private usuarioIDSubscription : Subscription;
-  private usuario : Usuario = {};
-  private userId : string;
-  private userSubscription : Subscription;
-  private imgSubscription : Subscription;
+ serveID : string;
+ serveIDSubscription : Subscription;
+ usuarioID : string;
+ usuarioIDSubscription : Subscription;
+ usuario : Usuario = {};
+ userId : string;
+ userSubscription : Subscription;
+ imgSubscription : Subscription;
 
   constructor(
-    private afs : AngularFirestore, 
-    private afAuth : AngularFireAuth,
-    private storage : AngularFireStorage,
-    private loginService : LoginServiceService,
-    private servico : ServicosService, 
-    private router : Router,
-    private active : ActivatedRoute
+    public afs : AngularFirestore, 
+    public afAuth : AngularFireAuth,
+    public storage : AngularFireStorage,
+    public loginService : LoginServiceService,
+    public servico : ServicosService, 
+    public router : Router,
+    public active : ActivatedRoute
   ) { }
 
   ngOnInit() {

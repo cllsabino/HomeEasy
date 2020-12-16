@@ -17,25 +17,25 @@ import { LoginServiceService } from '../Servicos/login-service.service';
   styleUrls: ['./perfil.component.css']
 })
 export class PerfilComponent implements OnInit {
-  private usuario : Usuario = {};
-  private userId : string;
-  private userSubscription : Subscription;
-  private imgSubscription : Subscription;
-  private entrarSair : boolean;
-  private servicosArray = new Array<Servico>();
-  private servicosSubscription : Subscription;
-  private servicoEstado : boolean = false;
-  private servicoDelete : Servico = {};
+ usuario : Usuario = {};
+ userId : string;
+ userSubscription : Subscription;
+ imgSubscription : Subscription;
+ entrarSair : boolean;
+ servicosArray = new Array<Servico>();
+ servicosSubscription : Subscription;
+ servicoEstado : boolean = false;
+ servicoDelete : Servico = {};
   
   constructor(
-    private afs : AngularFirestore, 
-    private afAuth : AngularFireAuth,
-    private storage : AngularFireStorage,
-    private router : Router,
-    private loginService : LoginServiceService,
-    private usuarioService : UsuarioService,
-    private servico : ServicosService, 
-    private active : ActivatedRoute
+    public afs : AngularFirestore, 
+    public afAuth : AngularFireAuth,
+    public storage : AngularFireStorage,
+    public router : Router,
+    public loginService : LoginServiceService,
+    public usuarioService : UsuarioService,
+    public servico : ServicosService, 
+    public active : ActivatedRoute
     ) { }
 
   ngOnInit() {

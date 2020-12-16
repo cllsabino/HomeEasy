@@ -15,20 +15,20 @@ import { Servico } from './../../Usuarios/servico';
   styleUrls: ['./addprofissioanl.component.css']
 })
 export class AddprofissioanlComponent implements OnInit {
-  private entrarSair : boolean;
-  private userId : string; 
-  private usuario : Usuario = {};
-  private userSubscription : Subscription;
-  private servicosArray = new Array<Servico>();
-  private servicosSubscription : Subscription;
-  private servicoSelecionado : Servico;
+ entrarSair : boolean;
+ userId : string; 
+ usuario : Usuario = {};
+ userSubscription : Subscription;
+ servicosArray = new Array<Servico>();
+ servicosSubscription : Subscription;
+ servicoSelecionado : Servico;
 
   constructor( 
-    private servico : ServicosService, 
-    private loginService : LoginServiceService,
-    private usuarioService : UsuarioService,
-    private afAuth : AngularFireAuth,
-    private router : Router,
+    public servico : ServicosService, 
+    public loginService : LoginServiceService,
+    public usuarioService : UsuarioService,
+    public afAuth : AngularFireAuth,
+    public router : Router,
   ) { }
 
   ngOnInit() {

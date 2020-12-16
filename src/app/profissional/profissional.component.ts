@@ -15,15 +15,15 @@ import { Servico } from './../Usuarios/servico';
   styleUrls: ['./profissional.component.css']
 })
 export class ProfissionalComponent implements OnInit {
-  private entrarSair : boolean;
-  private userId : string; 
+ entrarSair : boolean;
+ userId : string; 
 
   constructor( 
-    private servico : ServicosService, 
-    private loginService : LoginServiceService,
-    private usuarioService : UsuarioService,
-    private afAuth : AngularFireAuth,
-    private router : Router,
+    public servico : ServicosService, 
+    public loginService : LoginServiceService,
+    public usuarioService : UsuarioService,
+    public afAuth : AngularFireAuth,
+    public router : Router,
   ) { }
 
   ngOnInit() {

@@ -11,15 +11,15 @@ import { Usuario } from 'src/app/Usuarios/usuario';
   styleUrls: ['./editar-info.component.css']
 })
 export class EditarInfoComponent implements OnInit {
-  private userId;
-  private imagem : string;
-  private entrarSair : boolean;
-  private usuario : Usuario = {};
+ userId;
+ imagem : string;
+ entrarSair : boolean;
+ usuario : Usuario = {};
 
   constructor(
-    private storage : AngularFireStorage,
-    private afAuth : AngularFireAuth,
-    private afs : AngularFirestore
+    public storage : AngularFireStorage,
+    public afAuth : AngularFireAuth,
+    public afs : AngularFirestore
     ) { }
 
   ngOnInit() {

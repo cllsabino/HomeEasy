@@ -15,24 +15,24 @@ import { Servico } from './../Usuarios/servico';
   styleUrls: ['./feed.component.css']
 })
 export class FeedComponent implements OnInit {
-  private servicosDomesticosArray = new Array<Servico>();
-  private servicosDomesticosSubscription : Subscription;
-  private servicosReformaArray = new Array<Servico>();
-  private servicosReformaSubscription : Subscription;
-  private entrarSair : boolean;
-  private userId : string; 
-  private pesquisarServico : string;
-  private mostrarContentDO : boolean = false;
-  private mostrarContentRE : boolean = false;
+ servicosDomesticosArray = new Array<Servico>();
+ servicosDomesticosSubscription : Subscription;
+ servicosReformaArray = new Array<Servico>();
+ servicosReformaSubscription : Subscription;
+ entrarSair : boolean;
+ userId : string; 
+ pesquisarServico : string;
+ mostrarContentDO : boolean = false;
+ mostrarContentRE : boolean = false;
  
   constructor(
-    private servico : ServicosService, 
-    private loginService : LoginServiceService,
-    private usuarioService : UsuarioService,
-    private router : Router,
-    private afs : AngularFirestore, 
-    private afAuth : AngularFireAuth,
-    private active : ActivatedRoute
+    public servico : ServicosService, 
+    public loginService : LoginServiceService,
+    public usuarioService : UsuarioService,
+    public router : Router,
+    public afs : AngularFirestore, 
+    public afAuth : AngularFireAuth,
+    public active : ActivatedRoute
     ) { }
  
   ngOnInit() {

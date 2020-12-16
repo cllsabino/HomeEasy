@@ -9,9 +9,9 @@ import { Mensagem } from './../Usuarios/mensagem';
   styleUrls: ['./contato.component.css']
 })
 export class ContatoComponent implements OnInit {
-  mensagem : Mensagem = {}
+  mensagem : Mensagem = {};
 
-  constructor(private contatoServico : ContatoService) { }
+  constructor(public contatoServico : ContatoService) { }
 
   ngOnInit() {
   }
