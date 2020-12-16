@@ -1,7 +1,7 @@
 //Importa as dependências que acabamos de instalar
 const express = require('express');
 const path = require('path');
-const nomeApp = process.env.npm_hoomeeasy;
+
 const app = express();
 
 // Serve os arquivos estáticos da pasta dist (gerada pelo ng build)
