@@ -9,7 +9,7 @@ app.use(express.static(__dirname + '/dist/homeeasy'));
 
 app.get('/*', function(req,res) {
     
-res.sendFile(path.join(__dirname + '/dist/homeeasy/index.html'));
+res.sendFile(path.join(__dirname + 'dist','homeeasy','index.html'));
 });
 
 // Inicia a aplicação pela porta configurada
