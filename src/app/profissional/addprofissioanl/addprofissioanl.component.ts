@@ -5,9 +5,11 @@ import { Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
+import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { ServicosService } from '../../Servicos/servicos.service';
 import { Usuario } from './../../Usuarios/usuario';
 import { Servico } from './../../Usuarios/servico';
+import { ServicoPedido } from './../../Usuarios/serico-pedido';
 
 @Component({
   selector: 'app-addprofissioanl',
@@ -22,11 +24,13 @@ export class AddprofissioanlComponent implements OnInit {
  servicosArray = new Array<Servico>();
  servicosSubscription : Subscription;
  servicoSelecionado : Servico;
+ servePedido : ServicoPedido = {};
 
   constructor( 
     public servico : ServicosService, 
     public loginService : LoginServiceService,
     public usuarioService : UsuarioService,
+    public servicoPedido : ServicoPedidoService,
     public afAuth : AngularFireAuth,
     public router : Router,
   ) { }
@@ -60,6 +64,8 @@ export class AddprofissioanlComponent implements OnInit {
     }
   }
   inscreverServico(){
+    this.servePedido.id = this.servicoSelecionado.id;
+    this.servicoPedido.addServicoPedido(this.usuario, this.servicoSelecionado, this.servePedido);
     this.servico.addUsuario(this.usuario, this.servicoSelecionado);
     alert("Inscrição Concluida!");
   }

@@ -27,9 +27,8 @@ export class ServicoPedidoService {
         .set(servicopedido);
  }
  //pega os detalhes de um servico de um usuario
- getDetalheServico(usuario : Usuario, servico : Servico){
-    return this.servicoPedidoCollection.doc(usuario.id).collection('Serviços').
-        doc<ServicoPedido>(servico.id).valueChanges();
+ getDetalheServico(id : string, idd : string){
+    return this.servicoPedidoCollection.doc(id).collection('Serviços').
+        doc<ServicoPedido>(idd).valueChanges();
  }
-
 }

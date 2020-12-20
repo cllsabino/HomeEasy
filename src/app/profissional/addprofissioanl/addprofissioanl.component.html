@@ -25,13 +25,28 @@
 
     <div class="conteiner">
       <form #f="ngForm">
-        <div class="column">
+
+        <div>
+
           <h3>Escolha um serviço</h3>
           <select class="btn btn-info dropdown-toggle" name="serve" [(ngModel)]="servicoSelecionado" required>
             <option *ngFor="let serve of servicosArray" [ngValue]="serve">{{serve.nome}}</option>
           </select>
+
+          <h3>Quanto você pretende cobrar pelo seu serviço?</h3>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">R$</span>
+            </div>
+            <input type="number" name="preco" [(ngModel)]="servePedido.preco" required>
+          </div>
+
+          <h3>Detalhes sobre o seu serviço?</h3>
+          <textarea name="detalhe" placeholder="Escreva algo..." rows="5" [(ngModel)]="servePedido.detalhe"></textarea><br>
+
           <button type="button" class="btn btn-primary" [disabled]="!f.valid" (click)="inscreverServico()">Inscreva-se</button>
         </div>
+    
       </form>
     </div>
   

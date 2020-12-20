@@ -7,7 +7,9 @@ import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
 import { LoginServiceService } from '../../Servicos/login-service.service';
+import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { Usuario } from 'src/app/Usuarios/usuario';
+import { ServicoPedido } from './../../Usuarios/serico-pedido';
 
 @Component({
   selector: 'app-perfil-pedido',
@@ -23,6 +25,8 @@ export class PerfilPedidoComponent implements OnInit {
  userId : string;
  userSubscription : Subscription;
  imgSubscription : Subscription;
+ servePedidoSubscription : Subscription;
+ servePedido : ServicoPedido = {};
 
   constructor(
     public afs : AngularFirestore, 
@@ -30,6 +34,7 @@ export class PerfilPedidoComponent implements OnInit {
     public storage : AngularFireStorage,
     public loginService : LoginServiceService,
     public servico : ServicosService, 
+    public servicoPedido : ServicoPedidoService,
     public router : Router,
     public active : ActivatedRoute
   ) { }
@@ -47,7 +52,9 @@ export class PerfilPedidoComponent implements OnInit {
     this.imgSubscription = this.storage.ref('Usuarios/' + this.usuarioID + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
-    
+    this.servePedidoSubscription = this.servicoPedido.getDetalheServico(this.usuarioID, this.serveID).subscribe(data => {
+      this.servePedido = data;}
+    );
   }
   ngOnDestroy(){
     this.serveIDSubscription.unsubscribe();

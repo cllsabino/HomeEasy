@@ -30,6 +30,7 @@
           <h3>Informações</h3>
           <p>Idade: {{usuario.idade}}</p>
           <p *ngIf="usuario.telefone">Telefone: {{usuario.telefone}}</p>
+          <p *ngIf="usuario.cpfCNPJ">CPF / CNPJ: {{usuario.cpfCNPJ}}</p>
           <p *ngIf="usuario.estado">Estado: {{usuario.estado}}</p>
           <p *ngIf="usuario.cidade">Cidade: {{usuario.cidade}}</p>
           <p *ngIf="usuario.endereco">Endereço: {{usuario.endereco}}</p>
@@ -37,6 +38,12 @@
         </div>
 
         <div class="col-sm-8">
+          <div>
+            <h2>Informações sobre o Serviço</h2>
+            <h4>Preço: {{servePedido.preco}}</h4>
+            <h4>Detalhes: {{servePedido.detalhe}}</h4>
+          </div>
+          <br>
           <div>
             <h2>Chat</h2>
             <h4>Informe-se sobre detalhes desse profissional e de seu serviço</h4>
