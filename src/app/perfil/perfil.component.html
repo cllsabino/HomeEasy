@@ -45,12 +45,30 @@
 
           <div>
             <h2>Pedidos Feitos</h2>
+            <ul class="list-group list-group-horizontal ulserve">
+              <li class="list-group-item card" *ngFor="let serve of pedidosFeitosArray">
+                <div class="card" style="width: 10rem;">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ serve.nome }}</h5>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <br>
             <a type="button" class="btn btn-primary" routerLink="/pedido">Faça um Pedido</a>
           </div>
           <br>
-          <div>
+          <div *ngIf="pedidosRecebidosArray != null">
             <h2>Pedidos Recebidos</h2>
-            <button type="button" class="btn btn-primary">Ainda sem Pedidos!</button>
+            <ul class="list-group list-group-horizontal ulserve">
+              <li class="list-group-item card" *ngFor="let serve of pedidosRecebidosArray">
+                <div class="card" style="width: 10rem;">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ serve.nome }}</h5>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
           <br>
           <div>

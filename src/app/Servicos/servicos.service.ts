@@ -26,9 +26,9 @@ export class ServicosService {
    return this.afs.collection('Serviços', ref => ref.where('nome', '==', nome));
  }
  //pega servico especifico de um usuario
- getUserServicoPorId(usuario : Usuario, serve : Servico){
-  return this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').
-    doc<Servico>(serve.id).valueChanges();
+ getUserServicoPorId(id : string, idd : string){
+  return this.afs.collection('Usuarios').doc(id).collection('Serviços').
+    doc<Servico>(idd).valueChanges();
 }
 //pega um usuario especifico cadastrado num servico
 getServicoUsuario(id : string, idd : string){

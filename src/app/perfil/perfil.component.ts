@@ -6,10 +6,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { Usuario } from './../Usuarios/usuario';
+import { Pedido } from './../Usuarios/pedido';
 import { Servico } from './../Usuarios/servico';
 import { UsuarioService } from '../Servicos/usuario.service';
 import { ServicosService } from './../Servicos/servicos.service';
 import { LoginServiceService } from '../Servicos/login-service.service';
+import { ServicoPedidoService } from './../Servicos/servico-pedido.service';
 
 @Component({
   selector: 'app-perfil',
@@ -26,6 +28,10 @@ export class PerfilComponent implements OnInit {
  servicosSubscription : Subscription;
  servicoEstado : boolean = false;
  servicoDelete : Servico = {};
+ pedidosRecebidosArray = new Array<Pedido>();
+ pedidosRecebidosSubscription : Subscription;
+ pedidosFeitosArray = new Array<Pedido>();
+ pedidosFeitosSubscription : Subscription;
   
   constructor(
     public afs : AngularFirestore, 
@@ -34,6 +40,7 @@ export class PerfilComponent implements OnInit {
     public router : Router,
     public loginService : LoginServiceService,
     public usuarioService : UsuarioService,
+    public servicoPedido : ServicoPedidoService,
     public servico : ServicosService, 
     public active : ActivatedRoute
     ) { }
@@ -43,23 +50,28 @@ export class PerfilComponent implements OnInit {
       this.entrarSair = true;
       this.userId = this.afAuth.auth.currentUser.uid;
     }else this.entrarSair = false;
-
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data; 
     });
-    
     this.imgSubscription = this.storage.ref('Usuarios/' + this.userId + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
-
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
-
+    this.pedidosRecebidosSubscription = this.servicoPedido.getPedidosRecebidos(this.userId).subscribe(data => {
+      this.pedidosRecebidosArray = data;
+    });
+    this.pedidosFeitosSubscription = this.servicoPedido.getPedidosFeitos(this.userId).subscribe(data => {
+      this.pedidosFeitosArray = data;
+    });
   }
+
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
     this.servicosSubscription.unsubscribe();
+    this.pedidosRecebidosSubscription.unsubscribe();
+    this.pedidosFeitosSubscription.unsubscribe();
   }
   async sair(){
     try{

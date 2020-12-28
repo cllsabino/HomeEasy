@@ -1,7 +1,45 @@
 <html>
 
+  <head>
+    <title>Pedido</title>
+    <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
   <body>
-    <a type="button" class="btn btn-primary" routerLink="/feed">Escolha um Serviço</a>
+
+    <h2>Informações</h2>
+    <h3>Serviço Escolhido: {{ serve.nome}}</h3><br>
+    <h3>Profissional Escolhido: {{ servidor.nome}}</h3><br>
+    <h3>Preço do Serviço: {{ servePedido.preco}}</h3><br>
+
+    <form #f="ngForm">
+      <div>
+        Qual a data que o serviço será realizado?
+        <input type="date" name="data" [(ngModel)]="pedido.data" required><br>
+        Qual local em que o serviço será realizado?
+        <input type="text" name="local" [(ngModel)]="pedido.local" required><br>
+        Em qual horário o serviço será realizado?
+        <input type="time" name="hora" [(ngModel)]="pedido.hora" required><br>
+      </div>
+      <button type="button" (click)="addpedido()" [disabled]="!f.valid">Fazer Pedido</button>
+    </form>
+    
   </body>
 
 </html>

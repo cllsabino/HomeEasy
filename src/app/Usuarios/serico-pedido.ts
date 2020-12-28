@@ -1,5 +1,5 @@
 export class ServicoPedido{
     id? : string;
-    preco? : string;
+    preco? : number;
     detalhe? : string;
 }

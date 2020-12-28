@@ -3,9 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { PedidoComponent } from './pedido.component';
 import { PedidoInfoComponent } from './pedido-info/pedido-info.component';
+import { AuthGuardGuard } from "../guardas/auth-guard.guard";
 
 const pedidoRoutes : Routes = [
-    {path : 'pedido', component : PedidoComponent },
+    {path : 'serviço/:id/usuario/:idd/pedido', component : PedidoComponent, canActivate : [AuthGuardGuard] },
     {path : 'pedido-info', component : PedidoInfoComponent },
 ];
 

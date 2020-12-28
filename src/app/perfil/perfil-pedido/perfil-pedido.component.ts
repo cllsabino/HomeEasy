@@ -19,10 +19,10 @@ import { ServicoPedido } from './../../Usuarios/serico-pedido';
 export class PerfilPedidoComponent implements OnInit {
  serveID : string;
  serveIDSubscription : Subscription;
- usuarioID : string;
+ usuarioID : string; 
  usuarioIDSubscription : Subscription;
  usuario : Usuario = {};
- userId : string;
+ userId : string; 
  userSubscription : Subscription;
  imgSubscription : Subscription;
  servePedidoSubscription : Subscription;
@@ -60,7 +60,6 @@ export class PerfilPedidoComponent implements OnInit {
     this.serveIDSubscription.unsubscribe();
     this.usuarioIDSubscription.unsubscribe();
     this.userSubscription.unsubscribe();
-
   }
 
 }
