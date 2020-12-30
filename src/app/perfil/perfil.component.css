@@ -3,4 +3,22 @@ img{
     flex-wrap: wrap;
     height: 200px;
     width: 200px;
+    
+}
+.container{
+    position: relative;
+    width: 1000px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+.col-sm-4{
+    width: 35%;
+    background: linear-gradient(to right,#01a9ac,#01dbdf);
+    padding: 30px 25px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+    color: #fff;
 }
