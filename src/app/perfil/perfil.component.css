@@ -11,7 +11,8 @@ img{
 }
 .container{
     position: relative;
-    width: 2000px;
+    width: 80%;
+    height: 600px;
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.1);
@@ -28,7 +29,7 @@ img{
 }
 button {
     padding: 9.6px 0;
-    width: 100%;
+    width: 60%;
     background: linear-gradient(to right, #00f2fe 0%, #4facfe  140%);
     color: #fff;
     text-align: center;
