@@ -91,13 +91,18 @@ export class PedidoComponent implements OnInit {
     }
   }
   addpedido(){
-    this.pedido.nome = this.serve.nome;
-    this.pedido.idServidor = this.servidor.id;
-    this.pedido.idContratante = this.cliente.id;
-    this.pedido.preco = this.servePedido.preco;
-    this.servicoPedido.addPedido(this.cliente, this.servidor, this.pedido);
-    alert("Pedido Realizado!");
-    this.router.navigate(["/feed"]);   
+    if(this.userId != this.servidor.id){
+      this.pedido.nome = this.serve.nome;
+      this.pedido.idServidor = this.servidor.id;
+      this.pedido.idContratante = this.cliente.id;
+      this.pedido.preco = this.servePedido.preco;
+      this.servicoPedido.addPedido(this.cliente, this.servidor, this.pedido);
+      alert("Pedido Realizado!");
+      this.router.navigate(["/feed"]);
+    }else{
+      alert("Ação Impossível!");
+      this.router.navigate(["/feed"]);
+    }
   }
 
 
