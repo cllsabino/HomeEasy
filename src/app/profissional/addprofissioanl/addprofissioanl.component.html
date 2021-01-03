@@ -32,7 +32,6 @@
           <select class="btn btn-info dropdown-toggle" name="serve" [(ngModel)]="servicoSelecionado" required>
             <option *ngFor="let serve of servicosArray" [ngValue]="serve">{{serve.nome}}</option>
           </select>
-
           <h3>Quanto você pretende cobrar pelo seu serviço?</h3>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
