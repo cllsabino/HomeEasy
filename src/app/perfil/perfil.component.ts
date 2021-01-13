@@ -30,8 +30,6 @@ export class PerfilComponent implements OnInit {
  servicoDelete : Servico = {};
  pedidosRecebidosArray = new Array<Pedido>();
  pedidosRecebidosSubscription : Subscription;
- pedidosFeitosArray = new Array<Pedido>();
- pedidosFeitosSubscription : Subscription;
   
   constructor(
     public afs : AngularFirestore, 
@@ -50,6 +48,7 @@ export class PerfilComponent implements OnInit {
       this.entrarSair = true;
       this.userId = this.afAuth.auth.currentUser.uid;
     }else this.entrarSair = false;
+ 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data; 
     });
@@ -62,16 +61,12 @@ export class PerfilComponent implements OnInit {
     this.pedidosRecebidosSubscription = this.servicoPedido.getPedidosRecebidos(this.userId).subscribe(data => {
       this.pedidosRecebidosArray = data;
     });
-    this.pedidosFeitosSubscription = this.servicoPedido.getPedidosFeitos(this.userId).subscribe(data => {
-      this.pedidosFeitosArray = data;
-    });
   }
 
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
     this.servicosSubscription.unsubscribe();
     this.pedidosRecebidosSubscription.unsubscribe();
-    this.pedidosFeitosSubscription.unsubscribe();
   }
   async sair(){
     try{

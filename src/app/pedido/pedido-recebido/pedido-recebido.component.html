@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+
+    <div class="container">
+
+      <div>
+        <h2>Pedidos Recebidos</h2><br>
+        <ul class="list-group list-group-horizontal ulserve">
+          <li class="list-group-item card" *ngFor="let serve of pedidosRecebidosArray">
+            <div class="card" style="width: 10rem;">
+              <div class="card-body">
+                <h5 class="card-title">{{ serve.nome }}</h5>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+  </body>
+
+</html>

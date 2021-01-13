@@ -1,0 +1,55 @@
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Chat</title>
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+
+    <div class="container">
+
+      <div class="user">
+        <img *ngIf="servidor.foto" [src]="servidor.foto">
+        <div><span>{{ servidor.nome }}</span></div>
+      </div>
+      <br>
+      <div class="user">
+        <img *ngIf="usuario.foto" [src]="usuario.foto">
+        <div><span>{{ usuario.nome }}</span></div>
+      </div>
+      <br>
+      <div class="msg" *ngFor="let msg of mensagensArray">
+
+        <p>{{ msg.mensagem }}</p>
+
+      </div>
+      <br>
+      <form class="forms" #f="ngForm"> 
+        <div class="group ">
+          <input type="text" class="input" placeholder="Digite uma mensagem..." [(ngModel)] = "mensagem.mensagem" name="mensagem" required > 
+          <button type="submit" [disabled]="!f.valid" (click)="enviarMensagem()">Enviar</button>
+        </div>
+      </form>
+
+    </div>
+
+  </body>
+
+</html>
