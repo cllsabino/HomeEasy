@@ -10,7 +10,7 @@ import { SobreNosComponent } from './sobre-nos.component';
         SobreRoutingModule
     ],
     declarations:[
-        SobreNosComponent,
+        SobreNosComponent
     ],
     exports:[]
 })

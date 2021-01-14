@@ -1,5 +1,4 @@
 img{
-    
     position: relative;
     width: 110px;
     height: 110px;
@@ -39,4 +38,7 @@ button {
     text-transform: uppercase;
     border-radius: 18.1px;
     margin-right: 3px;
+}
+.ulserve{
+	flex-wrap: wrap;
 }

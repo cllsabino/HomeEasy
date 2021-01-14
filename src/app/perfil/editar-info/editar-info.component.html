@@ -22,7 +22,6 @@
 
   <body>
     <h3>Mudar Informações do Perfil</h3>
-    <div class="container" style="margin-top:30px">
     <form #f="ngForm">
       <div class="form-group">
         <label>Nome:</label>
@@ -38,15 +37,20 @@
           <input type="tel" class="form-control" [(ngModel)]="usuario.telefone" name="telefone" required>
         </div>
       </div>
-      <div class="form-group">
-        <label>Endereço:</label>
-        <input type="text" class="form-control" [(ngModel)]="usuario.endereco" name="endereco" required> 
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>CPF / CNPJ:</label>
+          <input type="text" class="form-control" [(ngModel)]="usuario.cpfCNPJ" name="cpfCNPJ" required> 
+        </div>
+        <div class="form-group col-md-6">
+          <label>Endereço:</label>
+          <input type="text" class="form-control" [(ngModel)]="usuario.endereco" name="endereco" required> 
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
           <label>Estado:</label>
           <select class="form-control" [(ngModel)]="usuario.estado" name="estado">
-            <option selected>Choose...</option>
             <option>Pernambuco</option>
           </select>
         </div>
@@ -57,13 +61,15 @@
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="!f.valid" (click)="editarInfo()">Editar Informações</button>
     </form>
-    <div class="form-group">
-      <h3>Mudar Foto de Perfil</h3>
-      <label for="inputState">Foto de Perfil:</label><br>
-      <input type="file" (change)="upload($event)" accept="*.png.jpg"><br><br>
-      <button type="submit" class="btn btn-primary" (click)="editarImg()">Editar Foto de Perfil</button>
-    </div>
+    <form #fo="ngForm">
+      <div class="form-group">
+        <h3>Mudar Foto de Perfil</h3>
+        <label for="inputState">Foto de Perfil:</label><br>
+        <input type="file" (change)="upload($event)" accept="*.png.jpg" name="foto" required><br><br>
+        <button type="submit" class="btn btn-primary" [disabled]="!fo.valid" (click)="editarImg()">Editar Foto de Perfil</button>
       </div>
+    </form>
+    
   </body>
 
 </html>
