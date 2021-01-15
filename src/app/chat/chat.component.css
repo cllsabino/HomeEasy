@@ -50,15 +50,26 @@ body {
     width: 100%;
     color: black; 
 }
-.msg{  
-        padding: 10px;
-        float:left;
-        margin:5px;
-        max-width:90%;
-        display: table;
-        clear:both;margin-left: 15px;
-        background-color:#edefed;
-        border-radius:10px;}
+.msg-1{  
+     padding: 10px;
+    float:left;
+    margin:5px;
+    max-width:90%;
+    display: table;
+    clear:both;margin-left: 15px;
+    background-color:#0ba70b;
+    border-radius:10px;
+}
+.msg-2{  
+    padding: 10px;
+   float:left;
+   margin:5px;
+   max-width:90%;
+   display: table;
+   clear:both;margin-left: 15px;
+   background-color:#085ac5;
+   border-radius:10px;
+}
         
     .user2{
     padding: 10px;

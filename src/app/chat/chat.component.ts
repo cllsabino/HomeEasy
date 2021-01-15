@@ -72,11 +72,16 @@ export class ChatComponent implements OnInit {
     });
   }
   enviarMensagem(){
-    this.mensagem.data = new Date().getTime();
-    this.mensagem.id = this.userId;
-    this.chatService.addCliente(this.usuario, this.servidor);
-    this.chatService.addMensagem(this.userId, this.servidorId, this.mensagem);
-    this.mensagem.mensagem="";
+    if(this.usuario.id != this.servidor.id){
+      this.mensagem.data = new Date().getTime();
+      this.mensagem.id = this.userId;
+      this.chatService.addCliente(this.usuario, this.servidor);
+      this.chatService.addMensagem(this.userId, this.servidorId, this.mensagem);
+      this.mensagem.mensagem="";
+    }else{
+      alert("Ação Impossível!");
+      this.router.navigate(["/feed"]);
+    }
   }
   ngOnDestroy(){
     this.servidorIdSubscription.unsubscribe();

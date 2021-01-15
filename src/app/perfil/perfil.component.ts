@@ -28,8 +28,6 @@ export class PerfilComponent implements OnInit {
  servicosSubscription : Subscription;
  servicoEstado : boolean = false;
  servicoDelete : Servico = {};
- pedidosRecebidosArray = new Array<Pedido>();
- pedidosRecebidosSubscription : Subscription;
   
   constructor(
     public afs : AngularFirestore, 
@@ -58,15 +56,11 @@ export class PerfilComponent implements OnInit {
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
-    this.pedidosRecebidosSubscription = this.servicoPedido.getPedidosRecebidos(this.userId).subscribe(data => {
-      this.pedidosRecebidosArray = data;
-    });
   }
 
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
     this.servicosSubscription.unsubscribe();
-    this.pedidosRecebidosSubscription.unsubscribe();
   }
   async sair(){
     try{

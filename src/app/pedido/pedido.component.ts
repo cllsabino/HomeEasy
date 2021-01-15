@@ -47,7 +47,7 @@ export class PedidoComponent implements OnInit {
     public servicoPedido : ServicoPedidoService,
     public active : ActivatedRoute
   ) { }
-
+ 
   ngOnInit() {
     if(this.afAuth.auth.currentUser != null){
       this.entrarSair = true;
@@ -60,11 +60,8 @@ export class PedidoComponent implements OnInit {
     this.usuarioIDSubscription = this.active.params.subscribe(
       (params : Params) => { this.usuarioID = params['idd'] }
     );
-    this.clienteSubscription = this.usuarioService.getUsuario(this.usuarioID).subscribe(data => {
+    this.clienteSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.cliente = data;
-    });
-    this.servidorSubscription = this.servico.getServicoUsuario(this.serveID, this.usuarioID).subscribe(data => {
-      this.servidor = data;
     });
     this.serveSubscription = this.servico.getUserServicoPorId(this.usuarioID, this.serveID).subscribe(data => {
     this.serve = data;
@@ -72,6 +69,9 @@ export class PedidoComponent implements OnInit {
     this.servePedidoSubscription = this.servicoPedido.getDetalheServico(this.usuarioID, this.serveID).subscribe(data => {
       this.servePedido = data;}
     );
+    this.servidorSubscription = this.servico.getServicoUsuario(this.serveID, this.usuarioID).subscribe(data => {
+      this.servidor = data;
+    });
   }
 
   ngOnDestroy(){
@@ -93,6 +93,7 @@ export class PedidoComponent implements OnInit {
   addpedido(){
     if(this.userId != this.servidor.id){
       this.pedido.nome = this.serve.nome;
+      this.pedido.id = Math.floor(Math.random() * 1000) + this.cliente.id;
       this.pedido.idServidor = this.servidor.id;
       this.pedido.idContratante = this.cliente.id;
       this.pedido.preco = this.servePedido.preco;

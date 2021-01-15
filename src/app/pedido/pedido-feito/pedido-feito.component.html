@@ -25,7 +25,7 @@
 
     <div class="container">
 
-      <div>
+      <div *ngIf="pedidosFeitosArray.length != 0">
         <h2>Pedidos Feitos</h2><br>
         <ul class="list-group list-group-horizontal ulserve">
           <li class="list-group-item card" *ngFor="let serve of pedidosFeitosArray">
@@ -40,6 +40,10 @@
             </div>
           </li>
         </ul>
+      </div>
+
+      <div *ngIf="pedidosFeitosArray.length == 0">
+        <h2>Você Ainda Não Fez Pedidos!</h2>
       </div>
 
     </div>

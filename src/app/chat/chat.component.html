@@ -35,9 +35,11 @@
         <div><span>{{ usuario.nome }}</span></div>
       </div>
       <br>
-      <div class="msg" *ngFor="let msg of mensagensArray">
+      <div *ngFor="let msg of mensagensArray">
 
-        <p>{{ msg.mensagem }}</p>
+        <p *ngIf="msg.id == servidor.id" class="msg-1">{{ msg.mensagem }}</p>
+  
+        <p *ngIf="msg.id != servidor.id" class="msg-2">{{ msg.mensagem }}</p>
 
       </div>
       <br>

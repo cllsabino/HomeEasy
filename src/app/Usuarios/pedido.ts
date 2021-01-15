@@ -1,5 +1,6 @@
 export class Pedido {
     nome? : string;
+    id? : string;
     idContratante? : string;
     idServidor? : string;
     data? : Date;
