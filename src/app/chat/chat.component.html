@@ -25,23 +25,29 @@
 
     <div class="container">
 
-      <div class="user">
+       <div class="user1">
+        <img *ngIf="usuario.foto" [src]="usuario.foto">
+        <div><span>{{ usuario.nome }}</span></div>
+      </div>
+      <div class="user2" >
+        Conversando com:
         <img *ngIf="servidor.foto" [src]="servidor.foto">
         <div><span>{{ servidor.nome }}</span></div>
       </div>
       <br>
-      <div class="user">
-        <img *ngIf="usuario.foto" [src]="usuario.foto">
-        <div><span>{{ usuario.nome }}</span></div>
-      </div>
+      
       <br>
+      <div class="msg">
+        <div class="mensagem">
       <div *ngFor="let msg of mensagensArray">
 
         <p *ngIf="msg.id == servidor.id" class="msg-1">{{ msg.mensagem }}</p>
   
         <p *ngIf="msg.id != servidor.id" class="msg-2">{{ msg.mensagem }}</p>
-
+       </div>
       </div>
+    </div>
+    
       <br>
       <form class="forms" #f="ngForm"> 
         <div class="group ">
