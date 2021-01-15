@@ -24,7 +24,7 @@ import { ProfissionalModule } from './profissional/profissional.module';
 import { PedidoModule } from './pedido/pedido.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatService } from './Servicos/chat.service';
-
+import { ServicoModule } from './servico/servico.module';
 
 @NgModule({
   declarations: [
@@ -47,6 +47,7 @@ import { ChatService } from './Servicos/chat.service';
     ProfissionalModule,
     PedidoModule,
     ChatModule,
+    ServicoModule,
     AppRoutingModule
   ], 
   providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService, ChatService ],

@@ -11,5 +11,4 @@ export class Pedido {
     avaliação? : string;
     avaliaçãoNota? : number;
     statusContratante? : boolean;
-    statusServidor? : boolean;
 }

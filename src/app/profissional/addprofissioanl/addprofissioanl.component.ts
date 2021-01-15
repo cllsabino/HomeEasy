@@ -68,5 +68,6 @@ export class AddprofissioanlComponent implements OnInit {
     this.servicoPedido.addServicoPedido(this.usuario, this.servicoSelecionado, this.servePedido);
     this.servico.addUsuario(this.usuario, this.servicoSelecionado);
     alert("Inscrição Concluida!");
+    this.router.navigate(["/feed"]);
   }
 }

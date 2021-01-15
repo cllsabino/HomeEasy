@@ -15,6 +15,19 @@ img{
     background-size: cover;
     border-radius: 50%;
 }
+.img-1{
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    background: #ddd;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border-radius: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
 .container{
 margin: 50px auto;
 display: grid;
@@ -79,17 +92,19 @@ body {
    border-radius:10px;
    
 }
-        
-    .user2{
-        padding: 10px;
-        float:right;
-        color: #fff;
-        margin:5px;
-        max-width:90%;
-        display: table;
-        clear:both;margin-right: 15px;
-        background-color:#0077fb;
-        border-radius:10px;
+.user2{
+    padding: 10px;
+    float:right;
+    color: #fff;
+    margin:5px;
+    max-width:90%;
+    display: table;
+    clear:both;margin-right: 15px;
+    background-color:#0077fb;
+    border-radius:10px;
+}
+.span{
+    text-align: center;
 }
 button{
     margin-left: 10px;

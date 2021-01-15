@@ -14,19 +14,21 @@ import { LoginServiceService } from '../Servicos/login-service.service';
 import { ServicoPedidoService } from './../Servicos/servico-pedido.service';
 
 @Component({
-  selector: 'app-perfil',
-  templateUrl: './perfil.component.html',
-  styleUrls: ['./perfil.component.css']
+  selector: 'app-servico',
+  templateUrl: './servico.component.html',
+  styleUrls: ['./servico.component.css']
 })
-export class PerfilComponent implements OnInit {
- usuario : Usuario = {};
- userId : string;
- userSubscription : Subscription;
- imgSubscription : Subscription;
- entrarSair : boolean;
- servicosArray = new Array<Servico>();
- servicosSubscription : Subscription;
-  
+export class ServicoComponent implements OnInit {
+  userId : string;
+  usuario : Usuario = {};
+  userSubscription : Subscription;
+  imgSubscription : Subscription;
+  entrarSair : boolean;
+  servicosArray = new Array<Servico>();
+  servicosSubscription : Subscription;
+  servicoEstado : boolean = false;
+  servicoDelete : Servico = {};
+
   constructor(
     public afs : AngularFirestore, 
     public afAuth : AngularFireAuth,
@@ -44,21 +46,28 @@ export class PerfilComponent implements OnInit {
       this.entrarSair = true;
       this.userId = this.afAuth.auth.currentUser.uid;
     }else this.entrarSair = false;
- 
+
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data; 
-    });
-    this.imgSubscription = this.storage.ref('Usuarios/' + this.userId + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
-      this.usuario.foto = data;
     });
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
   }
-
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
     this.servicosSubscription.unsubscribe();
+  }
+  mostrarBotaoDeletar(event, serve){
+    this.servicoEstado = true;
+    this.servicoDelete = serve;
+  }
+  limparBotao(){
+    this.servicoEstado = false;
+  }
+  deletarServico(event, serve){
+    this.servico.apagarServico(this.usuario, serve);
+    alert("Inscrição Cancelada!");
   }
   async sair(){
     try{

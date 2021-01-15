@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title>Serviços</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+        <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
+        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+
+    <div class="container" *ngIf="servicosArray.length != 0">
+      <h2>Meus Serviços</h2>
+      <ul class="list-group list-group-horizontal ulserve">
+        <li class="list-group-item card" *ngFor="let serve of servicosArray">
+          <div class="card" style="width: 10rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{ serve.nome }}</h5>
+              <a clas="secondary-content">
+                <i  *ngIf="!servicoEstado" (click)="mostrarBotaoDeletar($event, serve)" class="fa fa-cog"></i>
+                <i *ngIf="servicoEstado" (click)="limparBotao()" class="fa fa-compress"></i>
+              </a>
+              <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
+                <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="servicosArray.length == 0">
+      <h2>Você Ainda Não Se Cadastrou Em Nenhum Serviço!</h2>
+    </div>
+
+  </body>
+
+</html>
