@@ -9,9 +9,12 @@ img{
     cursor: pointer;
 }
 .container{
+  
+    margin: 50px auto;
+    
     position: relative;
-    width: 80%;
-    height: 600px;
+    width: 100%;
+   
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.1);
