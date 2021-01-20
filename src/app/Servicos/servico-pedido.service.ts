@@ -34,8 +34,8 @@ export class ServicoPedidoService {
  }
  //adiciona um pedido
  addPedido(cliente : Usuario, servidor : Usuario, pedido : Pedido){
-   this.usuariosCollection.doc(cliente.id).collection('PedidosFeitos').add(pedido);
-   this.usuariosCollection.doc(servidor.id).collection('PedidosRecebidos').add(pedido);
+   this.usuariosCollection.doc(cliente.id).collection('PedidosFeitos').doc(pedido.id).set(pedido);
+   this.usuariosCollection.doc(servidor.id).collection('PedidosRecebidos').doc(pedido.id).set(pedido);
  }
  //pega os pedidos feitos de um cliente 
  getPedidosFeitos(id : string){

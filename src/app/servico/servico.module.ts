@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 
 import { ServicoComponent } from './servico.component';
+import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.component';
 import { ServicoRoutingModule } from './servico.routing.module';
 
 @NgModule({
@@ -13,6 +14,7 @@ import { ServicoRoutingModule } from './servico.routing.module';
     ],
     declarations:[
         ServicoComponent,
+        ServicoDetalheComponent
     ], 
     exports:[
 
