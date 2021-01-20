@@ -22,7 +22,7 @@
   </header>
 
   <body>
-
+    <div class="container">
     <h2>Informações</h2>
     <h3>Serviço Escolhido: {{ serve.nome}}</h3><br>
     <h3>Profissional Escolhido: {{ servidor.nome}}</h3><br>
@@ -39,7 +39,7 @@
       </div>
       <button type="button" (click)="addpedido()" [disabled]="!f.valid">Fazer Pedido</button>
     </form>
-    
+    </div>
   </body>
 
 </html>
