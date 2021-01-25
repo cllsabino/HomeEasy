@@ -25,6 +25,8 @@ export class PedidoRecebidoComponent implements OnInit {
  entrarSair : boolean;
  pedidosRecebidosArray = new Array<Pedido>();
  pedidosRecebidosSubscription : Subscription;
+ pedidoEstado : boolean = false;
+ pedidoDetalhe : Pedido = {};
 
  constructor(
   public afs : AngularFirestore, 
@@ -62,6 +64,16 @@ export class PedidoRecebidoComponent implements OnInit {
      }catch(error){
        console.error(error);
     }
+  }
+  mostrarBotaoDetalhe(event, serve){
+    this.pedidoEstado = true;
+    this.pedidoDetalhe = serve;
+  }
+  limparBotao(){
+    this.pedidoEstado = false;
+  }
+  mostrarDetalhe(event, serve){
+    alert("to pensando!");
   }
 
 }

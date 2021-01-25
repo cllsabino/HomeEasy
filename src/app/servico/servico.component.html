@@ -36,7 +36,7 @@
               </a>
               <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
                 <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
-                <a type="button" class="btn btn-primary" [routerLink]="['/serviços', userId, 'detalhe', serve.id]">Detalhe</a>
+                <a type="button" class="btn btn-primary" [routerLink]="['/serviços', userId, 'detalhe', serve.id]">Detalhes</a>
               </div>
             </div>
           </div>

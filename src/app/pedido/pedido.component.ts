@@ -97,6 +97,8 @@ export class PedidoComponent implements OnInit {
       this.pedido.idServidor = this.servidor.id;
       this.pedido.idContratante = this.cliente.id;
       this.pedido.preco = this.servePedido.preco;
+      this.pedido.statusContratante = false;
+      this.pedido.idServico = this.serveID;
       this.servicoPedido.addPedido(this.cliente, this.servidor, this.pedido);
       alert("Pedido Realizado!");
       this.router.navigate(["/feed"]);

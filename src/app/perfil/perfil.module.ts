@@ -6,6 +6,7 @@ import { PerfilComponent } from './perfil.component';
 import { PerfilRoutingModule } from './perfil.routing.module';
 import { EditarInfoComponent } from './editar-info/editar-info.component';
 import { PerfilPedidoComponent } from './perfil-pedido/perfil-pedido.component';
+import { AvaliacoesComponent } from './avaliacoes/avaliacoes.component';
 
 @NgModule({
     imports:[
@@ -16,7 +17,8 @@ import { PerfilPedidoComponent } from './perfil-pedido/perfil-pedido.component';
     declarations:[
         PerfilComponent,
         EditarInfoComponent,
-        PerfilPedidoComponent
+        PerfilPedidoComponent,
+        AvaliacoesComponent
     ], 
     exports:[
 

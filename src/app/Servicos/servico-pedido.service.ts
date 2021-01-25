@@ -13,9 +13,9 @@ import { Pedido } from 'src/app/Usuarios/pedido';
   })
 
 export class ServicoPedidoService {
-  servicoPedidoCollection: AngularFirestoreCollection<ServicoPedido>;
-  servicoCollection : AngularFirestoreCollection<Servico>;
-  usuariosCollection : AngularFirestoreCollection<Usuario>;
+  servicoPedidoCollection: AngularFirestoreCollection;
+  servicoCollection : AngularFirestoreCollection;
+  usuariosCollection : AngularFirestoreCollection;
 
   constructor(public afs : AngularFirestore) {
     this.servicoPedidoCollection = this.afs.collection('ServicoPedido');
@@ -50,7 +50,11 @@ export class ServicoPedidoService {
     })
   );
  }
- //pega os pedidos feitos de um servidor 
+ //pega um pedido feito de um cliente 
+ getPedidoFeito(idCliente : string, idPedido : string){
+  return this.afs.collection('Usuarios').doc(idCliente).collection('PedidosFeitos').doc<Pedido>(idPedido).valueChanges();
+ }
+ //pega os pedidos recebidos de um servidor 
  getPedidosRecebidos(id : string){
   return this.usuariosCollection.doc(id).collection('PedidosRecebidos').snapshotChanges().
    pipe(map (actions => {
@@ -60,9 +64,13 @@ export class ServicoPedidoService {
 
        return { id, ...data};
      })
-   })
- );
+   }));
+  }
+ //pega um pedido recebido por um servidor 
+ getPedidoRecebido(idServidor : string, idPedido : string){
+  return this.afs.collection('Usuarios').doc(idServidor).collection('PedidosRecebidos').doc<Pedido>(idPedido).valueChanges();
+ }
+
 }
 
 
-}

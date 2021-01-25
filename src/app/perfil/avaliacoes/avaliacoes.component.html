@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>Perfil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="utf-8">  
+  </head>
+
+  <header class="navbar navbar-expand-lg navbar-light bg-primary">
+
+    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
+        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
+      </div>
+    </div>
+   
+  </header>
+
+  <body>
+
+    <h2>Avaliações</h2><br>
+        <ul class="list-group list-group-horizontal ulserve">
+          <li class="list-group-item card" *ngFor="let serve of AvaliacoesArray">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h3 class="card-title">{{ serve.nomeContratante }}</h3>
+                <h4>Nota: {{serve.avaliacaoNota}}</h4>
+                <h4>Avaliação: {{serve.avaliacao}}</h4>
+              </div>
+            </div>
+          </li>
+        </ul>
+  </body>
+
+</html>
+

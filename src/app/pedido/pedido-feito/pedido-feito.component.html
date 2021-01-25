@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Perfil</title>
+    <title>Pedido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <meta charset="utf-8">  
   </head>
@@ -36,6 +36,9 @@
                   <i  *ngIf="!pedidoEstado" (click)="mostrarBotaoDetalhe($event, serve)" class="fa fa-cog"></i>
                   <i *ngIf="pedidoEstado" (click)="limparBotao()" class="fa fa-compress"></i>
                 </a>
+                <div *ngIf="pedidoEstado && pedidoDetalhe.id == serve.id">
+                  <a type="button" class="btn btn-primary" [routerLink]="['/usuario', serve.idServidor, 'pedidos-feitos', serve.id]">Detalhes</a>
+                </div>
               </div>
             </div>
           </li>

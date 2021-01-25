@@ -21,10 +21,6 @@ export class ServicosService {
   this.reformaCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Reforma'));
  }
 
- // pega serviço específico
- getServicoPorNome(nome : string){
-   return this.afs.collection('Serviços', ref => ref.where('nome', '==', nome));
- }
  //pega servico especifico de um usuario
  getUserServicoPorId(id : string, idd : string){
   return this.afs.collection('Usuarios').doc(id).collection('Serviços').

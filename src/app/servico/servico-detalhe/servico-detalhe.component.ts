@@ -59,5 +59,13 @@ export class ServicoDetalheComponent implements OnInit {
     this.servicopedSubscription.unsubscribe();
     this.servicoSubscription.unsubscribe();
   }
+  async sair(){
+    try{
+      await this.loginService.sair().then(
+        (success) => {this.router.navigate(["/home"])});
+     }catch(error){
+       console.error(error);
+    }
+  }
 
 }

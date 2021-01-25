@@ -25,6 +25,7 @@ import { PedidoModule } from './pedido/pedido.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatService } from './Servicos/chat.service';
 import { ServicoModule } from './servico/servico.module';
+import { AvalicaoService } from './Servicos/avaliacao.service';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ import { ServicoModule } from './servico/servico.module';
     ServicoModule,
     AppRoutingModule
   ], 
-  providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService, ChatService ],
+  providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService, ChatService, AvalicaoService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
