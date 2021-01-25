@@ -13,6 +13,25 @@ body{
 *{
 	box-sizing: border-box;
 }
+navbar-nav{
+    float: left;
+   list-style-type:none;
+   margin-top:25px; 
+  }
+  div a{
+    display: inline-block;
+  }
+  div a{
+    text-decoration:none ;
+    color:#fff;
+    padding:5px 20px ;
+    border:1px solid transparent ;
+  }
+  
+  div a:hover{
+    background-color:#fff;
+    color: #000;
+  }
 img{
 	height: 150px;
 	width: 150px;
