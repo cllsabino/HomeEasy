@@ -35,6 +35,9 @@
                     <div class="group">
                         <input type="submit" class="button" value="Entrar" (click)="login()">
                     </div>
+                    <div *ngIf="mensagemErro" class="alert alert-danger" role="alert">
+                        {{mensagemErro}}
+                    </div>
                     <div class="hr"></div>
                     <div class="foot-lnk">
                         <a routerLink="/recuperar-senha">Esqueceu sua senha?</a>
@@ -59,6 +62,9 @@
                     </div>
                     <div class="group">
                         <button value="Cadastrar" type="submit" class="button" [disabled]="!f.valid" (click)="register()">Cadastrar</button>
+                    </div>
+                    <div *ngIf="mensagemErro" class="alert alert-danger" role="alert">
+                        {{mensagemErro}}
                     </div>
                     <div class="hr"></div>
                 </div>
