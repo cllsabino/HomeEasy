@@ -5,22 +5,17 @@
 
 </head>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-primary">
 
-    <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
-        <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
-        <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
-      </div>
-    </div>
 
-    <div *ngIf="mensagemErro" class="alert alert-danger" role="alert">
-        {{mensagemErro}}
-    </div>
-   
-</nav>
+    
+    <ul>
+        <li><a routerLink="/home">HomeEasy</a></li>
+        <li><a routerLink="/feed">Feed</a></li>
+        <li><a routerLink="/sobrenos">Sobre Nós</a></li>
+        <li><a routerLink="/contato">Contato</a></li>
+        
+      </ul>
+
 
 <body>
     <div class="login-wrap">
