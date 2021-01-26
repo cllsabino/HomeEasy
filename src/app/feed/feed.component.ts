@@ -20,7 +20,7 @@ export class FeedComponent implements OnInit {
  servicosReformaArray = new Array<Servico>();
  servicosReformaSubscription : Subscription;
  entrarSair : boolean;
- userId : string; 
+ userId : string;
  pesquisarServico : string;
  mostrarContentDO : boolean = false;
  mostrarContentRE : boolean = false;

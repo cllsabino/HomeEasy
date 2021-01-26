@@ -19,19 +19,24 @@
   </header>
 
   <body>
+      <h2>Avaliações</h2><br>
 
-    <h2>Avaliações</h2><br>
-        <ul class="list-group list-group-horizontal ulserve">
-          <li class="list-group-item card" *ngFor="let serve of AvaliacoesArray">
-            <div class="card" style="width: 18rem;">
-              <div class="card-body">
-                <h3 class="card-title">{{ serve.nomeContratante }}</h3>
-                <h4>Nota: {{serve.avaliacaoNota}}</h4>
-                <h4>Avaliação: {{serve.avaliacao}}</h4>
-              </div>
+      <ul class="list-group list-group-horizontal ulserve">
+        <li class="list-group-item card" *ngFor="let serve of AvaliacoesArray">
+          <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h3 class="card-title">{{ serve.nomeContratante }}</h3>
+              <h4>Nota: {{serve.avaliacaoNota}}</h4>
+              <h4>Avaliação: {{serve.avaliacao}}</h4>
             </div>
-          </li>
-        </ul>
+          </div>
+        </li>
+      </ul>
+
+      <div *ngIf="AvaliacoesArray.length == 0">
+        <br>
+        <h2>Esse Profissional Ainda Não Possui Avaliações!</h2>
+      </div>
   </body>
 
 </html>

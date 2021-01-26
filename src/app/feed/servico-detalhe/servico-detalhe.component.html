@@ -35,6 +35,11 @@
           </div>
         </li>
       </ul>
+
+      <div *ngIf="usuariosArray.length == 0">
+        <br>
+        <h2>Ainda Não Temos Profissionais Para Esse Serviço!</h2>
+      </div>
     </div>
     
   </body>

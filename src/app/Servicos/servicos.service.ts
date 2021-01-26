@@ -20,7 +20,19 @@ export class ServicosService {
   this.domesticoCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Doméstico'));
   this.reformaCollection = this.afs.collection('Serviços', ref => ref.where('tipo', '==', 'Reforma'));
  }
+ //pega um serviço pelo nome
+ getServicoPorNome(nome : string){
+   return this.afs.collection('Serviços', ref => ref.where('nome', '==', nome)).snapshotChanges().pipe(
+    map(actions => {
+      return actions.map(a => {
+        const data = a.payload.doc.data() as Servico;
+        const id = a.payload.doc.id;
 
+        return { id, ...data};
+      })
+    })
+  );
+ }
  //pega servico especifico de um usuario
  getUserServicoPorId(id : string, idd : string){
   return this.afs.collection('Usuarios').doc(id).collection('Serviços').
