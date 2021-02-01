@@ -36,6 +36,12 @@
         <input type="text" name="local" [(ngModel)]="pedido.local" required><br>
         Em qual horário o serviço será realizado?
         <input type="time" name="hora" [(ngModel)]="pedido.hora" required><br>
+        Em qual cidade o serviço será realizado?
+        <input type="text" name="hora" [(ngModel)]="pedido.cidade" required><br>
+        Em qual Estado o serviço será realizado?
+        <select class="form-control" [(ngModel)]="pedido.estado" name="estado" required>
+          <option>Pernambuco</option>
+        </select><br>
       </div>
       <button type="button" (click)="addpedido()" [disabled]="!f.valid">Fazer Pedido</button>
     </form>

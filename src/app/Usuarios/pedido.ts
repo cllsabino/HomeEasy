@@ -8,6 +8,8 @@ export class Pedido {
     hora? : Date;
     local? : string;
     preco? : number;
+    estado? : string;
+    cidade? : string;
     tipoPagamento? : string;
     statusContratante? : boolean;
 }

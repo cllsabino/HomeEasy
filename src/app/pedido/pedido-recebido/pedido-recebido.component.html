@@ -43,6 +43,11 @@
             </div>
           </li>
         </ul>
+
+        <div *ngIf="pedidosRecebidosArray.length == 0">
+          <h2>Você Ainda Não Recebeu Pedidos!</h2>
+        </div>
+
       </div>
 
     </div>

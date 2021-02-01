@@ -28,9 +28,11 @@
       <h3>Servico: {{pedido.nome}}</h3>
       <h3>Profissional: {{servidor.nome}}</h3>
       <h3>Data: {{pedido.data}}</h3>
+      <h3>Preço: {{pedido.preco}}</h3>
       <h3>Horário: {{pedido.hora}}</h3>
       <h3>Local: {{pedido.local}}</h3>
-      <h3>Preço: {{pedido.preco}}</h3>
+      <h3>Cidade: {{pedido.cidade}}</h3>
+      <h3>Estado: {{pedido.estado}}</h3>
 
       <div *ngIf="pedido.statusContratante == false">
         <form class="forms" #f="ngForm"> 
