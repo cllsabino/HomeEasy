@@ -2,11 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { Usuario } from 'src/app/Usuarios/usuario';
+import { formattedError } from '@angular/compiler';
+import { formControlBinding } from '@angular/forms/src/directives/ng_model';
+import { ComponentFactoryBoundToModule } from '@angular/core/src/linker/component_factory_resolver';
 
 @Component({
   selector: 'app-servico-detalhe',
@@ -24,6 +28,7 @@ export class ServicoDetalheComponent implements OnInit {
   constructor(
     public afs : AngularFirestore, 
     public afAuth : AngularFireAuth,
+    public storage : AngularFireStorage,
     public loginService : LoginServiceService,
     public servico : ServicosService, 
     public router : Router,

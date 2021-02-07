@@ -34,6 +34,20 @@
       <h3>Local: {{pedido.local}}</h3>
       <h3>Cidade: {{pedido.cidade}}</h3>
       <h3>Estado: {{pedido.estado}}</h3>
+      <br>
+      <div *ngIf="pedido.statusProfissional == false && pedido.statusContratante == false">
+        <button type="button" class="alert alert-success" (click)="aceitarPedido()">Aceitar Pedido</button>
+        <button type="button" class="alert alert-danger" (click)="cancelarPedido()">Cancelar Pedido</button>
+      </div>
+      <br>
+      <div *ngIf="pedido.statusProfissional == true">
+        <h3>Você Aceitou Esse Pedido!</h3>
+      </div>
+      <br>
+      <div *ngIf="pedido.statusContratante == true">
+        <h3>{{cliente.nome}} Cancelou Esse Pedido!</h3>
+      </div>
+
     </div>
 
 

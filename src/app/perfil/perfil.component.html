@@ -26,9 +26,10 @@
     <div class="container" style="margin-top:30px">
       <div class="row">
         <div class="col-sm-4">
-          <h2>{{ usuario.nome }}</h2>
+          <h2>{{ usuario.nome }}</h2> 
           <div class="img">
             <img *ngIf="usuario.foto" [src]="usuario.foto">
+            <img *ngIf="!usuario.foto" src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg">
           </div><br>
           <h3>Minhas Informações</h3>
           <p>Idade: {{usuario.idade}}</p>

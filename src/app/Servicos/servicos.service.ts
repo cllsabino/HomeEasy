@@ -96,9 +96,9 @@ apagarServico(usuario : Usuario, serve : Servico){
   this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).delete();
   this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).delete();
 }
-//pegar usuarios de um serviço
+//pegar usuarios de um serviço  
 getUsuarios(id : string){
-  return this.afs.collection('Serviços').doc(id).collection("Usuarios").snapshotChanges().pipe(
+  return this.afs.collection('Serviços').doc(id).collection('Usuarios').snapshotChanges().pipe(
     map(actions => {
       return actions.map(a => {
         const data = a.payload.doc.data() as Usuario;

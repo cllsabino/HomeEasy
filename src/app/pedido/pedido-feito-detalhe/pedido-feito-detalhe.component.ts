@@ -97,5 +97,12 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     alert("Avaliação Realizada!");
     this.router.navigate(["/feed"]);
   }
+  cancelarPedido(){
+    this.pedido.statusContratante = true;
+    this.servicoPedido.addPedido(this.usuario, this.servidor, this.pedido);
+    this.servicoPedido.deletePedidoFeito(this.userId, this.pedido.id);
+    alert("Pedido Cancelado!");
+    this.router.navigate(["/feed"]);
+  }
 
 }

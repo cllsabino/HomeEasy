@@ -70,6 +70,14 @@ export class ServicoPedidoService {
  getPedidoRecebido(idServidor : string, idPedido : string){
   return this.afs.collection('Usuarios').doc(idServidor).collection('PedidosRecebidos').doc<Pedido>(idPedido).valueChanges();
  }
+ //apagar o pedido recebido de um profissional
+ deletePedidoRecebido(idServidor : string, Idpedido : string){
+  this.afs.collection('Usuarios').doc(idServidor).collection('PedidosRecebidos').doc<Pedido>(Idpedido).delete();
+ }
+ //apagar o pedido feito de um cliente
+ deletePedidoFeito(idCliente : string, Idpedido : string){
+  this.afs.collection('Usuarios').doc(idCliente).collection('PedidosFeitos').doc<Pedido>(Idpedido).delete();
+ }
 
 }
 

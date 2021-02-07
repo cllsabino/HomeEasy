@@ -8,12 +8,11 @@ import { Subscription } from 'rxjs';
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { UsuarioService } from './../../Servicos/usuario.service';
-import { Usuario } from 'src/app/Usuarios/usuario';
-import { Servico } from './../../Usuarios/servico';
 import { Pedido } from 'src/app/Usuarios/pedido';
 import { AvalicaoService } from './../../Servicos/avaliacao.service';
 import { Avaliacao } from './../../Usuarios/avaliacao';
 import { ServicosService } from './../../Servicos/servicos.service';
+import { Usuario } from './../../Usuarios/usuario';
 
 @Component({
   selector: 'app-pedido-recebido-detalhe',
@@ -25,12 +24,14 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
   entrarSair : boolean;
   pedidoId : string; //id do pedido
   pedidoIdSubscription : Subscription;
-  pedido : Pedido = {} //o pedido
+  pedido : Pedido = {}; //o pedido
   pedidoSubscription : Subscription;
   clienteId : string; //id do cliente
   clienteIdSubscription : Subscription;
   cliente : Usuario = {}; //o cliente
   clienteSubscription : Subscription;
+  usuario : Usuario = {} //usuario | servidor
+  usuarioSubscription : Subscription;
 
   constructor(
     public afs : AngularFirestore, 
@@ -63,12 +64,16 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     this.pedidoSubscription = this.servicoPedido.getPedidoRecebido(this.userId, this.pedidoId).subscribe(data => {
       this.pedido = data; 
     });
+    this.usuarioSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
+      this.usuario = data;
+    });
   } 
   ngOnDestroy(){
     this.clienteIdSubscription.unsubscribe();
     this.pedidoIdSubscription.unsubscribe();
     this.clienteSubscription.unsubscribe();
     this.pedidoSubscription.unsubscribe();
+    this.usuarioSubscription.unsubscribe();
   }
   async sair(){
     try{
@@ -77,6 +82,17 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
      }catch(error){
        console.error(error);
     }
+  }
+  aceitarPedido(){
+    this.pedido.statusProfissional = true;
+    this.servicoPedido.addPedido(this.cliente, this.usuario, this.pedido);
+  }
+  cancelarPedido(){
+    this.pedido.profissionalCancelou = true;
+    this.servicoPedido.addPedido(this.cliente, this.usuario, this.pedido);
+    this.servicoPedido.deletePedidoRecebido(this.userId, this.pedido.id);
+    alert("Pedido Cancelado!");
+    this.router.navigate(["/feed"]);
   }
 
 }

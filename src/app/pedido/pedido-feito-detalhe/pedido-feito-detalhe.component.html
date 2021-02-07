@@ -33,8 +33,8 @@
       <h3>Local: {{pedido.local}}</h3>
       <h3>Cidade: {{pedido.cidade}}</h3>
       <h3>Estado: {{pedido.estado}}</h3>
-
-      <div *ngIf="pedido.statusContratante == false">
+      <br>
+      <div *ngIf="pedido.statusContratante == false && pedido.statusProfissional == true">
         <form class="forms" #f="ngForm"> 
           <p>Avalie esse Serviço!</p>
           <div class="group ">
@@ -44,7 +44,15 @@
           </div>
         </form>
       </div>      
-
+      <br>
+      <div *ngIf="pedido.statusProfissional == false && pedido.statusContratante == false">
+        <button type="button" class="alert alert-danger" (click)="cancelarPedido()">Cancelar Pedido</button>
+      </div>
+      <br>
+      <div *ngIf="pedido.profissionalCancelou == true">
+        <h3>{{servidor.nome}} Não Aceitou Esse Pedido!</h3>
+      </div>
+      
     </div>
 
 

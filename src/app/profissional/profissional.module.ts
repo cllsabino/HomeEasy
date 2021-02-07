@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { ProfissionalComponent } from './profissional.component';
 import { AddprofissioanlComponent } from './addprofissioanl/addprofissioanl.component';
+import { EditarInfoComponent } from './editar-info/editar-info.component';
 import { ProfissionalRoutingModule } from './profissional.routing.module';
 
 @NgModule({
@@ -14,7 +15,8 @@ import { ProfissionalRoutingModule } from './profissional.routing.module';
     ],
     declarations:[
         ProfissionalComponent,
-        AddprofissioanlComponent
+        AddprofissioanlComponent,
+        EditarInfoComponent
     ], 
     exports:[],
     providers:[]

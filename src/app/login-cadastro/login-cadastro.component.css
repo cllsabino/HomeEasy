@@ -7,6 +7,9 @@ body{
     background-size:cover;
     background-position:center ;
 }
+.msgerror{
+    text-align: center;
+}
 .home{
     float: left;
 }
