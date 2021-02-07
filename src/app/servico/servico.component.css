@@ -1,3 +1,14 @@
+body{
+    font-family: "Poppins", sans-serif;
+}
 h2{
     text-align: center;
+    margin: 50px auto;
+}
+.ulserve{
+	flex-wrap: wrap;
+}
+.card{
+    background-color: #fff;
+	box-shadow: 0 1.4rem 8rem rgba(0,0,0, 0.2);
 }
