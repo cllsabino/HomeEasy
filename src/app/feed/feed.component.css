@@ -216,7 +216,7 @@ h3{
 
 /*responsive*/
 @media(max-width: 991px){
-	.team-section .team-items .item {
+	.team-section .team-items .item .inner .info .social-links a .navbar-nav {
       flex-basis: calc(50% - 30px);
        max-width: calc(50% - 30px);
 
@@ -224,7 +224,7 @@ h3{
 }
 
 @media(max-width: 767px){
-	.team-section .team-items .item {
+	.team-section .team-items .item .inner .info .social-links a .navbar-nav {
       flex-basis: calc(100%);
        max-width: calc(100%);
    }
