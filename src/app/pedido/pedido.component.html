@@ -4,7 +4,7 @@
     <title>Pedido</title>
     <meta charset="utf-8">  
   </head>
-
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <header class="navbar navbar-expand-lg navbar-light bg-primary">
 
     <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
@@ -29,7 +29,8 @@
     <h3>Preço do Serviço: {{ servePedido.preco}}</h3><br>
 
     <form #f="ngForm">
-      <div>
+      <div class="label">
+        
         Qual a data que o serviço será realizado?
         <input type="date" name="data" [(ngModel)]="pedido.data" required><br>
         Qual local em que o serviço será realizado?
