@@ -54,4 +54,4 @@ import { AvalicaoService } from './Servicos/avaliacao.service';
   providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService, ChatService, AvalicaoService ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule { } 
