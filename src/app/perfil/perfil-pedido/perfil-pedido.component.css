@@ -20,10 +20,6 @@ img{
     box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
-.card{
-    background-color: #fff;
-	box-shadow: 0 1.4rem 8rem rgba(0,0,0, 0.2);
-}
 .col-sm-4{
     width: 35%;
     background: linear-gradient(to right,#01a9ac,#10a5e0);
@@ -33,19 +29,7 @@ img{
     text-align: center;
     color: #fff;
 }
-button {
-    padding: 9.6px 0;
-    width: 60%;
-    background: linear-gradient(to right, #00f2fe 0%, #4facfe  140%);
-    color: #fff;
-    text-align: center;
-    text-decoration: none;
-    font-size: .7rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border-radius: 18.1px;
-    margin-right: 3px;
-}
+
 .ulserve{
 	flex-wrap: wrap;
 }
