@@ -2,7 +2,8 @@
   <head>
     <title>Perfil</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <meta charset="utf-8">  
+    <meta charset="utf-8">  
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   </head>
 
   <header class="navbar navbar-expand-lg navbar-light bg-primary">
@@ -26,7 +27,7 @@
           <h2>{{ usuario.nome }}</h2>
           <div class="img">
             <img *ngIf="usuario.foto" [src]="usuario.foto">
-            <img *ngIf="!usuario.foto" src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-photo-183042379.jpg">
+            <img *ngIf="!usuario.foto" src="https://i.pinimg.com/originals/ff/a0/9a/ffa09aec412db3f54deadf1b3781de2a.png">
           </div><br>
           <h3>Informações</h3>
           <p>Idade: {{usuario.idade}}</p>

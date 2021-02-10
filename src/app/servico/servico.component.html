@@ -2,9 +2,9 @@
   <head>
     <title>Serviços</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <meta charset="utf-8">  
+    <meta charset="utf-8"> 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet"> 
   </head>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
   <header class="navbar navbar-expand-lg navbar-light bg-primary">
 
@@ -28,7 +28,7 @@
       <h2>Meus Serviços</h2>
       <ul class="list-group list-group-horizontal ulserve">
         <li class="list-group-item card" *ngFor="let serve of servicosArray">
-          <div class="card" style="width: 10rem;">
+          <div class="card" style="width: 15rem;">
             <div class="card-body">
               <h5 class="card-title">{{ serve.nome }}</h5>
               <a clas="secondary-content">
@@ -37,7 +37,8 @@
               </a>
               <div *ngIf="servicoEstado && servicoDelete.id == serve.id">
                 <button type="button" class="btn btn-danger" (click)="deletarServico($event, serve)">Deletar</button>
-                <a type="button" class="btn btn-primary" [routerLink]="['/serviços', userId, 'detalhe', serve.id]">Detalhes</a>
+                <a type="button" class="btn btn-primary" [routerLink]="['/serviços', userId, 'detalhe', serve.id]">Detalhes</a><br>
+                <a type="button" class="btn alert alert-warning" [routerLink]="['/serviço', serve.id, 'usuario', userId, 'avaliações']">Avaliações</a>
               </div>
             </div>
           </div>
