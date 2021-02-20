@@ -39,7 +39,7 @@ export class ServicoPedidoService {
  }
  //pega os pedidos feitos de um cliente 
  getPedidosFeitos(id : string){
-   return this.usuariosCollection.doc(id).collection('PedidosFeitos').snapshotChanges().
+   return this.usuariosCollection.doc(id).collection('PedidosFeitos', ref => ref.orderBy('data', 'desc')).snapshotChanges().
     pipe(map (actions => {
       return actions.map(a => {
         const data = a.payload.doc.data() as Pedido;
@@ -56,7 +56,7 @@ export class ServicoPedidoService {
  }
  //pega os pedidos recebidos de um servidor 
  getPedidosRecebidos(id : string){
-  return this.usuariosCollection.doc(id).collection('PedidosRecebidos').snapshotChanges().
+  return this.usuariosCollection.doc(id).collection('PedidosRecebidos', ref => ref.orderBy('data', 'desc')).snapshotChanges().
    pipe(map (actions => {
      return actions.map(a => {
        const data = a.payload.doc.data() as Pedido;
