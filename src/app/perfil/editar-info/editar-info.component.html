@@ -25,27 +25,31 @@
     <form #f="ngForm">
       <div class="form-group">
         <label>Nome:</label>
-        <input type="text" class="form-control" [(ngModel)]="usuario.nome" name="nome" required>
+        <input type="text" class="form-control" [(ngModel)]="usuario.nome" name="nome">
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>Idade:</label>
-          <input type="number" class="form-control" [(ngModel)]="usuario.idade" name="idade" required>
+          <input type="number" class="form-control" [(ngModel)]="usuario.idade" name="idade">
         </div>
         <div class="form-group col-md-6">
           <label>Telefone:</label>
-          <input type="tel" class="form-control" [(ngModel)]="usuario.telefone" name="telefone" required>
+          <input type="tel" class="form-control" [(ngModel)]="usuario.telefone" name="telefone">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label>CPF / CNPJ:</label>
-          <input type="text" class="form-control" [(ngModel)]="usuario.cpfCNPJ" name="cpfCNPJ" required> 
+          <label>CPF:</label>
+          <input type="text" class="form-control" [(ngModel)]="usuario.cpf" name="cpf"> 
         </div>
         <div class="form-group col-md-6">
-          <label>Endereço:</label>
-          <input type="text" class="form-control" [(ngModel)]="usuario.endereco" name="endereco" required> 
+          <label>CNPJ:</label>
+          <input type="text" class="form-control" [(ngModel)]="usuario.cnpj" name="cnpj"> 
         </div>
+      </div>
+      <div class="form-group">
+        <label>Endereço:</label>
+        <input type="text" class="form-control" [(ngModel)]="usuario.endereco" name="endereco">
       </div>
       <div class="form-row">
         <div class="form-group col-md-4">
@@ -61,6 +65,7 @@
       </div>
       <button type="submit" class="btn btn-primary" [disabled]="!f.valid" (click)="editarInfo()">Editar Informações</button>
     </form>
+
     <form #fo="ngForm">
       <div class="form-group">
         <h3>Mudar Foto de Perfil</h3>

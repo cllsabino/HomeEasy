@@ -10,6 +10,7 @@ import { LoginServiceService } from '../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { Usuario } from 'src/app/Usuarios/usuario';
 import { ServicoPedido } from './../../Usuarios/serico-pedido';
+import { UsuarioService } from './../../Servicos/usuario.service';
 
 @Component({
   selector: 'app-perfil-pedido',
@@ -35,6 +36,7 @@ export class PerfilPedidoComponent implements OnInit {
     public loginService : LoginServiceService,
     public servico : ServicosService, 
     public servicoPedido : ServicoPedidoService,
+    public usuarioService : UsuarioService,
     public router : Router,
     public active : ActivatedRoute
   ) { }
@@ -45,10 +47,10 @@ export class PerfilPedidoComponent implements OnInit {
     );
     this.usuarioIDSubscription = this.active.params.subscribe(
       (params : Params) => { this.usuarioID = params['idd'] }
-    );
-    this.userSubscription = this.servico.getServicoUsuario(this.serveID, this.usuarioID).subscribe(data => {
-      this.usuario = data;}
-    );
+    ); 
+    this.userSubscription = this.usuarioService.getUsuario(this.usuarioID).subscribe(data => {
+      this.usuario = data; 
+    });
     this.imgSubscription = this.storage.ref('Usuarios/' + this.usuarioID + '/fotoPerfil.jpg').getDownloadURL().subscribe(data => {
       this.usuario.foto = data;
     });
