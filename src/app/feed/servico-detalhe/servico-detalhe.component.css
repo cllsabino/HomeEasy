@@ -15,7 +15,9 @@ div a{
     background-color:#fff;
     color: #000;
   }
-
+i{
+  color: black;
+}
 .link{
     text-decoration: none;
     font-size: 22px;

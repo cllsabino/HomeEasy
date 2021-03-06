@@ -11,4 +11,9 @@ export class Usuario {
     cidade? : string;
     cpf? : number;
     cnpj? : number;
+    instagram? : string;
+    facebook? : string;
+    twitter? : string;
+    site? : string;
+    linkedIn? : string;
 }

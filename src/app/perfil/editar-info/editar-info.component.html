@@ -1,9 +1,10 @@
 <html>
   <head>
     <title>Editar</title>
-  <meta charset="utf-8">  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta charset="utf-8">  
   </head>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <header class="navbar navbar-expand-lg navbar-light bg-primary">
 
     <a class="navbar-brand btn" routerLink="/home">Home Easy</a>
@@ -63,7 +64,9 @@
           <input type="text" class="form-control" id="inputCity" [(ngModel)]="usuario.cidade" name="cidade">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary" [disabled]="!f.valid" (click)="editarInfo()">Editar Informações</button>
+      <div class = "text-center">
+        <button type="submit" class="btn btn-primary" [disabled]="!f.valid" (click)="editarInfo()">Editar Informações</button>
+      </div>
     </form>
 
     <form #fo="ngForm">
@@ -71,7 +74,42 @@
         <h3>Mudar Foto de Perfil</h3>
         <label for="inputState">Foto de Perfil:</label><br>
         <input type="file" (change)="upload($event)" accept="*.png.jpg" name="foto" required><br><br>
-        <button type="submit" class="btn btn-primary" [disabled]="!fo.valid" (click)="editarImg()">Editar Foto de Perfil</button>
+        <div class = "text-center">
+          <button type="submit" class="btn btn-primary" [disabled]="!fo.valid" (click)="editarImg()">Editar Foto de Perfil</button>
+        </div>
+      </div>
+    </form>
+
+    <form #for="ngForm">
+      <div class="form-group">
+        <h3>Redes Sociais</h3>
+        <div class="form-row">
+          <div class="input-group mb-3 form-group col-md-6">
+            <label><h2><i class="fab fa-instagram"></i></h2><br></label><br>
+            <input type="text" class="form-control" placeholder="URl / Link do seu Perfil..." name="instagram" [(ngModel)]="usuario.instagram">
+          </div>
+          <div class="input-group mb-3 form-group col-md-6">
+            <label><h2><i class="fab fa-facebook"></i></h2><br></label><br>
+            <input type="text" class="form-control" placeholder="URl / Link do seu Perfil..." name="facebook" [(ngModel)]="usuario.facebook">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="input-group mb-3 form-group col-md-6">
+            <label><h2><i class="fab fa-twitter"></i></h2><br></label><br>
+            <input type="text" class="form-control" placeholder="URl / Link do seu Perfil..." name="twitter" [(ngModel)]="usuario.twitter">
+          </div>
+          <div class="input-group mb-3 form-group col-md-6">
+            <label><h2><i class="fab fa-linkedin-in"></i></h2><br></label><br>
+            <input type="text" class="form-control" placeholder="URl / Link do seu Perfil..." name="LinkedIn" [(ngModel)]="usuario.linkedIn">
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <label><h2><i class="fas fa-mouse-pointer"></i></h2><br></label><br>
+          <input type="text" class="form-control" placeholder="URl / Link do seu Site..." name="site" [(ngModel)]="usuario.site">
+        </div>
+        <div class = "text-center">
+          <button type="submit" class="btn btn-primary" [disabled]="!for.valid" (click)="editarInfo()">Editar Informações</button>
+        </div>
       </div>
     </form>
     

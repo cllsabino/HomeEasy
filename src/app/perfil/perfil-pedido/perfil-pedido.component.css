@@ -8,6 +8,9 @@ img{
     overflow: hidden;
     cursor: pointer;
 }
+i{
+    color: black;
+}
 .container{
     margin: 50px auto;
     position: relative;

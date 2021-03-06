@@ -2,8 +2,12 @@ body{
     padding: 0 10px;
     font-family: 'Poppins', sans-serif;
   }   
-    
-
+  .botao{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position:relative;
+  }
   h3{
   
     margin: 50px auto;
