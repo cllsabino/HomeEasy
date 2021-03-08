@@ -75,6 +75,7 @@ export class ChatComponent implements OnInit {
     if(this.usuario.id != this.servidor.id){
       this.mensagem.data = new Date().getTime();
       this.mensagem.id = this.userId;
+      this.mensagem.hora = new Date().getHours() + ":" + new Date().getMinutes();
       this.chatService.addCliente(this.usuario, this.servidor);
       this.chatService.addMensagem(this.userId, this.servidorId, this.mensagem);
       this.mensagem.mensagem="";

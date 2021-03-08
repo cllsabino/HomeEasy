@@ -43,9 +43,16 @@
         <div class="mensagem">
       <div *ngFor="let msg of mensagensArray">
 
-        <p *ngIf="msg.id == servidor.id" class="msg-1">{{ msg.mensagem }}</p>
-  
-        <p *ngIf="msg.id != servidor.id" class="msg-2">{{ msg.mensagem }}</p>
+        <div class="msg-1">
+          <p *ngIf="msg.id == servidor.id">{{ msg.mensagem }}</p>
+          <h6 *ngIf="msg.id == servidor.id">{{ msg.hora }}</h6>
+        </div>
+
+        <div class="msg-2">
+          <p *ngIf="msg.id != servidor.id">{{ msg.mensagem }}</p>
+          <h6 *ngIf="msg.id !== servidor.id">{{ msg.hora }}</h6>
+        </div>
+        
        </div>
       </div>
     </div>
