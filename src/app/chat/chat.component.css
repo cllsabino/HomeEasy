@@ -113,3 +113,9 @@ button{
     font-weight: bold;
     transition: background 0.23s;
 }
+h6{
+    color: #777;
+    display: block;
+    font-size: 12px;
+    margin: 8px 0 0;
+}
