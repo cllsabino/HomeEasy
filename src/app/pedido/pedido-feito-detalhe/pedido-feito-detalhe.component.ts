@@ -91,6 +91,7 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     this.avaliacao.idServidor = this.servidorId;
     this.avaliacao.idPedido = this.pedidoId;
     this.avaliacao.idServico = this.pedido.idServico;
+    this.avaliacao.data = new Date().getDate() + "/" + new Date().getMonth() + "/" + new Date().getFullYear();
     this.avaliacaoService.addAvaliacao(this.avaliacao, this.servidorId, this.pedido.idServico);
     this.pedido.statusContratante = true;
     this.servicoPedido.addPedido(this.usuario, this.servidor, this.pedido);

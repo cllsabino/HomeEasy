@@ -15,7 +15,7 @@
         <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
         <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
-        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+        <a class="btn btn-danger" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
       </div>
     </div>
    
@@ -43,14 +43,12 @@
         <div class="mensagem">
       <div *ngFor="let msg of mensagensArray">
 
-        <div class="msg-1">
-          <p *ngIf="msg.id == servidor.id">{{ msg.mensagem }}</p>
-          <h6 *ngIf="msg.id == servidor.id">{{ msg.hora }}</h6>
+        <div *ngIf="msg.id == servidor.id" class="msg-1">
+          <p>{{ msg.mensagem }}</p> <h6>{{ msg.hora }}</h6>
         </div>
 
-        <div class="msg-2">
-          <p *ngIf="msg.id != servidor.id">{{ msg.mensagem }}</p>
-          <h6 *ngIf="msg.id !== servidor.id">{{ msg.hora }}</h6>
+        <div *ngIf="msg.id !== servidor.id" class="msg-2">
+          <p>{{ msg.mensagem }}</p> <h6 >{{ msg.hora }}</h6>
         </div>
         
        </div>

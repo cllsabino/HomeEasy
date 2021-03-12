@@ -15,7 +15,7 @@
         <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
         <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
-        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+        <a class="btn btn-danger" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
       </div>
     </div>
    

@@ -16,7 +16,7 @@
         <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
         <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
-        <a class="btn btn-primary" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
+        <a class="btn btn-danger" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
       </div>
     </div>
    
@@ -38,7 +38,7 @@
       <div *ngIf="pedido.profissionalCancelou == true">
         <h3>{{servidor.nome}} Não Aceitou Esse Pedido!</h3>
       </div>
-      <br>
+      
       <div *ngIf="pedido.statusProfissional == true">
         <h3>{{servidor.nome}} Aceitou Esse Pedido!</h3>
       </div>
@@ -53,7 +53,7 @@
           </div>
         </form>
       </div>      
-      <br>
+      
       <div *ngIf="pedido.statusProfissional == false && pedido.statusContratante == false">
         <button type="button" class="alert alert-danger" (click)="cancelarPedido()">Cancelar Pedido</button>
       </div>

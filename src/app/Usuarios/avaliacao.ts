@@ -5,4 +5,5 @@ export class Avaliacao {
     avaliacao? : string;
     avaliacaoNota? : number;
     idServico? : string;
+    data? : string;
 }
