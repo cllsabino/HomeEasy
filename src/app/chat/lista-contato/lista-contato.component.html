@@ -27,7 +27,7 @@
       <h2>Minhas Conversas</h2>
       <ul class="list-group list-group-horizontal ulserve">
         <li class="list-group-item card" *ngFor="let contato of listaContatos">
-          <div class="card" style="width: 10rem;">
+          <div class="card" style="width: 15rem;">
             <div class="card-body">
              <h5 class="card-title">{{ contato.nome }}</h5>
              <button type="button" class="btn btn-primary" [routerLink]="['/chat', contato.id]">Ver Conversa</button>

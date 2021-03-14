@@ -25,7 +25,7 @@ export class ChatService {
  addMensagem(cliente : string, servidor : string, mensagem : Chat){
     this.chatCollection.doc(cliente).collection('Contato').doc(servidor).collection('Mensagens').add(mensagem);
     this.chatCollection.doc(servidor).collection('Contato').doc(cliente).collection('Mensagens').add(mensagem);
- } s
+ } 
  //pega as mensagens de uma conversa
  getMensagens(cliente : string, servidor : string){
     return this.chatCollection.doc(cliente).collection('Contato').doc(servidor).collection('Mensagens', ref => ref.orderBy('data', 'asc')).snapshotChanges().
@@ -39,10 +39,15 @@ export class ChatService {
       })
     );
  }
- //add a cnversa na lista de contatos 
+ //add a conversa na lista de contatos 
  addCliente(cliente : Usuario, servidor : Usuario){
    this.contatosCollection.doc(servidor.id).collection('Lista').doc(cliente.id).set(cliente);
    this.contatosCollection.doc(cliente.id).collection('Lista').doc(servidor.id).set(servidor);
+ }
+ //exclui um contato da lista
+ deleteContato(cliente : Usuario, servidor : Usuario){
+  this.contatosCollection.doc(servidor.id).collection('Lista').doc(cliente.id).delete;
+  this.contatosCollection.doc(cliente.id).collection('Lista').doc(servidor.id).delete;
  }
  //retorna usuarios da lista de conversa 
  getContatos(id : string){

@@ -11,10 +11,7 @@ div a{
     border:1px solid transparent ;
   }
   
-  div a:hover{
-    background-color:#fff;
-    color: #000;
-  }
+  
 i{
   color: black;
 }

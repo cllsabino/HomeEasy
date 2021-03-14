@@ -25,16 +25,20 @@
 
     <div class="container">
       <h3>Principais Profissionais</h3>
-      <ul class="list-group list-group-horizontal-lg ulserve">
-        <li class="list-group-item card" *ngFor="let user of usuariosArray">
-          <div class="card" style="width: 18rem;">
-            <div class="card-body">
-              <h5 class="card-title">{{ user.nome }}</h5>
-              <a class="btn btn-primary" [routerLink]="['/serviço', serveID, 'usuario', user.id]">Detalhes</a>
+
+        <ul class="list-group list-group-horizontal-lg ulserve">
+          <li class="list-group-item card" *ngFor="let user of usuariosArray">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title">{{ user.nome }}</h5>
+                <a *ngIf="user.linkedIn" href="https://www.{{user.linkedIn}}"><h2><i class="fab fa-linkedin-in"></i></h2></a>
+                <a *ngIf="user.instagram" href="https://www.instagram.com/{{user.instagram}}/"><h2><i class="fab fa-instagram"></i></h2></a>
+                <a *ngIf="user.site" href="https://www.{{user.site}}"><h2><i class="fas fa-mouse-pointer"></i></h2></a>
+                <a class="btn btn-primary" [routerLink]="['/serviço', serveID, 'usuario', user.id]">Detalhes</a>
+              </div>
             </div>
-          </div>
-        </li>
-      </ul>
+          </li>
+        </ul>
 
       <div *ngIf="usuariosArray.length == 0">
         <br>

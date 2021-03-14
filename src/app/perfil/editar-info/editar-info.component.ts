@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 
 import { Usuario } from 'src/app/Usuarios/usuario';
 import { UsuarioService } from './../../Servicos/usuario.service';
+import { Servico } from 'src/app/Usuarios/servico';
+import { ServicosService } from './../../Servicos/servicos.service';
 
 @Component({
   selector: 'app-editar-info',
@@ -18,12 +20,15 @@ export class EditarInfoComponent implements OnInit {
  entrarSair : boolean;
  usuario : Usuario = {};
  userSubscription : Subscription;
+ servicosArray = new Array<Servico>();
+ servicosSubscription : Subscription;
 
   constructor(
     public storage : AngularFireStorage,
     public afAuth : AngularFireAuth,
     public afs : AngularFirestore,
     public usuarioService : UsuarioService,
+    public servico : ServicosService, 
     ) { }
 
   ngOnInit() {
@@ -36,9 +41,13 @@ export class EditarInfoComponent implements OnInit {
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data; 
     });
+    this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
+      this.servicosArray = data;
+    });
   }
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
+    this.servicosSubscription.unsubscribe();
   }
   upload($event){
     this.imagem = $event.target.files[0];
@@ -50,7 +59,14 @@ export class EditarInfoComponent implements OnInit {
   editarInfo(){
     this.usuario.id = this.userId;
     this.afs.collection("Usuarios").doc(this.userId).set(this.usuario).then(
-      (success) => {alert("Informações Alteradas")});
+      (success) => {alert("Informações Alteradas")}
+    );
+    if(this.servicosArray.length != 0){
+      for(var a = 0; a < this.servicosArray.length; a++){
+        var serve : Servico = this.servicosArray[a];
+        this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(this.userId).set(this.usuario);
+      }
+    }
   }
 
 }
