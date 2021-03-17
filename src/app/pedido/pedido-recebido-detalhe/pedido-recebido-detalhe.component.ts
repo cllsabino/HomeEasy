@@ -84,6 +84,7 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     }
   }
   aceitarPedido(){
+    this.pedido.profissionalCancelou = false;
     this.pedido.statusProfissional = true;
     this.servicoPedido.addPedido(this.cliente, this.usuario, this.pedido);
   }

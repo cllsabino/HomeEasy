@@ -63,7 +63,7 @@
                     <div class="group">
                         <button value="Cadastrar" type="submit" class="button" [disabled]="!f.valid" (click)="register()">Cadastrar</button>
                     </div>
-                    <div *ngIf="mensagemErro" class="alert alert-danger" role="alert">
+                    <div *ngIf="mensagemErro" class="alert alert-danger msgerror" role="alert">
                         {{mensagemErro}}
                     </div>
                     <div class="hr"></div>

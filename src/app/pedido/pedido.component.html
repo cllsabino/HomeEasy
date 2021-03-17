@@ -33,7 +33,7 @@
       <div class="label">
         
         Qual a data que o serviço será realizado?
-        <input type="date" name="data" [(ngModel)]="pedido.data" required><br>
+        <input type="date" name="data" [min]="today" [(ngModel)]="pedido.data" required><br>
         Qual local em que o serviço será realizado?
         <input type="text" name="local" [(ngModel)]="pedido.local" required><br>
         Em qual horário o serviço será realizado?

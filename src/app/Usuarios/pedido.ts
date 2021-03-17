@@ -11,7 +11,7 @@ export class Pedido {
     estado? : string;
     cidade? : string;
     tipoPagamento? : string;
-    statusProfissional? : boolean;
-    statusContratante? : boolean; 
+    clienteCancelou? : boolean; 
     profissionalCancelou? : boolean;
+    statusProfissional? : boolean;
 }

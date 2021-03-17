@@ -35,6 +35,10 @@ export class PedidoFeitoDetalheComponent implements OnInit {
   servidorSubscription : Subscription;
   usuario : Usuario = {}; //usuario | cliente
   usuarioSubscription : Subscription;
+  mes : number = new Date().getUTCMonth()+1;
+  ano : number = new Date().getFullYear(); 
+  dia : number = new Date().getDate();
+  today = new Date().toJSON().split('T')[0];
 
   constructor(
     public afs : AngularFirestore, 
@@ -91,15 +95,14 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     this.avaliacao.idServidor = this.servidorId;
     this.avaliacao.idPedido = this.pedidoId;
     this.avaliacao.idServico = this.pedido.idServico;
-    this.avaliacao.data = new Date().getDate() + "/" + new Date().getMonth() + "/" + new Date().getFullYear();
+    this.avaliacao.data = this.dia + "/" + this.mes + "/" + this.ano;
     this.avaliacaoService.addAvaliacao(this.avaliacao, this.servidorId, this.pedido.idServico);
-    this.pedido.statusContratante = true;
     this.servicoPedido.addPedido(this.usuario, this.servidor, this.pedido);
     alert("Avaliação Realizada!");
     this.router.navigate(["/feed"]);
   }
   cancelarPedido(){
-    this.pedido.statusContratante = true;
+    this.pedido.clienteCancelou = true;
     this.servicoPedido.addPedido(this.usuario, this.servidor, this.pedido);
     this.servicoPedido.deletePedidoFeito(this.userId, this.pedido.id);
     alert("Pedido Cancelado!");

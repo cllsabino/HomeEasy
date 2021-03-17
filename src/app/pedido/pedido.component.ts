@@ -35,6 +35,7 @@ export class PedidoComponent implements OnInit {
   clienteSubscription : Subscription;
   servePedidoSubscription : Subscription;
   servePedido : ServicoPedido = {}; //detalhes do serviço
+  today = new Date().toJSON().split('T')[0];
 
   constructor(
     public afs : AngularFirestore, 
@@ -97,9 +98,9 @@ export class PedidoComponent implements OnInit {
       this.pedido.idServidor = this.servidor.id;
       this.pedido.idContratante = this.cliente.id;
       this.pedido.preco = this.servePedido.preco;
-      this.pedido.statusContratante = false;
-      this.pedido.statusProfissional = false;
+      this.pedido.clienteCancelou = false;
       this.pedido.profissionalCancelou = false;
+      this.pedido.statusProfissional = false;
       this.pedido.idServico = this.serveID;
       this.servicoPedido.addPedido(this.cliente, this.servidor, this.pedido);
       alert("Pedido Realizado!");

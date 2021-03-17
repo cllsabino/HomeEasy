@@ -26,7 +26,7 @@
 
     <div class="container">
       <h2>Informações</h2>
-      <h3>Servico: {{pedido.nome}}</h3>
+      <h3>Serviço: {{pedido.nome}}</h3>
       <h3>Profissional: {{servidor.nome}}</h3>
       <h3>Data: {{pedido.data}}</h3>
       <h3>Preço: {{pedido.preco}}</h3>
@@ -43,18 +43,18 @@
         <h3>{{servidor.nome}} Aceitou Esse Pedido!</h3>
       </div>
       <br>
-      <div *ngIf="pedido.statusContratante == false && pedido.statusProfissional == true">
+      <div *ngIf="pedido.clienteCancelou == false && pedido.statusProfissional == true">
         <form class="forms" #f="ngForm"> 
-          <p>Quando esse serviço for concluido, você pode avaliá-lo!</p>
+          <p>Quando esse serviço for concluido, você poderá avaliá-lo!</p>
           <div class="group ">
             <input type="number" min="1" max="5" placeholder="Nota?" [(ngModel)] = "avaliacao.avaliacaoNota" name="nota" required><br>
             <textarea rows="3"  placeholder="O que você achou desse serviço?" [(ngModel)] = "avaliacao.avaliacao" name="avaliacao" required></textarea><br>
             <button type="submit" [disabled]="!f.valid" (click)="addAvaliacao()">Avaliar</button>
           </div>
         </form>
-      </div>      
+      </div>       
       
-      <div *ngIf="pedido.statusProfissional == false && pedido.statusContratante == false">
+      <div *ngIf="pedido.profissionalCancelou == false && pedido.statusProfissional == false">
         <button type="button" class="alert alert-danger" (click)="cancelarPedido()">Cancelar Pedido</button>
       </div>
       
