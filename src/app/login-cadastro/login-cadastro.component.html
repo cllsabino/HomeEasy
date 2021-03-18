@@ -10,7 +10,7 @@
     
     <ul>
         <li><a routerLink="/home">HomeEasy</a></li>
-        <li><a routerLink="/feed">Feed</a></li>
+        <li><a routerLink="/feed">Serviços</a></li>
         <li><a routerLink="/sobrenos">Sobre Nós</a></li>
         <li><a routerLink="/contato">Contato</a></li>
         
@@ -50,7 +50,12 @@
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Idade</label>
-                        <input type="number" class="input" [(ngModel)]="userRegister.idade" name="idade" required>
+                        <input type="number" class="input" [(ngModel)]="userRegister.idade" name="idade" pattern="^$|^([1-9][8-9]|[9][9])?" required min="18" max="99" #rateInput2 = "ngModel">
+                        <div *ngIf="rateInput2.errors && (rateInput2.dirty || rateInput2.touched)">
+                            <div class="idade" [hidden]="!rateInput2.errors.pattern">
+                                A sua idade deve ser acima de 18 anos!
+                            </div>
+                        </div>
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Email</label>

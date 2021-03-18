@@ -8,8 +8,11 @@ body{
     justify-content: center;
     position:relative;
   }
+  .idade{
+    color: rgb(230, 13, 13);
+    text-align: center;
+}
   h3{
-  
     margin: 50px auto;
     font-size: 24px;
     font-weight: 700;

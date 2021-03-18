@@ -106,8 +106,7 @@ export class PedidoComponent implements OnInit {
       alert("Pedido Realizado!");
       this.router.navigate(["/feed"]);
     }else{
-      alert("Ação Impossível!");
-      this.router.navigate(["/feed"]);
+      alert("Não é possivel fazer um pedido para si mesmo!");
     }
   }
 

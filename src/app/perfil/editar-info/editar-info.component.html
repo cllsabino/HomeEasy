@@ -11,7 +11,7 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="btn btn-primary" [routerLink]="['/usuario', userId]" role="button">Perfil</a>
-        <a class="btn btn-primary" routerLink="/feed" role="button">Feed</a>
+        <a class="btn btn-primary" routerLink="/feed" role="button">Serviços</a>
         <a class="btn btn-primary" routerLink="/sobrenos" role="button">Sobre Nós</a>
         <a class="btn btn-primary" routerLink="/contato" role="button">Contato</a>
         <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
@@ -31,7 +31,12 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>Idade:</label>
-          <input type="number" class="form-control" [(ngModel)]="usuario.idade" name="idade">
+          <input type="number" class="form-control" [(ngModel)]="usuario.idade" name="idade" pattern="^$|^([1-9][8-9]|[9][9])?" min="18" max="99" #rateInput2 = "ngModel">
+          <div *ngIf="rateInput2.errors && (rateInput2.dirty || rateInput2.touched)">
+            <div class="idade" [hidden]="!rateInput2.errors.pattern">
+                A sua idade deve ser acima de 18 anos!
+            </div>
+        </div>
         </div>
         <div class="form-group col-md-6">
           <label>Telefone:</label>
@@ -41,7 +46,7 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>CPF:</label>
-          <input type="number" class="form-control" [(ngModel)]="usuario.cpf" name="cpf"> 
+          <input type="number" class="form-control" minlength="11" maxlength="11" [(ngModel)]="usuario.cpf" name="cpf"> 
         </div>
         <div class="form-group col-md-6">
           <label>CNPJ:</label>

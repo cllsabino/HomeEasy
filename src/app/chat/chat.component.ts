@@ -80,7 +80,7 @@ export class ChatComponent implements OnInit {
       this.chatService.addMensagem(this.userId, this.servidorId, this.mensagem);
       this.mensagem.mensagem="";
     }else{
-      alert("Ação Impossível!");
+      alert("Não é possivel mandar mensagens para si mesmo!");
       this.router.navigate(["/feed"]);
     }
   }
