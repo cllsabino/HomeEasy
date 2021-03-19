@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-
+import { LoginServiceService } from '../Servicos/login-service.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-sobre-nos',
@@ -7,13 +9,25 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./sobre-nos.component.css']
 })
 export class SobreNosComponent implements OnInit {
-
-  constructor(
+  entrarSair : boolean;
+  userId : string;
+  constructor(public afAuth : AngularFireAuth, public loginService : LoginServiceService,public router : Router
     
   ) { }
 
   ngOnInit() {
+    if(this.afAuth.auth.currentUser != null){
+    this.entrarSair = true;
+    this.userId = this.afAuth.auth.currentUser.uid;
+  } else this.entrarSair = false;
   }
+  async sair(){
+    try{
+      await this.loginService.sair().then(
+        (success) => {this.router.navigate(["/home"])});
+     }catch(error){
+       console.error(error);
+    }
 
-
+  }
 }

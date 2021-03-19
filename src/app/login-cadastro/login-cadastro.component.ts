@@ -4,6 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
+
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
 
@@ -16,15 +17,21 @@ export class LoginCadastroComponent implements OnInit {
  userLogin : Usuario = {}; 
  userRegister : Usuario = {};
  mensagemErro : string = null;
+ entrarSair : boolean;
+  userId : string;
   
   constructor(
     public loginservico : LoginServiceService, 
     public router : Router,
     public afs : AngularFirestore,
     public afAuth : AngularFireAuth,
+    
     ) { }
 
-  ngOnInit() {
+  ngOnInit() {    if(this.afAuth.auth.currentUser != null){
+    this.entrarSair = true;
+    this.userId = this.afAuth.auth.currentUser.uid;
+  } else this.entrarSair = false
   }
 
   async login(){
@@ -68,5 +75,13 @@ export class LoginCadastroComponent implements OnInit {
       }
     }
   }
+  async sair(){
+    try{
+      await this.loginservico.sair().then(
+        (success) => {this.router.navigate(["/home"])});
+     }catch(error){
+       console.error(error);
+    }
   
+  }
 }
