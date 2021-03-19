@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-
 
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
@@ -18,20 +16,20 @@ export class LoginCadastroComponent implements OnInit {
  userRegister : Usuario = {};
  mensagemErro : string = null;
  entrarSair : boolean;
-  userId : string;
+ userId : string;
   
   constructor(
     public loginservico : LoginServiceService, 
     public router : Router,
     public afs : AngularFirestore,
     public afAuth : AngularFireAuth,
-    
     ) { }
 
-  ngOnInit() {    if(this.afAuth.auth.currentUser != null){
-    this.entrarSair = true;
-    this.userId = this.afAuth.auth.currentUser.uid;
-  } else this.entrarSair = false
+  ngOnInit() {    
+    if(this.afAuth.auth.currentUser != null){
+      this.entrarSair = true;
+      this.userId = this.afAuth.auth.currentUser.uid;
+    }else this.entrarSair = false
   }
 
   async login(){
@@ -75,6 +73,7 @@ export class LoginCadastroComponent implements OnInit {
       }
     }
   }
+
   async sair(){
     try{
       await this.loginservico.sair().then(
@@ -82,6 +81,6 @@ export class LoginCadastroComponent implements OnInit {
      }catch(error){
        console.error(error);
     }
-  
   }
+  
 }

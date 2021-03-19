@@ -3,11 +3,13 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Subscription } from 'rxjs';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { Usuario } from 'src/app/Usuarios/usuario';
 import { UsuarioService } from './../../Servicos/usuario.service';
 import { Servico } from 'src/app/Usuarios/servico';
 import { ServicosService } from './../../Servicos/servicos.service';
+import { LoginServiceService } from '../../Servicos/login-service.service';
 
 @Component({
   selector: 'app-editar-info',
@@ -22,13 +24,16 @@ export class EditarInfoComponent implements OnInit {
  userSubscription : Subscription;
  servicosArray = new Array<Servico>();
  servicosSubscription : Subscription;
+ check : boolean = false;
 
   constructor(
     public storage : AngularFireStorage,
     public afAuth : AngularFireAuth,
     public afs : AngularFirestore,
+    public router : Router,
     public usuarioService : UsuarioService,
     public servico : ServicosService, 
+    public loginService : LoginServiceService,
     ) { }
 
   ngOnInit() {
@@ -44,6 +49,7 @@ export class EditarInfoComponent implements OnInit {
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
+    console.log(this.check);
   }
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();
@@ -66,6 +72,14 @@ export class EditarInfoComponent implements OnInit {
         var serve : Servico = this.servicosArray[a];
         this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(this.userId).set(this.usuario);
       }
+    }
+  }
+  async sair(){
+    try{
+      await this.loginService.sair().then(
+        (success) => {this.router.navigate(["/home"])});
+     }catch(error){
+       console.error(error);
     }
   }
 

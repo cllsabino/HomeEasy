@@ -108,3 +108,7 @@
     .email.ng-invalid.ng-touched{
         border: 1px solid red;
     }
+    .idade{
+        color: rgb(230, 13, 13);
+        text-align: center;
+    }

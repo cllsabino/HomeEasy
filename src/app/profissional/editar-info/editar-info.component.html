@@ -37,7 +37,12 @@
             <div class="input-group-prepend">
               <span class="input-group-text">R$</span>
             </div>
-            <input type="number" name="preco" [(ngModel)]="servicoped.preco" required>
+            <input type="number" name="preco" [(ngModel)]="servicoped.preco" required pattern="[0-9]+([\.,][0-9]+)?" #rateInput2 = "ngModel"><br>
+            <div *ngIf="rateInput2.errors && (rateInput2.dirty || rateInput2.touched)"><br>
+              <div class="idade" [hidden]="!rateInput2.errors.pattern">
+                  Porfavor, digite um valor aceitável!
+              </div>
+            </div>
           </div>
 
           <h3>Detalhes sobre o seu serviço?</h3>

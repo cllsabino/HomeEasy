@@ -31,21 +31,21 @@
 
     <form #f="ngForm">
       <div class="label">
-        
-        Qual a data que o serviço será realizado?
-        <input type="date" name="data" [min]="today" [(ngModel)]="pedido.data" required><br>
-        Qual local em que o serviço será realizado?
+        <label>Qual a data que o serviço será realizado?</label><br>
+        <input type="date" name="data" [min]="today" ng-min="today" [(ngModel)]="pedido.data" required><br>
+        <div *ngIf="pedido.data < today" class="idade">Porfavor, escolha uma data válida!</div>
+        <label>Qual local em que o serviço será realizado?</label><br>
         <input type="text" name="local" [(ngModel)]="pedido.local" required><br>
-        Em qual horário o serviço será realizado?
+        <label>Em qual horário o serviço será realizado?</label><br>
         <input type="time" name="hora" [(ngModel)]="pedido.hora" required><br>
-        Em qual cidade o serviço será realizado?
+        <label>Em qual cidade o serviço será realizado?</label><br>
         <input type="text" name="hora" [(ngModel)]="pedido.cidade" required><br>
-        Em qual Estado o serviço será realizado?
+        <label>Em qual Estado o serviço será realizado?</label><br>
         <select class="form-control" [(ngModel)]="pedido.estado" name="estado" required>
           <option>Pernambuco</option>
         </select><br>
       </div>
-      <button type="button" (click)="addpedido()" [disabled]="!f.valid">Fazer Pedido</button>
+      <button type="button" (click)="addpedido()" [disabled]="!f.valid || pedido.data < today">Fazer Pedido</button>
     </form>
     </div>
   </body>

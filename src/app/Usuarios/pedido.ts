@@ -4,7 +4,7 @@ export class Pedido {
     idServico? :string;
     idContratante? : string;
     idServidor? : string;
-    data? : Date;
+    data? : string;
     hora? : Date;
     local? : string;
     preco? : number;

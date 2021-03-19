@@ -23,9 +23,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <body>
 
-    <div class="container">
+    <div class="container" *ngIf="servicosArray.length != 0">
       <h2>Serviços Encontrados:</h2><br>
-
       <div>
         <ul class="list-group list-group-horizontal ulserve">
           <div *ngFor="let serve of servicosArray">
@@ -43,12 +42,29 @@
     </div>
 
 
-    <div class="texto">
+    
     <div *ngIf="servicosArray.length == 0">
       <br>
       <h2>Desculpe, não encontramos o serviço que você procura!</h2>
+      <br>
+      <h2>Serviços Disponíveis</h2>
+      <br>
+      <div >
+        <ul class="list-group list-group-horizontal ulserve serve">
+          <div *ngFor="let serve of servicosDisponiveis">
+            <li class="list-group-item">
+              <div class="card" style="width: 15rem;">
+                <div class="card-body">
+                  <h5 class="card-title" style="text-transform: capitalize">{{ serve.nome }}</h5>
+                  <button type="button" class="btn btn-primary" [routerLink]="['/serviço', serve.id]">Ver Profissionais</button>
+                </div>
+              </div>
+            </li>
+          </div>
+        </ul>
+      </div>
     </div>
-  </div>
+  
 
   </body>
 

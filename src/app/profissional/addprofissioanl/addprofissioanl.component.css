@@ -25,3 +25,7 @@ textarea{
       background-position: center;
     position:absolute;
     }
+    .idade{
+        color: rgb(230, 13, 13);
+        text-align: center;
+    }

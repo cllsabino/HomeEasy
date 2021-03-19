@@ -19,7 +19,9 @@ export class ProcurarServicoComponent implements OnInit {
   nomeDoServico : string;
   nomeDoServicoSubscription : Subscription;
   servicosArray = new Array<Servico>();
-  servicosArraySubscription : Subscription;
+  servicosArraySubscription : Subscription; 
+  servicosDisponiveis = new Array<Servico>();
+  servicosDisponiveisSubscription : Subscription; 
 
   constructor(
     public afs : AngularFirestore, 
@@ -42,10 +44,14 @@ export class ProcurarServicoComponent implements OnInit {
     this.servicosArraySubscription = this.servicoService.getServicoPorNome(this.nomeDoServico).subscribe(data => {
       this.servicosArray = data;
     });
+    this.servicosDisponiveisSubscription = this.servicoService.getServicos().subscribe(data => {
+      this.servicosDisponiveis = data;
+    });
   }
   ngOnDestroy(){
     this.nomeDoServicoSubscription.unsubscribe();
     this.servicosArraySubscription.unsubscribe();
+    this.servicosDisponiveisSubscription.unsubscribe();
   }
   async sair(){
     try{

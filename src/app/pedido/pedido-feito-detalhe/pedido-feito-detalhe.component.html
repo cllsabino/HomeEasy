@@ -46,7 +46,7 @@
       <div *ngIf="pedido.clienteCancelou == false && pedido.statusProfissional == true">
         <form class="forms" #f="ngForm"> 
           <p>Quando esse serviço for concluido, você poderá avaliá-lo!</p>
-          <div class="group ">
+          <div class="group" *ngIf="today >= pedido.data">
             <input type="number" min="1" max="5" placeholder="Nota?" [(ngModel)] = "avaliacao.avaliacaoNota" name="nota" required><br>
             <textarea rows="3"  placeholder="O que você achou desse serviço?" [(ngModel)] = "avaliacao.avaliacao" name="avaliacao" required></textarea><br>
             <button type="submit" [disabled]="!f.valid" (click)="addAvaliacao()">Avaliar</button>

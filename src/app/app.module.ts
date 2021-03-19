@@ -17,7 +17,7 @@ import { LoginServiceService } from './Servicos/login-service.service';
 import { LoginModule } from './login-cadastro/login.module';
 import { ContatoService } from './Servicos/contato.service';
 import { FeedModule } from './feed/feed.module';
-import { PerfilModule } from './perfil/perfil.module';
+import { PerfilModule } from './perfil/perfil.module'; 
 import { ServicosService } from './Servicos/servicos.service';
 import { UsuarioService } from './Servicos/usuario.service';
 import { ProfissionalModule } from './profissional/profissional.module';

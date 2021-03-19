@@ -37,7 +37,12 @@
                     </div>
                     <div class="input-group">
                         <label>Telefone</label>
-                        <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone" name="telefone" required>
+                        <input type="text" placeholder="Seu telefone" [(ngModel)] = "mensagem.telefone" name="telefone" required pattern="^[0-9]{9,11}$" #rateInput1 = "ngModel">
+                        <div *ngIf="rateInput1.errors && (rateInput1.dirty || rateInput1.touched)">
+                            <div class="idade" [hidden]="!rateInput1.errors.pattern">
+                                Porfavor, digite um número de telefone válido!
+                            </div>
+                          </div>
                        </div>
                 </div>
                        <div class="input-row">
