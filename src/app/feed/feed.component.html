@@ -18,7 +18,7 @@
         <a class="btn btn-primary" routerLink="/login" role="button" *ngIf="!entrarSair">Entrar</a>
         <a class="btn btn-danger" (click)="sair()" role="button" *ngIf="entrarSair">Sair</a>
       </div>
-    </div>
+      </div>
    
     <form #f="ngForm"class="form-inline">
       <input class="form-control mr-sm-2" name="nome "type="search" [(ngModel)]="pesquisarServico" placeholder="Procure um serviço" aria-label="Search" style="text-transform: capitalize">
@@ -92,8 +92,35 @@
         </div>
 
       </div>
+      <div class="content">
+      
+      <footer id="myFooter">
+          <div class="container">
+              <ul>
+                  <li><a routerLink="/sobrenos">Informações da Equipe</a></li>
+                  <li><a routerLink="/contato">Contato</a></li>
+                  <li><a routerLink="/home">Home</a></li>
+                  <li><a routerLink="/login">Login</a></li>
+              </ul>
+              <p class="footer-copyright">© 2021 Copyright - HOME EASY
+                
+              </p>
+              <p class="footer-copyright">O sistema tem o objetivo de aglutinar profissionais que trabalham fornecendo serviços a domicílio em apenas uma plataforma, facilitando assim a localização dos profissionais e sua área de atuação, por possíveis contratantes. 
+                Permitindo que a primeira abordagem entre o profissional e o contratante seja virtual, fazendo com que seja direta e rápida.
+              </p>
+          </div>
+          <div class="footer-social">
+            
+              <a href="https://www.facebook.com/" class="social-icons"><i class="fa fa-facebook"></i></a>
+              <a href="https://www.instagram.com" class="social-icons"><i class="fa fa-instagram"></i></a>
+              <a href="https://www.youtube.com/" class="social-icons"><i class="fa fa-youtube"></i></a>
+              <a href="https://twitter.com/" class="social-icons"><i class="fa fa-twitter"></i></a>
+          </div>
+      </footer>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   
     </div>
-    
+    </div>
   </body>
+  
 </html>
