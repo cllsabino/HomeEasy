@@ -58,8 +58,8 @@
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Idade</label>
-                        <input type="number" class="input" [(ngModel)]="userRegister.idade" name="idade" pattern="^$|^([1-9][8-9]|[9][9])?" required min="18" max="99" #rateInput2 = "ngModel">
-                        <div *ngIf="rateInput2.errors && (rateInput2.dirty || rateInput2.touched)">
+                        <input type="number" class="input" [(ngModel)]="userRegister.idade" name="idade" pattern="^$|^([1-9][0-9]|[9][9])?" required min="18" max="99" #rateInput2 = "ngModel">
+                        <div *ngIf="rateInput2.errors && (rateInput2.dirty || rateInput2.touched) || userRegister.idade < 18">
                             <div class="idade" [hidden]="!rateInput2.errors.pattern">
                                 A sua idade deve ser acima de 18 anos!
                             </div>
@@ -71,8 +71,16 @@
                     </div>
                     <div class="group">
                         <label for="pass" class="label">Senha</label>
-                        <input type="password" class="input" data-type="password" [(ngModel)]="userRegister.senha" name="password" required>
-                    </div>
+                        <input type="password" class="input" data-type="password" [(ngModel)]="userRegister.senha" name="password" required pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$" #rateInput1 = "ngModel">
+                        <div *ngIf="!rateInput1.dirty && !rateInput1.touched">
+                            <p class="senha">Use oito ou mais caracteres com uma combinação de letras maiúsculas e minúsculas e números!</p>
+                        </div>
+                        <div *ngIf="rateInput1.errors && (rateInput1.dirty && rateInput1.touched)">
+                            <div class="idade" [hidden]="!rateInput1.errors.pattern">
+                                Escolha uma senha mais segura!
+                            </div>
+                        </div>
+                    </div> 
                     <div class="group">
                         <button value="Cadastrar" type="submit" class="button" [disabled]="!f.valid" (click)="register()">Cadastrar</button>
                     </div>

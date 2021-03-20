@@ -24,7 +24,7 @@ export class EditarInfoComponent implements OnInit {
  userSubscription : Subscription;
  servicosArray = new Array<Servico>();
  servicosSubscription : Subscription;
- check : boolean = false;
+ valor : boolean = true;
 
   constructor(
     public storage : AngularFireStorage,
@@ -49,7 +49,6 @@ export class EditarInfoComponent implements OnInit {
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
-    console.log(this.check);
   }
   ngOnDestroy(){ 
     this.userSubscription.unsubscribe();

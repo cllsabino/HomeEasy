@@ -2,7 +2,7 @@ export class Usuario {
     email? : string;
     senha? : string;
     nome? : string;
-    idade? : string;
+    idade? : number;
     telefone? : string;
     id? : string;
     foto? : string;
