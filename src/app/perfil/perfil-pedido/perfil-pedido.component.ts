@@ -23,7 +23,8 @@ export class PerfilPedidoComponent implements OnInit {
  usuarioID : string; 
  usuarioIDSubscription : Subscription;
  usuario : Usuario = {};
- userId : string; 
+ userId : string;  
+ entrarSair : boolean;
  userSubscription : Subscription;
  imgSubscription : Subscription;
  servePedidoSubscription : Subscription;
@@ -42,6 +43,12 @@ export class PerfilPedidoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    if(this.afAuth.auth.currentUser != null){
+      this.userId = this.afAuth.auth.currentUser.uid;
+      this.entrarSair = true;
+    } 
+    else this.entrarSair = false;
+
     this.serveIDSubscription = this.active.params.subscribe(
       (params : Params) => { this.serveID = params['id'] }
     );
@@ -62,6 +69,14 @@ export class PerfilPedidoComponent implements OnInit {
     this.serveIDSubscription.unsubscribe();
     this.usuarioIDSubscription.unsubscribe();
     this.userSubscription.unsubscribe();
+  }
+  async sair(){
+    try{
+      await this.loginService.sair().then(
+        (success) => {this.router.navigate(["/home"])});
+     }catch(error){
+       console.error(error);
+    }
   }
 
 }

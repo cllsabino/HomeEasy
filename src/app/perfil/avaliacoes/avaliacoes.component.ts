@@ -20,6 +20,7 @@ import { Avaliacao } from './../../Usuarios/avaliacao';
 })
 export class AvaliacoesComponent implements OnInit {
  userId : string; //id do usuario
+ entrarSair : boolean;
  servidorId : string; //id do servidor
  servidorIdSubscription : Subscription;
  AvaliacoesArray = new Array<Avaliacao>(); //avaliações
@@ -43,7 +44,10 @@ export class AvaliacoesComponent implements OnInit {
   ngOnInit() {
     if(this.afAuth.auth.currentUser != null){
       this.userId = this.afAuth.auth.currentUser.uid;
-    }
+      this.entrarSair = true;
+    } 
+    else this.entrarSair = false;
+    
     this.servidorIdSubscription = this.active.params.subscribe(
       (params : Params) => { this.servidorId = params['idd'] }
     );

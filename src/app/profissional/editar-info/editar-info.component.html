@@ -46,7 +46,7 @@
           </div>
 
           <h3>Detalhes sobre o seu serviço?</h3>
-          <textarea name="detalhe" placeholder="Escreva algo..." rows="5" [(ngModel)]="servicoped.detalhe"></textarea><br>
+          <textarea name="detalhe" placeholder="Escreva algo..." rows="5" [(ngModel)]="servicoped.detalhe" required></textarea><br>
 
           <button type="button" class="btn btn-primary" [disabled]="!f.valid" (click)=" editarInfo()">Editar</button>
         </div>

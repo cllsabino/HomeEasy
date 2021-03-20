@@ -47,7 +47,7 @@
           </div>
 
           <h3>Detalhes sobre o seu serviço?</h3>
-          <textarea name="detalhe" placeholder="Escreva algo..." rows="5" [(ngModel)]="servePedido.detalhe"></textarea><br>
+          <textarea name="detalhe" placeholder="Escreva algo..." rows="5" [(ngModel)]="servePedido.detalhe" required></textarea><br>
 
           <button type="button" class="btn btn-primary" [disabled]="!f.valid" (click)="inscreverServico()">Inscreva-se</button>
         </div>
