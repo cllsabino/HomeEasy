@@ -10,12 +10,15 @@ import { Avaliacao } from '../Usuarios/avaliacao';
 import { Servico } from '../Usuarios/servico';
 import { ServicoPedido } from '../Usuarios/serico-pedido';
 import { Usuario } from '../Usuarios/usuario';
+import { ServiceRegion } from '../shared/models/service-region';
 import { matchesServiceSearch, normalizeSearchText } from '../shared/utils/text-search.utils';
 
 type ServiceCategoryFilter = 'all' | 'domestic' | 'renovation';
 
 interface ProfessionalFilterMetadata {
+  professionalId: string;
   city: string;
+  state: string;
   price: number;
   averageRating: number;
   hasRating: boolean;
@@ -23,6 +26,13 @@ interface ProfessionalFilterMetadata {
 
 interface ServiceFilterMetadata {
   professionals: ProfessionalFilterMetadata[];
+}
+
+interface ServiceRegionAccumulator {
+  city: string;
+  state: string;
+  professionalIds: { [professionalId: string]: boolean };
+  serviceIds: { [serviceId: string]: boolean };
 }
 
 @Component({
@@ -49,6 +59,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   availableOnly = false;
   isFilterPanelOpen = false;
   availableCities = new Array<string>();
+  serviceRegions = new Array<ServiceRegion>();
   isDomesticLoading = true;
   isRenovationLoading = true;
   isFilterMetadataLoading = true;
@@ -142,6 +153,11 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
   }
 
+  selectCityFromMap(city: string) {
+    this.cityFilter = city;
+    this.onFilterChange();
+  }
+
   selectCategory(categoryFilter: ServiceCategoryFilter) {
     this.categoryFilter = categoryFilter;
     this.onFilterChange();
@@ -183,7 +199,11 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   getServiceProfessionalCount(serviceId: string) {
     const metadata = this.serviceMetadata[serviceId];
-    return metadata ? metadata.professionals.length : 0;
+    if (!metadata) {
+      return 0;
+    }
+
+    return metadata.professionals.filter(professional => this.matchesProfessionalCriteria(professional, true)).length;
   }
 
   private initializeFilterMetadata() {
@@ -236,7 +256,9 @@ export class FeedComponent implements OnInit, OnDestroy {
     });
 
     professionals.push({
+      professionalId: professional.id,
       city: professional.cidade || '',
+      state: professional.estado || '',
       price: serviceDetails ? Number(serviceDetails.preco) : NaN,
       averageRating: ratingCount ? ratingTotal / ratingCount : 0,
       hasRating: ratingCount > 0
@@ -246,6 +268,10 @@ export class FeedComponent implements OnInit, OnDestroy {
   private applyFilters() {
     this.filteredDomesticServices = this.filterServices(this.domesticServices, 'domestic');
     this.filteredRenovationServices = this.filterServices(this.renovationServices, 'renovation');
+
+    if (!this.isFilterMetadataLoading) {
+      this.serviceRegions = this.resolveServiceRegions();
+    }
   }
 
   private filterServices(services: Servico[], serviceCategory: ServiceCategoryFilter) {
@@ -276,25 +302,27 @@ export class FeedComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    return metadata.professionals.some(professional => {
-      if (this.cityFilter && normalizeSearchText(professional.city) !== normalizeSearchText(this.cityFilter)) {
-        return false;
-      }
+    return metadata.professionals.some(professional => this.matchesProfessionalCriteria(professional, true));
+  }
 
-      if (this.isNumberFilterSet(this.minimumPrice) && (isNaN(professional.price) || professional.price < Number(this.minimumPrice))) {
-        return false;
-      }
+  private matchesProfessionalCriteria(professional: ProfessionalFilterMetadata, includeCity: boolean) {
+    if (includeCity && this.cityFilter && normalizeSearchText(professional.city) !== normalizeSearchText(this.cityFilter)) {
+      return false;
+    }
 
-      if (this.isNumberFilterSet(this.maximumPrice) && (isNaN(professional.price) || professional.price > Number(this.maximumPrice))) {
-        return false;
-      }
+    if (this.isNumberFilterSet(this.minimumPrice) && (isNaN(professional.price) || professional.price < Number(this.minimumPrice))) {
+      return false;
+    }
 
-      if (this.minimumRating && (!professional.hasRating || professional.averageRating < this.minimumRating)) {
-        return false;
-      }
+    if (this.isNumberFilterSet(this.maximumPrice) && (isNaN(professional.price) || professional.price > Number(this.maximumPrice))) {
+      return false;
+    }
 
-      return true;
-    });
+    if (this.minimumRating && (!professional.hasRating || professional.averageRating < this.minimumRating)) {
+      return false;
+    }
+
+    return true;
   }
 
   private hasProfessionalFilters() {
@@ -344,8 +372,73 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   private finishFilterMetadataLoading() {
     this.availableCities = this.resolveAvailableCities();
-    this.applyFilters();
     this.isFilterMetadataLoading = false;
+    this.applyFilters();
+  }
+
+  private resolveServiceRegions() {
+    const regionAccumulators: { [normalizedCity: string]: ServiceRegionAccumulator } = {};
+
+    this.collectServiceRegions(this.domesticServices, 'domestic', regionAccumulators);
+    this.collectServiceRegions(this.renovationServices, 'renovation', regionAccumulators);
+
+    return Object.keys(regionAccumulators)
+      .map(normalizedCity => {
+        const regionAccumulator = regionAccumulators[normalizedCity];
+        return {
+          city: regionAccumulator.city,
+          state: regionAccumulator.state,
+          professionalCount: Object.keys(regionAccumulator.professionalIds).length,
+          serviceCount: Object.keys(regionAccumulator.serviceIds).length
+        };
+      })
+      .sort((firstRegion, secondRegion) => {
+        if (firstRegion.professionalCount !== secondRegion.professionalCount) {
+          return secondRegion.professionalCount - firstRegion.professionalCount;
+        }
+
+        return firstRegion.city.localeCompare(secondRegion.city);
+      });
+  }
+
+  private collectServiceRegions(
+    services: Servico[],
+    serviceCategory: ServiceCategoryFilter,
+    regionAccumulators: { [normalizedCity: string]: ServiceRegionAccumulator }
+  ) {
+    if (this.categoryFilter !== 'all' && this.categoryFilter !== serviceCategory) {
+      return;
+    }
+
+    services.forEach(service => {
+      if (!matchesServiceSearch(service.nome, this.serviceSearch)) {
+        return;
+      }
+
+      const metadata = this.serviceMetadata[service.id];
+      if (!metadata) {
+        return;
+      }
+
+      metadata.professionals.forEach(professional => {
+        const normalizedCity = normalizeSearchText(professional.city);
+        if (!normalizedCity || !this.matchesProfessionalCriteria(professional, false)) {
+          return;
+        }
+
+        if (!regionAccumulators[normalizedCity]) {
+          regionAccumulators[normalizedCity] = {
+            city: professional.city,
+            state: professional.state,
+            professionalIds: {},
+            serviceIds: {}
+          };
+        }
+
+        regionAccumulators[normalizedCity].professionalIds[professional.professionalId] = true;
+        regionAccumulators[normalizedCity].serviceIds[service.id] = true;
+      });
+    });
   }
 
   private resolveCategoryFilter(categoryFilter: string): ServiceCategoryFilter {

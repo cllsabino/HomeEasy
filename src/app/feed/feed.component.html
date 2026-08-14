@@ -14,7 +14,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg>
         </span>
         <label class="sr-only" for="serviceSearch">Buscar serviço ou problema</label>
-        <input id="serviceSearch" name="serviceSearch" type="search" [(ngModel)]="serviceSearch" (ngModelChange)="onSearchChange()" placeholder="Ex.: roupa para lavar, vazamento, cuidar de criança..." autocomplete="off">
+        <input id="serviceSearch" name="serviceSearch" type="search" [(ngModel)]="serviceSearch" (ngModelChange)="onSearchChange()" placeholder=" Digite para pesquisar" autocomplete="off">
         <button class="button-primary" type="submit">Pesquisar</button>
         <small class="search-help">A busca entende nomes relacionados, como “criança” para babá e “roupa” para lavadeira.</small>
       </form>
@@ -52,6 +52,8 @@
     </section>
 
     <app-loading-state *ngIf="isFilterMetadataLoading && hasActiveFilters()" message="Aplicando os filtros..."></app-loading-state>
+
+    <app-regional-service-map [regions]="serviceRegions" [isLoading]="isFilterMetadataLoading" (citySelected)="selectCityFromMap($event)"></app-regional-service-map>
 
     <section class="service-category" id="domesticServices" *ngIf="categoryFilter !== 'renovation'">
       <header class="category-heading">

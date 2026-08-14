@@ -8,6 +8,7 @@ import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.compo
 import { ProcurarServicoComponent } from './procurar-servico/procurar-servico.component';
 import { SharedModule } from '../shared/shared.module';
 import { FloatingChatComponent } from './floating-chat/floating-chat.component';
+import { RegionalServiceMapComponent } from './regional-service-map/regional-service-map.component';
 
 @NgModule({
     imports:[
@@ -20,7 +21,8 @@ import { FloatingChatComponent } from './floating-chat/floating-chat.component';
         FeedComponent, 
         ServicoDetalheComponent,
         ProcurarServicoComponent,
-        FloatingChatComponent
+        FloatingChatComponent,
+        RegionalServiceMapComponent
     ], 
     exports:[
 
