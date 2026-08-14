@@ -6,17 +6,21 @@ import { FeedComponent } from './feed.component';
 import { FeedRoutingModule } from "./feed.routing.module";
 import { ServicoDetalheComponent } from './servico-detalhe/servico-detalhe.component';
 import { ProcurarServicoComponent } from './procurar-servico/procurar-servico.component';
+import { SharedModule } from '../shared/shared.module';
+import { FloatingChatComponent } from './floating-chat/floating-chat.component';
 
 @NgModule({
     imports:[
         CommonModule,
         FormsModule, 
-        FeedRoutingModule
+        FeedRoutingModule,
+        SharedModule
     ],
     declarations:[
         FeedComponent, 
         ServicoDetalheComponent,
-        ProcurarServicoComponent
+        ProcurarServicoComponent,
+        FloatingChatComponent
     ], 
     exports:[
 
