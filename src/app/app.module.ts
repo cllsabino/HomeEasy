@@ -26,6 +26,7 @@ import { ChatModule } from './chat/chat.module';
 import { ChatService } from './Servicos/chat.service';
 import { ServicoModule } from './servico/servico.module';
 import { AvalicaoService } from './Servicos/avaliacao.service';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { AvalicaoService } from './Servicos/avaliacao.service';
     PedidoModule,
     ChatModule,
     ServicoModule,
+    SharedModule,
     AppRoutingModule
   ], 
   providers: [ LoginServiceService, ContatoService, ServicosService, UsuarioService, ChatService, AvalicaoService ],
