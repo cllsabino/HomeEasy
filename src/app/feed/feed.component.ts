@@ -18,11 +18,28 @@ type ServiceCategoryFilter = 'all' | 'domestic' | 'renovation';
 
 interface ProfessionalFilterMetadata {
   professionalId: string;
+  professionalName: string;
+  professionalPhoto: string;
+  serviceId: string;
+  serviceName: string;
   city: string;
   state: string;
   price: number;
   averageRating: number;
+  ratingCount: number;
   hasRating: boolean;
+}
+
+interface RecommendedProfessional {
+  professionalId: string;
+  professionalName: string;
+  professionalPhoto: string;
+  serviceId: string;
+  serviceName: string;
+  city: string;
+  price: number;
+  averageRating: number;
+  ratingCount: number;
 }
 
 interface ServiceFilterMetadata {
@@ -47,6 +64,9 @@ export class FeedComponent implements OnInit, OnDestroy {
   domesticServicesSubscription: Subscription;
   renovationServices = new Array<Servico>();
   filteredRenovationServices = new Array<Servico>();
+  filteredServices = new Array<Servico>();
+  popularServices = new Array<Servico>();
+  recommendedProfessionals = new Array<RecommendedProfessional>();
   renovationServicesSubscription: Subscription;
   queryParamsSubscription: Subscription;
   entrarSair: boolean;
@@ -193,7 +213,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   get totalFilteredServices() {
-    return this.filteredDomesticServices.length + this.filteredRenovationServices.length;
+    return this.filteredServices.length;
   }
 
   get hasInvalidPriceRange() {
@@ -234,16 +254,16 @@ export class FeedComponent implements OnInit, OnDestroy {
     professionalSnapshot.forEach(professionalDocument => {
       const professional = professionalDocument.data() as Usuario;
       professional.id = professionalDocument.id;
-      professionalRequests.push(this.loadProfessionalMetadata(service.id, professional, professionals));
+      professionalRequests.push(this.loadProfessionalMetadata(service, professional, professionals));
     });
 
     await Promise.all(professionalRequests);
     this.serviceMetadata[service.id] = { professionals };
   }
 
-  private async loadProfessionalMetadata(serviceId: string, professional: Usuario, professionals: ProfessionalFilterMetadata[]) {
-    const serviceDetailsReference = this.afs.collection('ServicoPedido').doc(professional.id).collection('Serviços').doc(serviceId).ref;
-    const ratingsReference = this.afs.collection('Usuarios').doc(professional.id).collection('Serviços').doc(serviceId).collection('Avaliações').ref;
+  private async loadProfessionalMetadata(service: Servico, professional: Usuario, professionals: ProfessionalFilterMetadata[]) {
+    const serviceDetailsReference = this.afs.collection('ServicoPedido').doc(professional.id).collection('Serviços').doc(service.id).ref;
+    const ratingsReference = this.afs.collection('Usuarios').doc(professional.id).collection('Serviços').doc(service.id).collection('Avaliações').ref;
     const metadataSnapshots: any[] = await Promise.all([serviceDetailsReference.get(), ratingsReference.get()]);
     const serviceDetails = metadataSnapshots[0].data() as ServicoPedido;
     const ratingsSnapshot = metadataSnapshots[1];
@@ -262,10 +282,15 @@ export class FeedComponent implements OnInit, OnDestroy {
 
     professionals.push({
       professionalId: professional.id,
+      professionalName: professional.nome || 'Profissional Home Easy',
+      professionalPhoto: professional.foto || '',
+      serviceId: service.id,
+      serviceName: service.nome,
       city: professional.cidade || '',
       state: professional.estado || '',
       price: serviceDetails ? Number(serviceDetails.preco) : NaN,
       averageRating: ratingCount ? ratingTotal / ratingCount : 0,
+      ratingCount,
       hasRating: ratingCount > 0
     });
   }
@@ -273,6 +298,11 @@ export class FeedComponent implements OnInit, OnDestroy {
   private applyFilters() {
     this.filteredDomesticServices = this.filterServices(this.domesticServices, 'domestic');
     this.filteredRenovationServices = this.filterServices(this.renovationServices, 'renovation');
+    this.filteredServices = this.filteredDomesticServices.concat(this.filteredRenovationServices);
+
+    if (!this.isDomesticLoading && !this.isRenovationLoading && !this.popularServices.length) {
+      this.popularServices = this.domesticServices.concat(this.renovationServices).slice(0, 5);
+    }
 
     if (!this.isFilterMetadataLoading) {
       this.serviceRegions = this.resolveServiceRegions();
@@ -391,8 +421,56 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   private finishFilterMetadataLoading() {
     this.availableCities = this.resolveAvailableCities();
+    this.recommendedProfessionals = this.resolveRecommendedProfessionals();
     this.isFilterMetadataLoading = false;
     this.applyFilters();
+  }
+
+  selectPopularService(serviceName: string) {
+    this.serviceSearch = serviceName;
+    this.searchService();
+  }
+
+  getProfessionalInitial(professionalName: string) {
+    return professionalName ? professionalName.charAt(0).toUpperCase() : 'H';
+  }
+
+  hasProfessionalPrice(price: number) {
+    return price !== undefined && price !== null && !isNaN(Number(price));
+  }
+
+  hideUnavailableProfessionalPhoto(professional: RecommendedProfessional) {
+    professional.professionalPhoto = '';
+  }
+
+  private resolveRecommendedProfessionals() {
+    const professionalById: { [professionalId: string]: RecommendedProfessional } = {};
+
+    Object.keys(this.serviceMetadata).forEach(serviceId => {
+      this.serviceMetadata[serviceId].professionals.forEach(professional => {
+        const currentProfessional = professionalById[professional.professionalId];
+        if (currentProfessional && currentProfessional.averageRating >= professional.averageRating) {
+          return;
+        }
+
+        professionalById[professional.professionalId] = {
+          professionalId: professional.professionalId,
+          professionalName: professional.professionalName,
+          professionalPhoto: professional.professionalPhoto,
+          serviceId: professional.serviceId,
+          serviceName: professional.serviceName,
+          city: professional.city,
+          price: professional.price,
+          averageRating: professional.averageRating,
+          ratingCount: professional.ratingCount
+        };
+      });
+    });
+
+    return Object.keys(professionalById)
+      .map(professionalId => professionalById[professionalId])
+      .sort((firstProfessional, secondProfessional) => secondProfessional.averageRating - firstProfessional.averageRating)
+      .slice(0, 4);
   }
 
   private resolveServiceRegions() {

@@ -18,6 +18,13 @@ body {
 
 body > app-root { display: block; min-height: 100vh; }
 
+body.authenticated-layout app-root router-outlet + * {
+  display: block;
+  min-width: 0;
+  padding-top: 78px;
+  padding-left: 282px;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: var(--color-text);
   font-family: 'Manrope', sans-serif;
@@ -277,6 +284,16 @@ label, .label {
   header.navbar .navbar-nav { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
   header.navbar .form-inline { width: 100%; margin: 10px 0 0; }
   header.navbar .form-inline input { flex: 1; }
+}
+
+@media (max-width: 1040px) {
+  body.authenticated-layout app-root router-outlet + * { padding-top: 68px; padding-left: 88px; }
+}
+
+@media (max-width: 720px) {
+  body.authenticated-layout app-root router-outlet + * { width: 100%; margin-right: auto; margin-left: auto; padding-left: 0; }
+  body.authenticated-layout .app-page { width: 100%; }
+  body.authenticated-layout .page-shell { margin-right: auto; margin-left: auto; }
 }
 
 @media (max-width: 575px) {
