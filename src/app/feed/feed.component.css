@@ -11,8 +11,8 @@
 .search-icon { display: inline-flex; color: var(--color-primary); }
 .search-icon svg { width: 22px; height: 22px; }
 .category-shortcuts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 280px)); gap: 12px; }
-.category-shortcuts a { display: flex; align-items: center; gap: 13px; padding: 12px; border: 1px solid var(--color-border); border-radius: 16px; color: var(--color-text); background: var(--color-surface); }
-.category-shortcuts a:hover { border-color: var(--color-primary); transform: translateY(-2px); box-shadow: 0 12px 30px var(--color-shadow); }
+.category-shortcuts button { display: flex; align-items: center; gap: 13px; padding: 12px; border: 1px solid var(--color-border); border-radius: 16px; color: var(--color-text); background: var(--color-surface); font: inherit; text-align: left; cursor: pointer; }
+.category-shortcuts button:hover, .category-shortcuts button:focus-visible, .category-shortcuts button.active { border-color: var(--color-primary); background: var(--color-primarySoft); transform: translateY(-2px); box-shadow: 0 12px 30px var(--color-shadow); }
 .category-shortcuts span { display: flex; flex-direction: column; }
 .category-shortcuts small { color: var(--color-textMuted); }
 .filter-disclosure { display: flex; min-height: 52px; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }

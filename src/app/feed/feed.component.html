@@ -20,8 +20,8 @@
       </form>
 
       <nav class="category-shortcuts" aria-label="Atalhos para categorias">
-        <a href="#domesticServices" (click)="selectCategory('domestic')"><app-service-icon serviceName="Serviços domésticos"></app-service-icon><span><strong>Domésticos</strong><small>Rotina e cuidados</small></span></a>
-        <a href="#renovationServices" (click)="selectCategory('renovation')"><app-service-icon serviceName="Reformas e reparos"></app-service-icon><span><strong>Reformas</strong><small>Consertos e melhorias</small></span></a>
+        <button type="button" [class.active]="categoryFilter === 'domestic'" [attr.aria-pressed]="categoryFilter === 'domestic'" (click)="selectCategory('domestic')"><app-service-icon serviceName="Serviços domésticos"></app-service-icon><span><strong>Domésticos</strong><small>Rotina e cuidados</small></span></button>
+        <button type="button" [class.active]="categoryFilter === 'renovation'" [attr.aria-pressed]="categoryFilter === 'renovation'" (click)="selectCategory('renovation')"><app-service-icon serviceName="Reformas e reparos"></app-service-icon><span><strong>Reformas</strong><small>Consertos e melhorias</small></span></button>
       </nav>
     </header>
 

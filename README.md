@@ -13,7 +13,7 @@
   [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
   [![Status](https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-164E63)](#roadmap)
 
-  [Ver demonstração]((https://homeeasy-bd496.web.app/home)) · [Explorar funcionalidades](#-principais-funcionalidades) · [Executar localmente](#-executando-localmente)
+  [Abrir o redesign](https://homeeasy-bd496.web.app/home) · [Ver versão legada](https://homeeasy-52792.web.app/home) · [Executar localmente](#-executando-localmente)
 </div>
 
 ---
@@ -23,6 +23,15 @@
 O **Home Easy** é um marketplace de serviços para casa, com uma proposta semelhante a plataformas como o GetNinjas. Clientes encontram profissionais da sua região, comparam serviços e avaliações, conversam pelo chat e acompanham seus pedidos. Profissionais podem divulgar seu trabalho, receber solicitações e administrar os atendimentos.
 
 O projeto nasceu há seis anos como Trabalho de Conclusão de Curso no **IFPE** e foi redesenhado para transformar uma aplicação acadêmica em uma experiência de produto mais moderna, útil e utilizável.
+
+## 🌐 Aplicações publicadas
+
+| Versão | Endereço | Objetivo |
+| --- | --- | --- |
+| **Redesign atual** | [homeeasy-bd496.web.app](https://homeeasy-bd496.web.app/home) | Experiência modernizada, responsiva e em evolução |
+| **Sistema legado** | [homeeasy-52792.web.app](https://homeeasy-52792.web.app/home) | Preservação da versão original do projeto |
+
+As duas versões permanecem disponíveis de forma independente, permitindo comparar a evolução da experiência e do produto.
 
 ```mermaid
 flowchart LR

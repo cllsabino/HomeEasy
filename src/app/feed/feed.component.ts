@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
@@ -73,7 +74,8 @@ export class FeedComponent implements OnInit, OnDestroy {
     public router: Router,
     public afs: AngularFirestore,
     public afAuth: AngularFireAuth,
-    public active: ActivatedRoute
+    public active: ActivatedRoute,
+    @Inject(DOCUMENT) private document: Document
   ) { }
 
   ngOnInit() {
@@ -160,7 +162,10 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   selectCategory(categoryFilter: ServiceCategoryFilter) {
     this.categoryFilter = categoryFilter;
-    this.onFilterChange();
+    this.applyFilters();
+    this.syncFiltersToUrl().then(() => {
+      setTimeout(() => this.scrollToCategory(categoryFilter));
+    });
   }
 
   clearFilters() {
@@ -335,7 +340,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     );
   }
 
-  private syncFiltersToUrl() {
+  private syncFiltersToUrl(): Promise<boolean> {
     const queryParams: { [queryParam: string]: string | number } = {};
 
     if (this.serviceSearch) queryParams.q = this.serviceSearch.trim();
@@ -346,11 +351,25 @@ export class FeedComponent implements OnInit, OnDestroy {
     if (this.minimumRating) queryParams.rating = this.minimumRating;
     if (this.availableOnly) queryParams.available = '1';
 
-    this.router.navigate([], {
+    return this.router.navigate([], {
       relativeTo: this.active,
       queryParams,
       replaceUrl: true
     });
+  }
+
+  private scrollToCategory(categoryFilter: ServiceCategoryFilter) {
+    let categorySectionId = 'domesticServices';
+
+    if (categoryFilter === 'renovation') {
+      categorySectionId = 'renovationServices';
+    }
+
+    const categorySection = this.document.getElementById(categorySectionId);
+
+    if (categorySection) {
+      categorySection.scrollIntoView({ block: 'start' });
+    }
   }
 
   private resolveAvailableCities() {

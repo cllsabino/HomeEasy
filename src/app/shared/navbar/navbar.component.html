@@ -1,5 +1,5 @@
 <header class="app-navbar">
-  <a class="navbar-brand" routerLink="/home" (click)="closeMenu()" aria-label="Home Easy - Início">
+  <a class="navbar-brand" [routerLink]="authenticated ? '/feed' : '/home'" (click)="closeMenu()" [attr.aria-label]="authenticated ? 'Home Easy - Feed de serviços' : 'Home Easy - Início'">
     <span class="brand-logo-frame" aria-hidden="true">
       <img class="brand-logo" src="assets/home-easy-logo-v2.png" alt="">
     </span>
@@ -10,14 +10,20 @@
   </button>
 
   <nav id="mainNavigation" class="navbar-links" [class.menu-open]="menuOpen" aria-label="Navegação principal">
-    <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()">Serviços</a>
-    <a routerLink="/pedido-info" routerLinkActive="active" (click)="closeMenu()">Como funciona</a>
-    <a routerLink="/profissional" routerLinkActive="active" (click)="closeMenu()">Seja profissional</a>
-    <a routerLink="/sobrenos" routerLinkActive="active" (click)="closeMenu()">Sobre</a>
-    <a routerLink="/contato" routerLinkActive="active" (click)="closeMenu()">Contato</a>
-    <a *ngIf="authenticated" routerLink="/conversas" routerLinkActive="active" (click)="closeMenu()">Conversas</a>
-    <a *ngIf="authenticated" [routerLink]="['/usuario', userId]" routerLinkActive="active" (click)="closeMenu()">Meu perfil</a>
-    <a *ngIf="!authenticated" class="navbar-action" routerLink="/login" (click)="closeMenu()">Entrar</a>
-    <button *ngIf="authenticated" class="logout-action" type="button" (click)="requestLogout()">Sair</button>
+    <ng-container *ngIf="authenticated; else publicNavigation">
+      <a [routerLink]="['/usuario', userId]" routerLinkActive="active" (click)="closeMenu()">Meu perfil</a>
+      <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()">Feed de serviços</a>
+      <a routerLink="/conversas" routerLinkActive="active" (click)="closeMenu()">Conversas</a>
+      <button class="logout-action" type="button" (click)="requestLogout()">Sair</button>
+    </ng-container>
+
+    <ng-template #publicNavigation>
+      <a routerLink="/feed" routerLinkActive="active" (click)="closeMenu()">Serviços</a>
+      <a routerLink="/pedido-info" routerLinkActive="active" (click)="closeMenu()">Como funciona</a>
+      <a routerLink="/profissional" routerLinkActive="active" (click)="closeMenu()">Seja profissional</a>
+      <a routerLink="/sobrenos" routerLinkActive="active" (click)="closeMenu()">Sobre</a>
+      <a routerLink="/contato" routerLinkActive="active" (click)="closeMenu()">Contato</a>
+      <a class="navbar-action" routerLink="/login" (click)="closeMenu()">Entrar</a>
+    </ng-template>
   </nav>
 </header>
