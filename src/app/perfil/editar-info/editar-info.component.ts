@@ -11,6 +11,7 @@ import { UsuarioService } from '../../Servicos/usuario.service';
 import { Servico } from '../../Usuarios/servico';
 import { Usuario } from '../../Usuarios/usuario';
 import { formatCnpj, formatCpf, formatPhone, removeInputMask } from '../../shared/utils/input-mask.utils';
+import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
   selector: 'app-editar-info',
@@ -35,6 +36,7 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   isStatesLoading = true;
   isCitiesLoading = false;
   locationFeedback = '';
+  isSavingProfile = false;
 
   constructor(
     public afAuth: AngularFireAuth,
@@ -43,7 +45,8 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     public usuarioService: UsuarioService,
     public servico: ServicosService,
     public loginService: LoginServiceService,
-    private brazilLocationService: BrazilLocationService
+    private brazilLocationService: BrazilLocationService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
@@ -100,15 +103,28 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  editarInfo() {
+  async editarInfo() {
+    if (this.isSavingProfile) {
+      return;
+    }
+
+    this.isSavingProfile = true;
     this.usuario.id = this.userId;
-    this.afs.collection('Usuarios').doc(this.userId).set(this.usuario).then(
-      () => alert('Informações alteradas')
-    );
+    const writeOperations = new Array<Promise<void>>();
+    writeOperations.push(this.afs.collection('Usuarios').doc(this.userId).set(this.usuario));
 
     for (let serviceIndex = 0; serviceIndex < this.servicosArray.length; serviceIndex++) {
       const service = this.servicosArray[serviceIndex];
-      this.afs.collection('Serviços').doc(service.id).collection('Usuarios').doc(this.userId).set(this.usuario);
+      writeOperations.push(this.afs.collection('Serviços').doc(service.id).collection('Usuarios').doc(this.userId).set(this.usuario));
+    }
+
+    try {
+      await Promise.all(writeOperations);
+      this.notificationService.showSuccess('Perfil atualizado', 'Suas informações foram salvas com sucesso.');
+    } catch (error) {
+      this.notificationService.showError('Não foi possível salvar', 'Verifique sua conexão e tente atualizar o perfil novamente.');
+    } finally {
+      this.isSavingProfile = false;
     }
   }
 
