@@ -39,6 +39,8 @@ a {
 
 a:hover { color: var(--color-primaryDark); text-decoration: none; }
 button, input, select, textarea { font: inherit; }
+input:not([type='checkbox']):not([type='radio']), select, textarea { width: 100%; min-width: 0; max-width: 100%; }
+img, svg { max-width: 100%; }
 
 header.navbar {
   position: sticky;
@@ -307,6 +309,7 @@ label, .label {
 
 .page-shell {
   width: min(1120px, 100%);
+  min-width: 0;
   margin: 0 auto;
 }
 
@@ -468,6 +471,7 @@ label, .label {
   .page-heading { margin-bottom: 28px; }
   .surface-card { padding: 22px; }
   .search-bar { flex-direction: column; }
+  .form-actions > .button-primary, .form-actions > .button-secondary, .form-actions > .button-danger { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
