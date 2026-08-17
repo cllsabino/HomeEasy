@@ -1,7 +1,9 @@
 import { Component, HostListener, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { ChatService } from '../../Servicos/chat.service';
+import { UsuarioService } from '../../Servicos/usuario.service';
 import { Usuario } from '../../Usuarios/usuario';
 
 @Component({
@@ -18,7 +20,10 @@ export class FloatingChatComponent implements OnChanges, OnDestroy {
   isLoading = false;
   isOpen = false;
 
-  constructor(private chatService: ChatService) { }
+  constructor(
+    private chatService: ChatService,
+    private usuarioService: UsuarioService
+  ) { }
 
   ngOnChanges(changes: SimpleChanges) {
     if ((changes.userId || changes.authenticated) && this.authenticated && this.userId) {
@@ -55,7 +60,9 @@ export class FloatingChatComponent implements OnChanges, OnDestroy {
   private loadContacts() {
     this.clearContactsSubscription();
     this.isLoading = true;
-    this.contactsSubscription = this.chatService.getContatos(this.userId).subscribe(contacts => {
+    this.contactsSubscription = this.chatService.getContatos(this.userId).pipe(
+      switchMap(contacts => this.usuarioService.resolveProfilePhotos(contacts))
+    ).subscribe(contacts => {
       this.contacts = contacts;
       this.isLoading = false;
     });
