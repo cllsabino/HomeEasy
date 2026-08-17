@@ -13,7 +13,7 @@
   [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
   [![Status](https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-164E63)](#roadmap)
 
-  [Ver demonstração](https://homeeasy-52792.web.app/) · [Explorar funcionalidades](#-principais-funcionalidades) · [Executar localmente](#-executando-localmente)
+  [Ver demonstração]([https://homeeasy-52792.web.app/](https://homeeasy-bd496.web.app/home)) · [Explorar funcionalidades](#-principais-funcionalidades) · [Executar localmente](#-executando-localmente)
 </div>
 
 ---
