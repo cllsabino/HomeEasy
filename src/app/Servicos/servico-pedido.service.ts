@@ -81,9 +81,16 @@ export class ServicoPedidoService {
  private transitionOrder(order: Pedido, nextStatus: OrderStatus, actorId: string, additionalChanges: Partial<Pedido>){
    const clientOrderReference = this.usuariosCollection.doc(order.idContratante).collection('PedidosFeitos').doc(order.id).ref;
    const professionalOrderReference = this.usuariosCollection.doc(order.idServidor).collection('PedidosRecebidos').doc(order.id).ref;
+   const centralOrderReference = this.afs.collection('Orders').doc(order.id).ref;
 
    return this.afs.firestore.runTransaction(transaction => {
-     return transaction.get(clientOrderReference).then(orderSnapshot => {
+     return Promise.all([
+       transaction.get(clientOrderReference),
+       transaction.get(centralOrderReference)
+     ]).then(snapshots => {
+       const orderSnapshot = snapshots[0];
+       const centralOrderSnapshot = snapshots[1];
+
        if (!orderSnapshot.exists) {
          throw new Error('O pedido não foi encontrado no histórico do cliente.');
        }
@@ -115,6 +122,13 @@ export class ServicoPedidoService {
 
        transaction.set(clientOrderReference, updatedOrder);
        transaction.set(professionalOrderReference, updatedOrder);
+
+       if (centralOrderSnapshot.exists) {
+         transaction.update(centralOrderReference, {
+           status: nextStatus,
+           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+         });
+       }
      });
    });
  }

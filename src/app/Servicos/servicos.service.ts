@@ -33,6 +33,10 @@ export class ServicosService {
     })
   );
  }
+ //pega um serviço pelo id
+ getServico(id : string){
+  return this.servicoCollection.doc<Servico>(id).valueChanges();
+ }
  //pega servico especifico de um usuario
  getUserServicoPorId(id : string, idd : string){
   return this.afs.collection('Usuarios').doc(id).collection('Serviços').

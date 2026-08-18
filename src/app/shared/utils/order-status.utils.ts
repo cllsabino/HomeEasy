@@ -101,7 +101,10 @@ export function getOrderStatusHistory(order: Pedido): OrderStatusHistoryView[] {
 }
 
 export function getOrderStatusClass(order: Pedido): string {
-  const status = getOrderStatus(order);
+  return getStatusClass(getOrderStatus(order));
+}
+
+export function getStatusClass(status: OrderStatus): string {
 
   if (status === OrderStatus.Completed || status === OrderStatus.Accepted || status === OrderStatus.InProgress) {
     return 'status-success';

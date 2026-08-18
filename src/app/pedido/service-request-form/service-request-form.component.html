@@ -1,0 +1,21 @@
+<app-navbar [authenticated]="authenticated" [userId]="userId" (logout)="logout()"></app-navbar>
+<div class="context-nav"><app-back-link [route]="['/serviço', serviceId]" label="Voltar aos profissionais"></app-back-link></div>
+<main class="app-page"><div class="page-shell page-shell-narrow">
+  <header class="page-heading"><div class="page-heading-copy"><span class="page-kicker">Nova solicitação</span><h1>Conte o que você precisa.</h1><p>Profissionais da sua região poderão analisar os detalhes e enviar até quatro propostas.</p></div></header>
+  <app-loading-state *ngIf="isLoading" message="Preparando sua solicitação..."></app-loading-state>
+  <form class="surface-card form-stack" #requestForm="ngForm" (ngSubmit)="submitRequest()" *ngIf="!isLoading">
+    <section class="request-service-summary"><app-service-icon [serviceName]="service.nome"></app-service-icon><div><span>Serviço selecionado</span><h2>{{ service.nome }}</h2></div></section>
+    <div class="field-group"><label for="requestDescription">Descreva o serviço</label><textarea id="requestDescription" name="requestDescription" rows="5" minlength="20" maxlength="1000" [(ngModel)]="request.description" required placeholder="Explique o problema, o tamanho do ambiente e o resultado esperado"></textarea><small class="field-help">Quanto mais detalhes, mais precisas serão as propostas.</small></div>
+    <div class="form-grid">
+      <div class="field-group"><label for="requestUrgency">Quando precisa?</label><select id="requestUrgency" name="requestUrgency" [(ngModel)]="request.urgency" required><option *ngFor="let urgency of urgencyOptions" [ngValue]="urgency.value">{{ urgency.label }}</option></select></div>
+      <div class="field-group"><label for="preferredDate">Data preferida</label><input id="preferredDate" name="preferredDate" type="date" [min]="today" [(ngModel)]="request.preferredDate"></div>
+      <div class="field-group"><label for="budgetMinimum">Orçamento mínimo</label><input id="budgetMinimum" name="budgetMinimum" type="number" min="0" step="1" [(ngModel)]="request.budgetMinimum" placeholder="R$ 0"></div>
+      <div class="field-group"><label for="budgetMaximum">Orçamento máximo</label><input id="budgetMaximum" name="budgetMaximum" type="number" min="0" step="1" [(ngModel)]="request.budgetMaximum" placeholder="Sem limite"><span class="field-error" *ngIf="hasInvalidBudget">O valor máximo deve ser maior que o mínimo.</span></div>
+      <div class="field-group field-group-full"><label for="requestAddress">Endereço do atendimento</label><input id="requestAddress" name="requestAddress" type="text" [(ngModel)]="request.address" required placeholder="Rua, número e complemento"></div>
+      <div class="field-group"><label for="requestState">Estado</label><select id="requestState" name="requestState" [(ngModel)]="request.state" (ngModelChange)="onStateChange()" required><option value="">Selecione o estado</option><option *ngFor="let state of states" [value]="state.sigla">{{ state.nome }}</option></select></div>
+      <div class="field-group"><label for="requestCity">Cidade</label><select id="requestCity" name="requestCity" [(ngModel)]="request.city" [disabled]="!request.state || isLoadingCities" required><option value="">{{ isLoadingCities ? 'Carregando cidades...' : 'Selecione a cidade' }}</option><option *ngFor="let city of cities" [value]="city.nome">{{ city.nome }}</option></select></div>
+    </div>
+    <app-action-feedback [message]="feedbackMessage" [type]="feedbackType"></app-action-feedback>
+    <div class="form-actions"><button class="button-primary" type="submit" [disabled]="!requestForm.valid || hasInvalidBudget || isSubmitting">{{ isSubmitting ? 'Publicando...' : 'Receber propostas' }}</button></div>
+  </form>
+</div></main>

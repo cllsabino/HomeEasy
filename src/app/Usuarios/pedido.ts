@@ -23,7 +23,7 @@ export class Pedido {
     idContratante? : string;
     idServidor? : string;
     data? : string;
-    hora? : Date;
+    hora? : string;
     local? : string;
     preco? : number;
     estado? : string;

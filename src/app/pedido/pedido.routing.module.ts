@@ -8,6 +8,11 @@ import { PedidoRecebidoComponent } from './pedido-recebido/pedido-recebido.compo
 import { PedidoFeitoDetalheComponent } from './pedido-feito-detalhe/pedido-feito-detalhe.component';
 import { PedidoRecebidoDetalheComponent } from './pedido-recebido-detalhe/pedido-recebido-detalhe.component';
 import { AuthGuardGuard } from "../guardas/auth-guard.guard";
+import { ServiceOpportunityDetailComponent } from './service-opportunity-detail/service-opportunity-detail.component';
+import { ServiceOpportunityListComponent } from './service-opportunity-list/service-opportunity-list.component';
+import { ServiceRequestDetailComponent } from './service-request-detail/service-request-detail.component';
+import { ServiceRequestFormComponent } from './service-request-form/service-request-form.component';
+import { ServiceRequestListComponent } from './service-request-list/service-request-list.component';
 
 const pedidoRoutes : Routes = [
     {path : 'serviço/:id/usuario/:idd/pedido', component : PedidoComponent, canActivate : [AuthGuardGuard] },
@@ -16,6 +21,11 @@ const pedidoRoutes : Routes = [
     {path : 'usuario/:id/pedidos-feitos/:idd', component : PedidoFeitoDetalheComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-recebidos', component : PedidoRecebidoComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-recebidos/:idd', component : PedidoRecebidoDetalheComponent, canActivate : [AuthGuardGuard] },
+    {path : 'solicitar/:serviceId', component : ServiceRequestFormComponent, canActivate : [AuthGuardGuard] },
+    {path : 'solicitacoes', component : ServiceRequestListComponent, canActivate : [AuthGuardGuard] },
+    {path : 'solicitacoes/:requestId', component : ServiceRequestDetailComponent, canActivate : [AuthGuardGuard] },
+    {path : 'oportunidades', component : ServiceOpportunityListComponent, canActivate : [AuthGuardGuard] },
+    {path : 'oportunidades/:requestId', component : ServiceOpportunityDetailComponent, canActivate : [AuthGuardGuard] },
 ];
 
 @NgModule({

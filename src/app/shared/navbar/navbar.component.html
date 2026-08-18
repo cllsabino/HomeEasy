@@ -89,8 +89,11 @@
     <a routerLink="/feed" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path></svg><span>Início</span>
     </a>
-    <a [routerLink]="['/usuario', userId, 'pedidos-feitos']" routerLinkActive="active" (click)="closeSidebar()">
+    <a routerLink="/solicitacoes" routerLinkActive="active" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"></rect><path d="M8 8h8M8 12h6M8 16h4"></path></svg><span>Solicitações</span>
+    </a>
+    <a routerLink="/oportunidades" routerLinkActive="active" (click)="closeSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16v12H4z"></path><path d="M9 7V5h6v2M4 12h16M10 12v2h4v-2"></path></svg><span>Oportunidades</span>
     </a>
     <a [routerLink]="['/usuario', userId, 'pedidos-recebidos']" routerLinkActive="active" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v14H4zM8 3v4m8-4v4M4 10h16"></path></svg><span>Pedidos recebidos</span>

@@ -10,6 +10,11 @@ import { PedidoFeitoDetalheComponent } from './pedido-feito-detalhe/pedido-feito
 import { PedidoRecebidoComponent } from './pedido-recebido/pedido-recebido.component';
 import { PedidoRecebidoDetalheComponent } from './pedido-recebido-detalhe/pedido-recebido-detalhe.component';
 import { SharedModule } from '../shared/shared.module';
+import { ServiceOpportunityDetailComponent } from './service-opportunity-detail/service-opportunity-detail.component';
+import { ServiceOpportunityListComponent } from './service-opportunity-list/service-opportunity-list.component';
+import { ServiceRequestDetailComponent } from './service-request-detail/service-request-detail.component';
+import { ServiceRequestFormComponent } from './service-request-form/service-request-form.component';
+import { ServiceRequestListComponent } from './service-request-list/service-request-list.component';
 
 @NgModule({
     imports:[
@@ -24,7 +29,12 @@ import { SharedModule } from '../shared/shared.module';
         PedidoFeitoComponent,
         PedidoRecebidoComponent,
         PedidoFeitoDetalheComponent,
-        PedidoRecebidoDetalheComponent
+        PedidoRecebidoDetalheComponent,
+        ServiceOpportunityDetailComponent,
+        ServiceOpportunityListComponent,
+        ServiceRequestDetailComponent,
+        ServiceRequestFormComponent,
+        ServiceRequestListComponent
     ], 
     exports:[
 
