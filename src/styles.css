@@ -386,6 +386,8 @@ label, .label {
 .entity-card h2, .entity-card h3 { margin: 0 0 8px; font-size: 1.18rem; text-transform: capitalize; }
 .entity-card p { margin-bottom: 22px; }
 .entity-card .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.entity-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.entity-card-header .icon-badge { margin-bottom: 0; }
 .entity-avatar { width: 52px; height: 52px; border: 1px solid var(--color-border); border-radius: 50%; object-fit: cover; background: var(--color-primarySoft); }
 
 .icon-badge {
@@ -437,8 +439,10 @@ label, .label {
 .detail-item strong { color: var(--color-text); font-size: 1rem; }
 
 .status-banner { display: flex; align-items: center; gap: 12px; margin: 22px 0; padding: 16px 18px; border-radius: 13px; color: var(--color-primary); background: var(--color-primarySoft); font-weight: 700; }
+.status-pending { color: var(--color-warning); background: var(--color-warningSoft); }
 .status-danger { color: var(--color-danger); background: var(--color-dangerSoft); }
 .status-success { color: var(--color-success); background: var(--color-successSoft); }
+.order-status-chip { align-self: flex-start; padding: 6px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; line-height: 1.2; }
 
 .empty-state { display: grid; min-height: 320px; place-items: center; padding: 48px 24px; border: 1px dashed var(--color-border); border-radius: 20px; text-align: center; background: var(--color-surface); }
 .empty-state-content { max-width: 440px; }

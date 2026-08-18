@@ -8,12 +8,13 @@ import { Subscription } from 'rxjs';
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { UsuarioService } from './../../Servicos/usuario.service';
-import { Pedido } from 'src/app/Usuarios/pedido';
+import { OrderStatus, Pedido } from 'src/app/Usuarios/pedido';
 import { AvalicaoService } from './../../Servicos/avaliacao.service';
 import { Avaliacao } from './../../Usuarios/avaliacao';
 import { ServicosService } from './../../Servicos/servicos.service';
 import { Usuario } from './../../Usuarios/usuario';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
+import { canTransitionOrder, getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
   selector: 'app-pedido-recebido-detalhe',
@@ -95,14 +96,11 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
 
     this.feedbackMessage = '';
     this.isSubmitting = true;
-    this.pedido.profissionalCancelou = false;
-    this.pedido.statusProfissional = true;
     try {
-      await this.servicoPedido.addPedido(this.cliente, this.usuario, this.pedido);
+      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.Accepted, this.userId);
       this.feedbackType = 'success';
       this.feedbackMessage = 'Pedido aceito. Agora você pode combinar os detalhes com o cliente.';
     } catch (error) {
-      this.pedido.statusProfissional = false;
       this.feedbackType = 'error';
       this.feedbackMessage = 'Não foi possível aceitar o pedido. Tente novamente.';
     } finally {
@@ -125,19 +123,32 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    this.pedido.profissionalCancelou = true;
     try {
-      await this.servicoPedido.addPedido(this.cliente, this.usuario, this.pedido);
-      await this.servicoPedido.deletePedidoRecebido(this.userId, this.pedido.id);
+      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.DeclinedByProfessional, this.userId);
       this.router.navigate(['/usuario', this.userId, 'pedidos-recebidos']);
     } catch (error) {
-      this.pedido.profissionalCancelou = false;
       this.feedbackType = 'error';
       this.feedbackMessage = 'Não foi possível recusar o pedido. Tente novamente.';
     } finally {
       this.isSubmitting = false;
       this.isConfirmingCancellation = false;
     }
+  }
+
+  get orderStatusLabel() {
+    return getOrderStatusLabel(this.pedido);
+  }
+
+  get orderStatusClass() {
+    return getOrderStatusClass(this.pedido);
+  }
+
+  get canAcceptOrder() {
+    return canTransitionOrder(this.pedido, OrderStatus.Accepted, this.userId);
+  }
+
+  get canDeclineOrder() {
+    return canTransitionOrder(this.pedido, OrderStatus.DeclinedByProfessional, this.userId);
   }
 
 }

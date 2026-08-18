@@ -6,6 +6,7 @@ import { ServicoPedidoService } from '../../Servicos/servico-pedido.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
 import { Pedido } from '../../Usuarios/pedido';
 import { Usuario } from '../../Usuarios/usuario';
+import { isPendingOrder } from '../utils/order-status.utils';
 
 @Component({
   selector: 'app-navbar',
@@ -165,15 +166,11 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   private loadReceivedOrders() {
     this.clearOrderSubscription();
     this.orderSubscription = this.servicoPedidoService.getPedidosRecebidos(this.userId).subscribe(orders => {
-      const pendingOrders = orders.filter(order => this.isPendingOrder(order));
+      const pendingOrders = orders.filter(order => isPendingOrder(order));
 
       this.notificationCount = pendingOrders.length;
       this.notificationOrders = pendingOrders.slice(0, 4);
     });
-  }
-
-  private isPendingOrder(order: Pedido) {
-    return order.statusProfissional !== true && order.clienteCancelou !== true && order.profissionalCancelou !== true;
   }
 
   private clearOrderSubscription() {

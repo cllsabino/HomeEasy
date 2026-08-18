@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators"
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
 
 import { ServicoPedido } from './../Usuarios/serico-pedido';
 import { Servico } from '../Usuarios/servico';
 import { Usuario } from 'src/app/Usuarios/usuario';
-import { Pedido } from 'src/app/Usuarios/pedido';
+import { OrderStatus, Pedido } from 'src/app/Usuarios/pedido';
+import { canTransitionOrder, getLegacyOrderFlags, getOrderStatus } from '../shared/utils/order-status.utils';
 
 @Injectable({
     providedIn: 'root'
@@ -35,11 +38,41 @@ export class ServicoPedidoService {
  //adiciona um pedido
  addPedido(cliente : Usuario, servidor : Usuario, pedido : Pedido){
    const batch = this.afs.firestore.batch();
+   const orderStatus = getOrderStatus(pedido);
    const clientOrderReference = this.usuariosCollection.doc(cliente.id).collection('PedidosFeitos').doc(pedido.id).ref;
    const professionalOrderReference = this.usuariosCollection.doc(servidor.id).collection('PedidosRecebidos').doc(pedido.id).ref;
+   const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+   const orderData: any = Object.assign({}, pedido, getLegacyOrderFlags(orderStatus), {
+     status: orderStatus,
+     updatedAt: serverTimestamp
+   });
 
-   batch.set(clientOrderReference, pedido);
-   batch.set(professionalOrderReference, pedido);
+   if (!pedido.createdAt) {
+     orderData.createdAt = serverTimestamp;
+   }
+
+   batch.set(clientOrderReference, orderData);
+   batch.set(professionalOrderReference, orderData);
+
+   return batch.commit();
+ }
+
+ updateOrderStatus(order: Pedido, nextStatus: OrderStatus, actorId: string){
+   if (!canTransitionOrder(order, nextStatus, actorId)) {
+     return Promise.reject(new Error('Transição de status não permitida para este pedido.'));
+   }
+
+   const batch = this.afs.firestore.batch();
+   const clientOrderReference = this.usuariosCollection.doc(order.idContratante).collection('PedidosFeitos').doc(order.id).ref;
+   const professionalOrderReference = this.usuariosCollection.doc(order.idServidor).collection('PedidosRecebidos').doc(order.id).ref;
+   const updatedOrder: any = Object.assign({}, order, getLegacyOrderFlags(nextStatus), {
+     status: nextStatus,
+     statusUpdatedBy: actorId,
+     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+   });
+
+   batch.set(clientOrderReference, updatedOrder);
+   batch.set(professionalOrderReference, updatedOrder);
 
    return batch.commit();
  }
