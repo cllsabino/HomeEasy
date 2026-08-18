@@ -29,9 +29,38 @@
   </a>
 
   <div class="account-actions">
-    <a class="notification-link" [routerLink]="['/usuario', userId, 'pedidos-recebidos']" aria-label="Ver notificações" title="Notificações">
+    <button class="notification-link" type="button" (click)="toggleNotificationMenu($event)" [attr.aria-expanded]="notificationMenuOpen" aria-controls="notificationMenu" [attr.aria-label]="notificationAriaLabel" title="Notificações">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
-    </a>
+      <span class="notification-badge" *ngIf="notificationCount > 0" aria-hidden="true">{{ notificationBadgeLabel }}</span>
+    </button>
+
+    <section id="notificationMenu" class="notification-menu" *ngIf="notificationMenuOpen" (click)="$event.stopPropagation()" aria-label="Pedidos novos">
+      <header class="notification-menu-header">
+        <span><small>Atualizações</small><strong>Notificações</strong></span>
+        <span class="notification-total" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </header>
+
+      <div class="notification-empty" *ngIf="notificationCount === 0">
+        <span aria-hidden="true">✓</span>
+        <strong>Tudo em dia</strong>
+        <p>Você não tem novos pedidos para analisar.</p>
+      </div>
+
+      <div class="notification-list" *ngIf="notificationCount > 0">
+        <a *ngFor="let order of notificationOrders" [routerLink]="['/usuario', userId, 'pedidos-recebidos']" (click)="closeNotificationMenu()">
+          <span class="notification-order-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"></rect><path d="M8 8h8M8 12h6M8 16h4"></path></svg>
+          </span>
+          <span class="notification-order-copy">
+            <strong>Novo pedido de {{ order.nome || 'serviço' }}</strong>
+            <small>{{ order.data }}<span *ngIf="order.cidade"> · {{ order.cidade }}</span></small>
+          </span>
+          <span class="notification-order-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <a class="notification-menu-footer" [routerLink]="['/usuario', userId, 'pedidos-recebidos']" (click)="closeNotificationMenu()">Ver pedidos recebidos</a>
+    </section>
 
     <button class="topbar-account" type="button" (click)="toggleProfileMenu($event)" [attr.aria-expanded]="profileMenuOpen" aria-controls="profileMenu" aria-label="Abrir opções da conta">
       <img *ngIf="user && user.foto" [src]="user.foto" [alt]="user.nome" (error)="hideUnavailableUserPhoto()">

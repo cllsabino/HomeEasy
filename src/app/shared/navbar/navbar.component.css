@@ -9,9 +9,31 @@
 .authenticated-menu-toggle { display: none; width: 44px; height: 44px; flex: 0 0 44px; border: 1px solid var(--color-border); border-radius: 11px; background: var(--color-surface); cursor: pointer; }
 .authenticated-menu-toggle span { display: block; width: 19px; height: 2px; margin: 4px auto; border-radius: 2px; background: var(--color-text); }
 .account-actions { position: relative; display: flex; align-items: center; gap: 14px; margin-left: auto; }
-.notification-link { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 12px; color: var(--color-textMuted); }
+.notification-link { position: relative; display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 12px; color: var(--color-textMuted); background: transparent; cursor: pointer; }
 .notification-link:hover { color: var(--color-primary); background: var(--color-primarySoft); }
 .notification-link svg { width: 22px; height: 22px; }
+.notification-badge { position: absolute; top: 3px; right: 2px; display: grid; min-width: 19px; height: 19px; place-items: center; padding: 0 5px; border: 2px solid var(--color-surface); border-radius: 10px; color: var(--color-surface); background: var(--color-danger); font-size: 0.64rem; font-weight: 800; line-height: 1; }
+.notification-menu { position: absolute; top: calc(100% + 10px); right: 182px; width: min(360px, calc(100vw - 28px)); overflow: hidden; border: 1px solid var(--color-border); border-radius: 18px; background: var(--color-surface); box-shadow: 0 18px 50px var(--color-shadowStrong); }
+.notification-menu-header { display: flex; min-height: 72px; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--color-border); }
+.notification-menu-header > span:first-child { display: flex; flex-direction: column; }
+.notification-menu-header small { color: var(--color-textMuted); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; }
+.notification-menu-header strong { color: var(--color-text); font-size: 1rem; }
+.notification-total { display: grid; min-width: 25px; height: 25px; place-items: center; padding: 0 7px; border-radius: 13px; color: var(--color-surface); background: var(--color-accent); font-size: 0.72rem; font-weight: 800; }
+.notification-list { display: grid; padding: 7px; }
+.notification-list a { display: flex; min-height: 68px; align-items: center; gap: 11px; padding: 10px; border-radius: 12px; color: var(--color-text); }
+.notification-list a:hover { color: var(--color-primary); background: var(--color-primarySoft); }
+.notification-order-icon { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 11px; color: var(--color-primary); background: var(--color-primarySoft); }
+.notification-order-icon svg { width: 20px; height: 20px; }
+.notification-order-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; }
+.notification-order-copy strong { overflow: hidden; font-size: 0.8rem; text-overflow: ellipsis; white-space: nowrap; }
+.notification-order-copy small { color: var(--color-textMuted); font-size: 0.7rem; }
+.notification-order-arrow { color: var(--color-primary); font-weight: 800; }
+.notification-empty { display: flex; align-items: center; flex-direction: column; padding: 26px 18px; text-align: center; }
+.notification-empty > span { display: grid; width: 42px; height: 42px; place-items: center; margin-bottom: 10px; border-radius: 50%; color: var(--color-success); background: var(--color-successSoft); font-weight: 800; }
+.notification-empty strong { color: var(--color-text); font-size: 0.9rem; }
+.notification-empty p { margin: 4px 0 0; color: var(--color-textMuted); font-size: 0.75rem; }
+.notification-menu-footer { display: flex; min-height: 48px; align-items: center; justify-content: center; border-top: 1px solid var(--color-border); color: var(--color-primary); background: var(--color-surfaceMuted); font-size: 0.78rem; font-weight: 800; }
+.notification-menu-footer:hover { color: var(--color-primaryDark); background: var(--color-primarySoft); }
 .topbar-account { display: flex; min-width: 172px; align-items: center; gap: 10px; padding: 5px 8px; border: 0; border-radius: 13px; color: var(--color-text); background: transparent; cursor: pointer; text-align: left; }
 .topbar-account:hover { color: var(--color-primary); background: var(--color-primarySoft); }
 .topbar-account img, .topbar-account .account-initial { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border-radius: 50%; object-fit: cover; color: var(--color-surface); background: var(--color-primary); font-weight: 800; }
@@ -69,6 +91,7 @@
 }
 @media (max-width: 560px) {
   .account-actions { gap: 5px; }
+  .notification-menu { position: fixed; top: 76px; right: 10px; left: 10px; width: auto; }
   .topbar-account { min-width: 0; padding: 4px; }
   .account-copy, .account-chevron { display: none; }
 }

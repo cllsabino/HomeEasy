@@ -2,7 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, HostListener, Inject, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { Subscription } from 'rxjs';
 
+import { ServicoPedidoService } from '../../Servicos/servico-pedido.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
+import { Pedido } from '../../Usuarios/pedido';
 import { Usuario } from '../../Usuarios/usuario';
 
 @Component({
@@ -16,12 +18,17 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   @Output() logout = new EventEmitter<void>();
 
   menuOpen = false;
+  notificationMenuOpen = false;
   profileMenuOpen = false;
   sidebarOpen = false;
+  notificationCount = 0;
+  notificationOrders: Pedido[] = [];
   user: Usuario;
+  private orderSubscription: Subscription;
   private userSubscription: Subscription;
 
   constructor(
+    private servicoPedidoService: ServicoPedidoService,
     private usuarioService: UsuarioService,
     @Inject(DOCUMENT) private document: Document
   ) { }
@@ -31,15 +38,20 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
     if ((changes.userId || changes.authenticated) && this.authenticated && this.userId) {
       this.loadUser();
+      this.loadReceivedOrders();
     }
 
     if (!this.authenticated) {
+      this.clearOrderSubscription();
       this.clearUserSubscription();
+      this.notificationCount = 0;
+      this.notificationOrders = [];
       this.user = null;
     }
   }
 
   ngOnDestroy() {
+    this.clearOrderSubscription();
     this.clearUserSubscription();
     this.document.body.classList.remove('authenticated-layout');
   }
@@ -55,6 +67,7 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   toggleSidebar(event: Event) {
     event.stopPropagation();
     this.sidebarOpen = !this.sidebarOpen;
+    this.closeNotificationMenu();
     this.closeProfileMenu();
   }
 
@@ -65,26 +78,40 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   toggleProfileMenu(event: Event) {
     event.stopPropagation();
     this.profileMenuOpen = !this.profileMenuOpen;
+    this.closeNotificationMenu();
   }
 
   closeProfileMenu() {
     this.profileMenuOpen = false;
   }
 
+  toggleNotificationMenu(event: Event) {
+    event.stopPropagation();
+    this.notificationMenuOpen = !this.notificationMenuOpen;
+    this.closeProfileMenu();
+  }
+
+  closeNotificationMenu() {
+    this.notificationMenuOpen = false;
+  }
+
   @HostListener('document:click')
-  closeProfileMenuFromOutside() {
+  closeAccountMenusFromOutside() {
+    this.closeNotificationMenu();
     this.closeProfileMenu();
   }
 
   @HostListener('document:keydown.escape')
   closeMenuWithKeyboard(){
     this.closeMenu();
+    this.closeNotificationMenu();
     this.closeProfileMenu();
     this.closeSidebar();
   }
 
   requestLogout(){
     this.closeMenu();
+    this.closeNotificationMenu();
     this.closeProfileMenu();
     this.closeSidebar();
     this.logout.emit();
@@ -102,6 +129,26 @@ export class NavbarComponent implements OnChanges, OnDestroy {
     return this.userFirstName.charAt(0).toUpperCase();
   }
 
+  get notificationAriaLabel() {
+    if (this.notificationCount === 0) {
+      return 'Nenhum pedido novo';
+    }
+
+    if (this.notificationCount === 1) {
+      return '1 pedido novo';
+    }
+
+    return `${this.notificationCount} pedidos novos`;
+  }
+
+  get notificationBadgeLabel() {
+    if (this.notificationCount > 9) {
+      return '9+';
+    }
+
+    return this.notificationCount.toString();
+  }
+
   hideUnavailableUserPhoto() {
     if (this.user) {
       this.user.foto = '';
@@ -113,6 +160,27 @@ export class NavbarComponent implements OnChanges, OnDestroy {
     this.userSubscription = this.usuarioService.getUserWithProfilePhoto(this.userId).subscribe(user => {
       this.user = user;
     });
+  }
+
+  private loadReceivedOrders() {
+    this.clearOrderSubscription();
+    this.orderSubscription = this.servicoPedidoService.getPedidosRecebidos(this.userId).subscribe(orders => {
+      const pendingOrders = orders.filter(order => this.isPendingOrder(order));
+
+      this.notificationCount = pendingOrders.length;
+      this.notificationOrders = pendingOrders.slice(0, 4);
+    });
+  }
+
+  private isPendingOrder(order: Pedido) {
+    return order.statusProfissional !== true && order.clienteCancelou !== true && order.profissionalCancelou !== true;
+  }
+
+  private clearOrderSubscription() {
+    if (this.orderSubscription) {
+      this.orderSubscription.unsubscribe();
+      this.orderSubscription = null;
+    }
   }
 
   private clearUserSubscription() {
