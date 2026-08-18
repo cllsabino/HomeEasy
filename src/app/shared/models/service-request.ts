@@ -45,6 +45,7 @@ export class ServiceProposal {
   requestId?: string;
   professionalId?: string;
   professionalName?: string;
+  professionalVerified?: boolean;
   price?: number;
   message?: string;
   estimatedDuration?: string;

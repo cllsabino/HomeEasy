@@ -29,6 +29,7 @@ export class ServicoComponent implements OnInit {
   servicosSubscription : Subscription;
   servicePendingDeletion: Servico;
   isDeletingService = false;
+  serviceAvailabilityInProgressId = '';
   feedbackMessage = '';
   feedbackType: FeedbackType = 'success';
 
@@ -96,6 +97,28 @@ export class ServicoComponent implements OnInit {
       this.feedbackMessage = 'Não foi possível remover o serviço. Verifique sua conexão e tente novamente.';
     } finally {
       this.isDeletingService = false;
+    }
+  }
+  async toggleServiceAvailability(service: Servico){
+    if (!service || this.serviceAvailabilityInProgressId) {
+      return;
+    }
+
+    const nextAvailability = service.available === false;
+    this.serviceAvailabilityInProgressId = service.id;
+    this.feedbackMessage = '';
+
+    try {
+      await this.servico.setServiceAvailability(this.usuario, service, nextAvailability);
+      this.feedbackType = 'success';
+      this.feedbackMessage = nextAvailability ?
+        'O serviÃ§o voltou a receber novas oportunidades.' :
+        'O serviÃ§o foi pausado e nÃ£o receberÃ¡ novas oportunidades.';
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'NÃ£o foi possÃ­vel alterar a disponibilidade deste serviÃ§o.';
+    } finally {
+      this.serviceAvailabilityInProgressId = '';
     }
   }
   async sair(){

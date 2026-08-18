@@ -79,7 +79,7 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     this.feedbackMessage = '';
     try {
-      await this.requestService.submitProposal(this.requestId, this.proposal, this.userId, this.user.nome || 'Profissional Home Easy');
+      await this.requestService.submitProposal(this.requestId, this.proposal, this.userId);
       this.feedbackType = 'success';
       this.feedbackMessage = 'Proposta enviada. O cliente já pode comparar sua oferta.';
     } catch (error) {

@@ -96,8 +96,19 @@ addUsuario(usuario : Usuario, serve : Servico){
   const serviceProfessionalReference = this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).ref;
   const professionalServiceReference = this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).ref;
 
-  batch.set(serviceProfessionalReference, usuario);
-  batch.set(professionalServiceReference, serve);
+  batch.set(serviceProfessionalReference, Object.assign({}, usuario, { availableForService: true }));
+  batch.set(professionalServiceReference, Object.assign({}, serve, { available: true }));
+
+  return batch.commit();
+}
+//altera a disponibilidade do profissional sem remover seu serviÃ§o
+setServiceAvailability(usuario : Usuario, serve : Servico, available : boolean){
+  const batch = this.afs.firestore.batch();
+  const serviceProfessionalReference = this.afs.collection('ServiÃ§os').doc(serve.id).collection('Usuarios').doc(usuario.id).ref;
+  const professionalServiceReference = this.afs.collection('Usuarios').doc(usuario.id).collection('ServiÃ§os').doc(serve.id).ref;
+
+  batch.update(serviceProfessionalReference, { availableForService: available });
+  batch.update(professionalServiceReference, { available });
 
   return batch.commit();
 }
@@ -121,7 +132,7 @@ getUsuarios(id : string){
         const id = a.payload.doc.id;
 
         return { id, ...data};
-      })
+      }).filter(usuario => usuario.availableForService !== false)
     })
   );
 }

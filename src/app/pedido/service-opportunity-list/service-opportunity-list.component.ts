@@ -46,7 +46,7 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
     ).pipe(switchMap(([user, services]) => {
       this.user = user || {};
       this.services = services;
-      const serviceIds = services.map(service => service.id);
+      const serviceIds = services.filter(service => service.available !== false).map(service => service.id);
 
       return this.requestService.getAvailableRequests(
         this.userId,

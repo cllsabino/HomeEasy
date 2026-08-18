@@ -1,3 +1,10 @@
+export enum ProfessionalVerificationStatus {
+    NotSubmitted = 'notSubmitted',
+    Pending = 'pending',
+    Verified = 'verified',
+    Rejected = 'rejected'
+}
+
 export class Usuario {
     email? : string;
     senha? : string;
@@ -16,4 +23,6 @@ export class Usuario {
     twitter? : string;
     site? : string;
     linkedIn? : string;
+    availableForService? : boolean;
+    verificationStatus? : ProfessionalVerificationStatus;
 }
