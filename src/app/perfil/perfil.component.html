@@ -1,5 +1,5 @@
 <app-navbar [authenticated]="entrarSair" [userId]="userId" (logout)="sair()"></app-navbar>
-<main class="app-page"><div class="page-shell"><header class="page-heading"><div class="page-heading-copy"><span class="page-kicker">Minha conta</span><h1>Seu espaço na Home Easy.</h1><p>Gerencie informações, pedidos, conversas e serviços em um só lugar.</p></div></header>
+<main class="app-page"><div class="page-shell"><header class="page-heading"><div class="page-heading-copy"><span class="page-kicker">Minha conta</span><h1>Seu espaço na Home Easy.</h1><p>Gerencie informações, pedidos, conversas e serviços em um só lugar.</p></div></header><app-action-feedback [message]="feedbackMessage" [type]="feedbackType"></app-action-feedback>
   <div class="profile-layout">
     <aside class="surface-card profile-summary"><img class="profile-avatar" *ngIf="usuario.foto" [src]="usuario.foto" [alt]="usuario.nome"><span class="profile-avatar icon-badge" *ngIf="!usuario.foto">{{ usuario.nome ? usuario.nome.charAt(0) : 'HE' }}</span><h2>{{ usuario.nome }}</h2><p>Conta Home Easy</p>
       <div class="profile-meta"><span *ngIf="usuario.idade"><strong>Idade:</strong> {{ usuario.idade }}</span><span *ngIf="usuario.telefone"><strong>Telefone:</strong> {{ usuario.telefone }}</span><span *ngIf="usuario.cidade"><strong>Localização:</strong> {{ usuario.cidade }}<span *ngIf="usuario.estado">, {{ usuario.estado }}</span></span><span *ngIf="usuario.endereco"><strong>Endereço:</strong> {{ usuario.endereco }}</span></div>
@@ -11,6 +11,7 @@
       <article class="section-card" *ngIf="servicosArray.length != 0"><span class="icon-badge">PR</span><h2>Pedidos recebidos</h2><p>Gerencie novas solicitações de clientes.</p><a class="button-primary" [routerLink]="['/usuario', userId, 'pedidos-recebidos']">Ver solicitações</a></article>
       <article class="section-card"><span class="icon-badge">CV</span><h2>Conversas</h2><p>Continue seus contatos com clientes e profissionais.</p><a class="button-primary" routerLink="/conversas">Abrir conversas</a></article>
       <article class="section-card"><span class="icon-badge">SV</span><h2>Meus serviços</h2><p>Cadastre ou gerencie os serviços que você oferece.</p><div class="form-actions"><a class="button-primary" routerLink="/serprofissional">Adicionar serviço</a><a class="button-secondary" *ngIf="servicosArray.length != 0" [routerLink]="['/serviços', userId]">Gerenciar</a></div></article>
+      <article class="section-card" *ngIf="servicosArray.length != 0"><span class="icon-badge">✓</span><h2>{{ verificationStatusLabel }}</h2><p>Perfis verificados ganham um selo nas propostas. A análise usa os dados já informados no perfil e não exige upload de foto.</p><button class="button-primary" type="button" *ngIf="canRequestVerification" [disabled]="isRequestingVerification" (click)="requestVerification()">{{ isRequestingVerification ? 'Enviando...' : 'Solicitar verificação' }}</button></article>
     </section>
   </div>
 </div></main>

@@ -3,15 +3,18 @@ import { Component, EventEmitter, HostListener, Inject, Input, OnChanges, OnDest
 import { combineLatest, Subscription } from 'rxjs';
 
 import { ServicoPedidoService } from '../../Servicos/servico-pedido.service';
+import { ServiceRequestService } from '../../Servicos/service-request.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
 import { OrderStatus, Pedido } from '../../Usuarios/pedido';
-import { Usuario } from '../../Usuarios/usuario';
+import { UserRole, Usuario } from '../../Usuarios/usuario';
+import { ServiceRequest } from '../models/service-request';
 import { getOrderStatus, isPendingOrder } from '../utils/order-status.utils';
 
 interface OrderNotification {
-  order: Pedido;
   route: any[];
   title: string;
+  date: string;
+  city: string;
 }
 
 @Component({
@@ -36,6 +39,7 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   constructor(
     private servicoPedidoService: ServicoPedidoService,
+    private serviceRequestService: ServiceRequestService,
     private usuarioService: UsuarioService,
     @Inject(DOCUMENT) private document: Document
   ) { }
@@ -136,6 +140,10 @@ export class NavbarComponent implements OnChanges, OnDestroy {
     return this.userFirstName.charAt(0).toUpperCase();
   }
 
+  get isAdmin() {
+    return this.user && this.user.role === UserRole.Admin;
+  }
+
   get notificationAriaLabel() {
     if (this.notificationCount === 0) {
       return 'Nenhuma atualização pendente';
@@ -173,15 +181,19 @@ export class NavbarComponent implements OnChanges, OnDestroy {
     this.clearOrderSubscription();
     this.orderSubscription = combineLatest(
       this.servicoPedidoService.getPedidosRecebidos(this.userId),
-      this.servicoPedidoService.getPedidosFeitos(this.userId)
-    ).subscribe(([receivedOrders, placedOrders]) => {
+      this.servicoPedidoService.getPedidosFeitos(this.userId),
+      this.serviceRequestService.getClientRequests(this.userId)
+    ).subscribe(([receivedOrders, placedOrders, serviceRequests]) => {
       const receivedOrderNotifications = receivedOrders
         .filter(order => isPendingOrder(order))
         .map(order => this.createOrderNotification(order, 'newOrder'));
       const proposalNotifications = placedOrders
         .filter(order => getOrderStatus(order) === OrderStatus.ProposalReceived)
         .map(order => this.createOrderNotification(order, 'proposal'));
-      const notifications = receivedOrderNotifications.concat(proposalNotifications);
+      const marketplaceProposalNotifications = serviceRequests
+        .filter(request => request.status === OrderStatus.ProposalReceived)
+        .map(request => this.createServiceRequestNotification(request));
+      const notifications = receivedOrderNotifications.concat(proposalNotifications, marketplaceProposalNotifications);
 
       this.notificationCount = notifications.length;
       this.notificationItems = notifications.slice(0, 4);
@@ -191,16 +203,27 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   private createOrderNotification(order: Pedido, type: 'newOrder' | 'proposal'): OrderNotification {
     if (type === 'proposal') {
       return {
-        order,
         route: ['/usuario', order.idServidor, 'pedidos-feitos', order.id],
-        title: `Nova proposta para ${order.nome || 'seu pedido'}`
+        title: `Nova proposta para ${order.nome || 'seu pedido'}`,
+        date: order.data,
+        city: order.cidade
       };
     }
 
     return {
-      order,
       route: ['/usuario', order.idContratante, 'pedidos-recebidos', order.id],
-      title: `Novo pedido de ${order.nome || 'serviço'}`
+      title: `Novo pedido de ${order.nome || 'serviço'}`,
+      date: order.data,
+      city: order.cidade
+    };
+  }
+
+  private createServiceRequestNotification(request: ServiceRequest): OrderNotification {
+    return {
+      route: ['/solicitacoes', request.id],
+      title: `Propostas disponíveis para ${request.serviceName || 'sua solicitação'}`,
+      date: request.preferredDate || 'Data a combinar',
+      city: request.city
     };
   }
 

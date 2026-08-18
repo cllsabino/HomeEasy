@@ -66,7 +66,7 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     this.pedidoIdSubscription = this.active.params.subscribe(
       (params : Params) => { this.pedidoId = params['idd'] }
     );
-    this.clienteSubscription = this.usuarioService.getUsuario(this.clienteId).subscribe(data => {
+    this.clienteSubscription = this.usuarioService.getPublicUsuario(this.clienteId).subscribe(data => {
       this.cliente = data;
     });
     this.pedidoSubscription = this.servicoPedido.getPedidoRecebido(this.userId, this.pedidoId).subscribe(data => {

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
+import { UsuarioService } from '../Servicos/usuario.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 import { resolveAuthErrorMessage } from '../shared/utils/auth-error.utils';
 
@@ -29,9 +29,9 @@ export class LoginCadastroComponent implements OnInit {
 
   constructor(
     private loginService: LoginServiceService,
+    private usuarioService: UsuarioService,
     private router: Router,
     private route: ActivatedRoute,
-    private afs: AngularFirestore,
     private afAuth: AngularFireAuth
   ) { }
 
@@ -91,7 +91,7 @@ export class LoginCadastroComponent implements OnInit {
       delete userProfile.email;
       delete userProfile.senha;
 
-      await this.afs.collection('Usuarios').doc(newUser.user.uid).set(userProfile);
+      await this.usuarioService.saveUserProfile(userProfile);
       this.router.navigateByUrl(this.returnUrl);
     } catch (error) {
       this.feedbackType = 'error';

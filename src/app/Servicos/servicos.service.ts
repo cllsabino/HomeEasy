@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { Servico } from '../Usuarios/servico';
 import { Usuario } from 'src/app/Usuarios/usuario';
+import { createPublicProfile } from '../shared/utils/public-profile.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -96,16 +97,33 @@ addUsuario(usuario : Usuario, serve : Servico){
   const serviceProfessionalReference = this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).ref;
   const professionalServiceReference = this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).ref;
 
-  batch.set(serviceProfessionalReference, Object.assign({}, usuario, { availableForService: true }));
+  batch.set(serviceProfessionalReference, Object.assign({}, createPublicProfile(usuario), { availableForService: true }));
   batch.set(professionalServiceReference, Object.assign({}, serve, { available: true }));
 
   return batch.commit();
 }
-//altera a disponibilidade do profissional sem remover seu serviÃ§o
+//atualiza o perfil privado e suas representações públicas em uma única operação
+updateProfessionalProfile(usuario : Usuario, services : Servico[]){
+  const batch = this.afs.firestore.batch();
+  const userReference = this.afs.collection('Usuarios').doc(usuario.id).ref;
+  const publicProfileReference = this.afs.collection('PublicProfiles').doc(usuario.id).ref;
+
+  batch.set(userReference, usuario);
+  batch.set(publicProfileReference, createPublicProfile(usuario));
+  services.forEach(service => {
+    const serviceProfessionalReference = this.afs.collection('Serviços').doc(service.id).collection('Usuarios').doc(usuario.id).ref;
+    batch.set(serviceProfessionalReference, Object.assign({}, createPublicProfile(usuario), {
+      availableForService: service.available !== false
+    }));
+  });
+
+  return batch.commit();
+}
+//altera a disponibilidade do profissional sem remover seu serviço
 setServiceAvailability(usuario : Usuario, serve : Servico, available : boolean){
   const batch = this.afs.firestore.batch();
-  const serviceProfessionalReference = this.afs.collection('ServiÃ§os').doc(serve.id).collection('Usuarios').doc(usuario.id).ref;
-  const professionalServiceReference = this.afs.collection('Usuarios').doc(usuario.id).collection('ServiÃ§os').doc(serve.id).ref;
+  const serviceProfessionalReference = this.afs.collection('Serviços').doc(serve.id).collection('Usuarios').doc(usuario.id).ref;
+  const professionalServiceReference = this.afs.collection('Usuarios').doc(usuario.id).collection('Serviços').doc(serve.id).ref;
 
   batch.update(serviceProfessionalReference, { availableForService: available });
   batch.update(professionalServiceReference, { available });

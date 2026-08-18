@@ -52,6 +52,8 @@ flowchart LR
 | Perfis, propostas e avaliações | Aceite e gestão dos atendimentos | Confirmação antes de ações destrutivas |
 | Chat e acompanhamento de pedidos | Conversas com potenciais clientes | Feedbacks e microinterações consistentes |
 
+O fluxo de contratação agora usa uma solicitação central: o cliente descreve a necessidade, informa região, urgência e orçamento, recebe até quatro propostas e escolhe uma delas. Profissionais visualizam somente oportunidades compatíveis com os serviços e a região de atendimento, podem pausar a disponibilidade e acompanham a validade das propostas.
+
 ## 🗺️ Mapa regional
 
 O feed apresenta um mapa interativo com a quantidade de profissionais disponíveis em cada cidade. Ao selecionar um marcador, a listagem é filtrada para aquela região e o estado da busca fica salvo na URL.
@@ -159,7 +161,9 @@ npm run build -- --prod
 firebase deploy --only hosting
 ```
 
-> Antes de publicar uma instância própria, revise as regras de segurança do Firestore, do Realtime Database e do Storage.
+As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo.
+
+> Antes do primeiro deploy das novas regras, gere `PublicProfiles` para os usuários legados. Publicar as regras estritas sem esse backfill impede a leitura de perfis antigos por outros usuários. O papel `admin` deve ser atribuído por um ambiente confiável, nunca pelo cliente web.
 
 ## 🛣️ Roadmap
 
@@ -168,10 +172,15 @@ firebase deploy --only hosting
 - [x] Chat flutuante e mensagens atômicas
 - [x] Mapa de profissionais por cidade
 - [x] Responsividade e estados de feedback
+- [x] Solicitações com até quatro propostas e aceite transacional
+- [x] Disponibilidade profissional e validade de oportunidades
+- [x] Fluxo de verificação e painel de indicadores administrativos
+- [x] Separação entre perfil privado e perfil público
+- [ ] Executar o backfill de perfis públicos antes de publicar as novas regras
 - [ ] Persistir coordenadas no Firebase para reduzir geocodificação externa
 - [ ] Atualizar o projeto para uma versão moderna do Angular
 - [ ] Ampliar a cobertura de testes automatizados
-- [ ] Adicionar notificações em tempo real
+- [ ] Adicionar notificações push e expiração agendada no backend
 
 ## 🤝 Contribuindo
 

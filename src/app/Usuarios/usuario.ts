@@ -5,6 +5,11 @@ export enum ProfessionalVerificationStatus {
     Rejected = 'rejected'
 }
 
+export enum UserRole {
+    User = 'user',
+    Admin = 'admin'
+}
+
 export class Usuario {
     email? : string;
     senha? : string;
@@ -25,4 +30,9 @@ export class Usuario {
     linkedIn? : string;
     availableForService? : boolean;
     verificationStatus? : ProfessionalVerificationStatus;
+    verificationRequestedAt? : any;
+    verificationReviewedAt? : any;
+    verificationReviewedBy? : string;
+    verificationReviewNote? : string;
+    role? : UserRole;
 }

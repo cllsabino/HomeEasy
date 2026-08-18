@@ -52,7 +52,7 @@ export class PerfilPedidoComponent implements OnInit {
     this.usuarioIDSubscription = this.active.params.subscribe(
       (params : Params) => { this.usuarioID = params['idd'] }
     ); 
-    this.userSubscription = this.usuarioService.getUserWithProfilePhoto(this.usuarioID).subscribe(data => {
+    this.userSubscription = this.usuarioService.getPublicUsuario(this.usuarioID).subscribe(data => {
       this.usuario = data; 
     });
     this.servePedidoSubscription = this.servicoPedido.getDetalheServico(this.usuarioID, this.serveID).subscribe(data => {

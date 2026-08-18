@@ -53,7 +53,7 @@
           </span>
           <span class="notification-order-copy">
             <strong>{{ notification.title }}</strong>
-            <small>{{ notification.order.data }}<span *ngIf="notification.order.cidade"> · {{ notification.order.cidade }}</span></small>
+            <small>{{ notification.date }}<span *ngIf="notification.city"> · {{ notification.city }}</span></small>
           </span>
           <span class="notification-order-arrow" aria-hidden="true">→</span>
         </a>
@@ -103,6 +103,9 @@
     </a>
     <a [routerLink]="['/usuario', userId]" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span>Meu perfil</span>
+    </a>
+    <a routerLink="/admin/verificacoes" routerLinkActive="active" *ngIf="isAdmin" (click)="closeSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7z"></path><path d="M9 12l2 2 4-4"></path></svg><span>Administração</span>
     </a>
   </nav>
 

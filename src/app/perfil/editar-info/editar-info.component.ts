@@ -110,16 +110,8 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
 
     this.isSavingProfile = true;
     this.usuario.id = this.userId;
-    const writeOperations = new Array<Promise<void>>();
-    writeOperations.push(this.afs.collection('Usuarios').doc(this.userId).set(this.usuario));
-
-    for (let serviceIndex = 0; serviceIndex < this.servicosArray.length; serviceIndex++) {
-      const service = this.servicosArray[serviceIndex];
-      writeOperations.push(this.afs.collection('Serviços').doc(service.id).collection('Usuarios').doc(this.userId).set(this.usuario));
-    }
-
     try {
-      await Promise.all(writeOperations);
+      await this.servico.updateProfessionalProfile(this.usuario, this.servicosArray);
       this.notificationService.showSuccess('Perfil atualizado', 'Suas informações foram salvas com sucesso.');
     } catch (error) {
       this.notificationService.showError('Não foi possível salvar', 'Verifique sua conexão e tente atualizar o perfil novamente.');

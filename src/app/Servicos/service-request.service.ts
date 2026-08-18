@@ -118,49 +118,49 @@ export class ServiceRequestService {
 
       const professional = professionalSnapshot.data() as Usuario;
       const professionalServiceReference = this.afs.collection('Usuarios').doc(professionalId)
-        .collection('ServiÃ§os').doc(currentRequest.serviceId).ref;
+        .collection('Serviços').doc(currentRequest.serviceId).ref;
 
       return transaction.get(professionalServiceReference).then(professionalServiceSnapshot => {
         if (!professionalServiceSnapshot.exists) {
-          throw new Error('Cadastre este serviÃ§o no seu perfil antes de enviar uma proposta.');
+          throw new Error('Cadastre este serviço no seu perfil antes de enviar uma proposta.');
         }
 
         const professionalService = professionalServiceSnapshot.data() as Servico;
         if (professionalService.available === false) {
-          throw new Error('Ative este serviÃ§o no seu perfil antes de enviar uma proposta.');
+          throw new Error('Ative este serviço no seu perfil antes de enviar uma proposta.');
         }
 
         if (!this.isProfessionalInRequestRegion(professional, currentRequest)) {
-          throw new Error('Esta oportunidade nÃ£o pertence Ã  sua regiÃ£o de atendimento.');
+          throw new Error('Esta oportunidade não pertence à sua região de atendimento.');
         }
 
-      if (!this.canReceiveProposal(currentRequest, professionalId)) {
-        throw new Error('Esta solicitação não está mais disponível para propostas.');
-      }
+        if (!this.canReceiveProposal(currentRequest, professionalId)) {
+          throw new Error('Esta solicitação não está mais disponível para propostas.');
+        }
 
-      if (proposalSnapshot.exists) {
-        throw new Error('Você já enviou uma proposta para esta solicitação.');
-      }
+        if (proposalSnapshot.exists) {
+          throw new Error('Você já enviou uma proposta para esta solicitação.');
+        }
 
-      const timestamp = firebase.firestore.Timestamp.now();
-      const proposalData: ServiceProposal = Object.assign({}, proposal, {
-        id: professionalId,
-        requestId,
-        professionalId,
-        professionalName: professional.nome || 'Profissional Home Easy',
-        professionalVerified: professional.verificationStatus === ProfessionalVerificationStatus.Verified,
-        status: ServiceProposalStatus.Sent,
-        validUntil: firebase.firestore.Timestamp.fromMillis(timestamp.toMillis() + proposalLifetimeInMilliseconds),
-        createdAt: timestamp,
-        updatedAt: timestamp
-      });
+        const timestamp = firebase.firestore.Timestamp.now();
+        const proposalData: ServiceProposal = Object.assign({}, proposal, {
+          id: professionalId,
+          requestId,
+          professionalId,
+          professionalName: professional.nome || 'Profissional Home Easy',
+          professionalVerified: professional.verificationStatus === ProfessionalVerificationStatus.Verified,
+          status: ServiceProposalStatus.Sent,
+          validUntil: firebase.firestore.Timestamp.fromMillis(timestamp.toMillis() + proposalLifetimeInMilliseconds),
+          createdAt: timestamp,
+          updatedAt: timestamp
+        });
 
-      transaction.set(proposalReference, proposalData);
-      transaction.update(requestReference, {
-        status: OrderStatus.ProposalReceived,
-        proposalCount: Number(currentRequest.proposalCount || 0) + 1,
-        updatedAt: timestamp
-      });
+        transaction.set(proposalReference, proposalData);
+        transaction.update(requestReference, {
+          status: OrderStatus.ProposalReceived,
+          proposalCount: Number(currentRequest.proposalCount || 0) + 1,
+          updatedAt: timestamp
+        });
       });
     }));
   }

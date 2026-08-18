@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn() && get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function offersService(serviceId) {
+      return signedIn() && exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/Serviços/$(serviceId));
+    }
+
+    function isAvailableForService(serviceId) {
+      return offersService(serviceId) &&
+        get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/Serviços/$(serviceId)).data.available != false;
+    }
+
+    function isOrderParticipant(order) {
+      return signedIn() && (order.idContratante == request.auth.uid || order.idServidor == request.auth.uid);
+    }
+
+    function isOpenOrder(order) {
+      return order.status in ['requested', 'proposalReceived'];
+    }
+
+    function isClientStatusUpdate(order) {
+      return request.resource.data.diff(order).affectedKeys().hasOnly(['status', 'updatedAt']) && (
+        (request.resource.data.status == 'cancelledByClient' && order.status in ['requested', 'proposalReceived', 'accepted']) ||
+        (request.resource.data.status == 'completed' && order.status in ['accepted', 'inProgress'])
+      );
+    }
+
+    function isVerificationRequest(user) {
+      return request.resource.data.diff(user).affectedKeys().hasOnly([
+        'verificationStatus', 'verificationRequestedAt', 'verificationReviewNote'
+      ]) && request.resource.data.verificationStatus == 'pending' && user.verificationStatus != 'verified';
+    }
+
+    function isProposalAcceptance(order, orderId) {
+      let proposal = getAfter(/databases/$(database)/documents/Orders/$(orderId)/Proposals/$(request.resource.data.selectedProposalId));
+      return isOpenOrder(order) && request.resource.data.status == 'accepted' &&
+        request.resource.data.diff(order).affectedKeys().hasOnly([
+          'status', 'selectedProposalId', 'selectedProfessionalId', 'agreedPrice', 'updatedAt'
+        ]) && proposal.data.status == 'accepted' &&
+        proposal.data.professionalId == request.resource.data.selectedProfessionalId &&
+        proposal.data.price == request.resource.data.agreedPrice;
+    }
+
+    match /PublicProfiles/{userId} {
+      allow read: if true;
+      allow create, update: if (owns(userId) || isAdmin()) && request.resource.data.keys().hasOnly([
+        'id', 'nome', 'foto', 'cidade', 'estado', 'verificationStatus'
+      ]) && (!('verificationStatus' in request.resource.data) ||
+        request.resource.data.verificationStatus == getAfter(/databases/$(database)/documents/Usuarios/$(userId)).data.verificationStatus);
+      allow delete: if isAdmin();
+    }
+
+    match /Usuarios/{userId} {
+      allow create: if owns(userId) && (!('role' in request.resource.data) || request.resource.data.role == 'user');
+      allow read: if owns(userId) || isAdmin();
+      allow update: if isAdmin() || (owns(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role', 'verificationStatus', 'verificationRequestedAt', 'verificationReviewedAt',
+          'verificationReviewedBy', 'verificationReviewNote'
+        ]) || isVerificationRequest(resource.data)
+      ));
+      allow delete: if owns(userId) || isAdmin();
+
+      match /Serviços/{serviceId} {
+        allow read, write: if owns(userId) || isAdmin();
+
+        match /Avaliações/{ratingId} {
+          allow read: if true;
+          allow create: if signedIn();
+          allow update, delete: if isAdmin();
+        }
+      }
+
+      match /PedidosFeitos/{orderId} {
+        allow read: if owns(userId) || isAdmin();
+        allow create, update: if isOrderParticipant(request.resource.data) || isAdmin();
+        allow delete: if owns(userId) || isAdmin();
+      }
+
+      match /PedidosRecebidos/{orderId} {
+        allow read: if owns(userId) || isAdmin();
+        allow create, update: if isOrderParticipant(request.resource.data) || isAdmin();
+        allow delete: if owns(userId) || isAdmin();
+      }
+    }
+
+    match /Serviços/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /Usuarios/{professionalId} {
+        allow read: if true;
+        allow write: if owns(professionalId) || isAdmin();
+      }
+    }
+
+    match /ServicoPedido/{professionalId}/Serviços/{serviceId} {
+      allow read: if true;
+      allow write: if owns(professionalId) || isAdmin();
+    }
+
+    match /Orders/{orderId} {
+      allow create: if signedIn() && request.resource.data.clientId == request.auth.uid &&
+        request.resource.data.status == 'requested' && request.resource.data.proposalCount == 0 &&
+        request.resource.data.maximumProposals == 4;
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid ||
+        resource.data.selectedProfessionalId == request.auth.uid || offersService(resource.data.serviceId) || isAdmin());
+      allow update: if isAdmin() || (signedIn() && resource.data.clientId == request.auth.uid &&
+        request.resource.data.clientId == resource.data.clientId &&
+        (isClientStatusUpdate(resource.data) || isProposalAcceptance(resource.data, orderId))) ||
+        (isAvailableForService(resource.data.serviceId) && isOpenOrder(resource.data) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'proposalCount', 'updatedAt']) &&
+          request.resource.data.proposalCount == resource.data.proposalCount + 1 &&
+          request.resource.data.proposalCount <= resource.data.maximumProposals && request.time < resource.data.expiresAt &&
+          request.resource.data.status == 'proposalReceived') ||
+        (signedIn() && resource.data.selectedProfessionalId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']) &&
+          request.resource.data.status in ['inProgress', 'declinedByProfessional']);
+      allow delete: if false;
+
+      match /Proposals/{professionalId} {
+        allow create: if owns(professionalId) && isAvailableForService(get(/databases/$(database)/documents/Orders/$(orderId)).data.serviceId) &&
+          isOpenOrder(get(/databases/$(database)/documents/Orders/$(orderId)).data) &&
+          request.time < get(/databases/$(database)/documents/Orders/$(orderId)).data.expiresAt &&
+          request.resource.data.professionalId == request.auth.uid && request.resource.data.status == 'sent' &&
+          getAfter(/databases/$(database)/documents/Orders/$(orderId)).data.proposalCount ==
+            get(/databases/$(database)/documents/Orders/$(orderId)).data.proposalCount + 1;
+        allow read: if owns(professionalId) ||
+          get(/databases/$(database)/documents/Orders/$(orderId)).data.clientId == request.auth.uid || isAdmin();
+        allow update: if (get(/databases/$(database)/documents/Orders/$(orderId)).data.clientId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])) || isAdmin();
+        allow delete: if false;
+      }
+    }
+
+    match /Chat/{ownerId}/Contato/{contactId}/Mensagens/{messageId} {
+      allow read, create: if owns(ownerId) || owns(contactId);
+      allow update, delete: if false;
+    }
+
+    match /Contatos/{ownerId}/Lista/{contactId} {
+      allow read: if owns(ownerId);
+      allow create, update: if owns(ownerId) || owns(contactId);
+      allow delete: if owns(ownerId);
+    }
+
+    match /Mensagem/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

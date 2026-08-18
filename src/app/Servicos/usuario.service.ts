@@ -6,6 +6,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Usuario } from '../Usuarios/usuario';
+import { createPublicProfile } from '../shared/utils/public-profile.utils';
 
 
 @Injectable({
@@ -39,6 +40,23 @@ export class UsuarioService {
 
   getUsuario(id : string){
     return this.usuarioCollection.doc<Usuario>(id).valueChanges();
+  }
+
+  getPublicUsuario(id : string){
+    return this.afs.collection('PublicProfiles').doc<Usuario>(id).valueChanges().pipe(
+      switchMap(user => user ? of(user) : this.getUsuario(id).pipe(map(createPublicProfile)))
+    );
+  }
+
+  saveUserProfile(user : Usuario){
+    const batch = this.afs.firestore.batch();
+    const userReference = this.afs.collection('Usuarios').doc(user.id).ref;
+    const publicProfileReference = this.afs.collection('PublicProfiles').doc(user.id).ref;
+
+    batch.set(userReference, user);
+    batch.set(publicProfileReference, createPublicProfile(user));
+
+    return batch.commit();
   }
 
   getUserWithProfilePhoto(userId : string): Observable<Usuario> {
