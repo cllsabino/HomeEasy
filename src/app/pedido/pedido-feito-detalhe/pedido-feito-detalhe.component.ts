@@ -15,7 +15,7 @@ import { AvalicaoService } from './../../Servicos/avaliacao.service';
 import { Avaliacao } from './../../Usuarios/avaliacao';
 import { ServicosService } from './../../Servicos/servicos.service';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
-import { canTransitionOrder, getOrderStatus, getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
+import { canTransitionOrder, getOrderStatus, getOrderStatusClass, getOrderStatusHistory, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
   selector: 'app-pedido-feito-detalhe',
@@ -127,6 +127,25 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     }
   }
 
+  async acceptProposal(){
+    if (this.isSubmitting) {
+      return;
+    }
+
+    this.feedbackMessage = '';
+    this.isSubmitting = true;
+    try {
+      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.Accepted, this.userId);
+      this.feedbackType = 'success';
+      this.feedbackMessage = 'Proposta aceita. Use a conversa para combinar os últimos detalhes.';
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível aceitar a proposta. Tente novamente.';
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
   requestCancellation(){
     this.isConfirmingCancellation = true;
     this.feedbackMessage = '';
@@ -171,6 +190,14 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     const serviceCanBeReviewed = status === OrderStatus.Accepted || status === OrderStatus.InProgress;
 
     return serviceCanBeReviewed && this.today >= this.pedido.data;
+  }
+
+  get canAcceptProposal() {
+    return canTransitionOrder(this.pedido, OrderStatus.Accepted, this.userId) && getOrderStatus(this.pedido) === OrderStatus.ProposalReceived;
+  }
+
+  get orderHistory() {
+    return getOrderStatusHistory(this.pedido);
   }
 
 }

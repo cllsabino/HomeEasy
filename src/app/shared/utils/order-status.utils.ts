@@ -1,9 +1,14 @@
-import { OrderStatus, Pedido } from '../../Usuarios/pedido';
+import { OrderStatus, OrderStatusHistoryEntry, Pedido } from '../../Usuarios/pedido';
 
 export interface LegacyOrderFlags {
   clienteCancelou: boolean;
   profissionalCancelou: boolean;
   statusProfissional: boolean;
+}
+
+export interface OrderStatusHistoryView {
+  label: string;
+  changedAt: Date;
 }
 
 export function getOrderStatus(order: Pedido): OrderStatus {
@@ -35,9 +40,7 @@ export function getLegacyOrderFlags(status: OrderStatus): LegacyOrderFlags {
 }
 
 export function isPendingOrder(order: Pedido): boolean {
-  const status = getOrderStatus(order);
-
-  return status === OrderStatus.Requested || status === OrderStatus.ProposalReceived;
+  return getOrderStatus(order) === OrderStatus.Requested;
 }
 
 export function isAcceptedOrderStatus(status: OrderStatus): boolean {
@@ -60,7 +63,11 @@ export function canTransitionOrder(order: Pedido, nextStatus: OrderStatus, actor
 }
 
 export function getOrderStatusLabel(order: Pedido): string {
-  switch (getOrderStatus(order)) {
+  return getStatusLabel(getOrderStatus(order));
+}
+
+export function getStatusLabel(status: OrderStatus): string {
+  switch (status) {
     case OrderStatus.ProposalReceived:
       return 'Proposta recebida';
     case OrderStatus.Accepted:
@@ -80,6 +87,17 @@ export function getOrderStatusLabel(order: Pedido): string {
     default:
       return 'Aguardando profissional';
   }
+}
+
+export function getOrderStatusHistory(order: Pedido): OrderStatusHistoryView[] {
+  if (!order || !order.statusHistory) {
+    return [];
+  }
+
+  return order.statusHistory.map(entry => ({
+    label: getStatusLabel(entry.status),
+    changedAt: getHistoryDate(entry)
+  }));
 }
 
 export function getOrderStatusClass(order: Pedido): string {
@@ -105,7 +123,21 @@ function actorCanApplyStatus(order: Pedido, status: OrderStatus, actorId: string
     return order.idContratante === actorId;
   }
 
-  if (status === OrderStatus.Accepted || status === OrderStatus.DeclinedByProfessional || status === OrderStatus.InProgress) {
+  if (status === OrderStatus.InProgress) {
+    return order.idServidor === actorId && isScheduledDateReached(order.data);
+  }
+
+  if (status === OrderStatus.ProposalReceived || status === OrderStatus.DeclinedByProfessional) {
+    return order.idServidor === actorId;
+  }
+
+  if (status === OrderStatus.Accepted) {
+    const currentStatus = getOrderStatus(order);
+
+    if (currentStatus === OrderStatus.ProposalReceived) {
+      return order.idContratante === actorId;
+    }
+
     return order.idServidor === actorId;
   }
 
@@ -115,6 +147,7 @@ function actorCanApplyStatus(order: Pedido, status: OrderStatus, actorId: string
 function getAllowedStatuses(status: OrderStatus): OrderStatus[] {
   switch (status) {
     case OrderStatus.Requested:
+      return [OrderStatus.ProposalReceived, OrderStatus.Accepted, OrderStatus.CancelledByClient, OrderStatus.DeclinedByProfessional, OrderStatus.Expired];
     case OrderStatus.ProposalReceived:
       return [OrderStatus.Accepted, OrderStatus.CancelledByClient, OrderStatus.DeclinedByProfessional, OrderStatus.Expired];
     case OrderStatus.Accepted:
@@ -126,4 +159,20 @@ function getAllowedStatuses(status: OrderStatus): OrderStatus[] {
     default:
       return [];
   }
+}
+
+function getHistoryDate(entry: OrderStatusHistoryEntry): Date {
+  if (entry.changedAt && typeof entry.changedAt.toDate === 'function') {
+    return entry.changedAt.toDate();
+  }
+
+  return new Date(entry.changedAt);
+}
+
+function isScheduledDateReached(scheduledDate: string): boolean {
+  if (!scheduledDate) {
+    return false;
+  }
+
+  return new Date().toJSON().split('T')[0] >= scheduledDate;
 }

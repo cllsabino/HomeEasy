@@ -43,23 +43,23 @@
       <div class="notification-empty" *ngIf="notificationCount === 0">
         <span aria-hidden="true">✓</span>
         <strong>Tudo em dia</strong>
-        <p>Você não tem novos pedidos para analisar.</p>
+        <p>Você não tem novos pedidos ou propostas para analisar.</p>
       </div>
 
       <div class="notification-list" *ngIf="notificationCount > 0">
-        <a *ngFor="let order of notificationOrders" [routerLink]="['/usuario', userId, 'pedidos-recebidos']" (click)="closeNotificationMenu()">
+        <a *ngFor="let notification of notificationItems" [routerLink]="notification.route" (click)="closeNotificationMenu()">
           <span class="notification-order-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"></rect><path d="M8 8h8M8 12h6M8 16h4"></path></svg>
           </span>
           <span class="notification-order-copy">
-            <strong>Novo pedido de {{ order.nome || 'serviço' }}</strong>
-            <small>{{ order.data }}<span *ngIf="order.cidade"> · {{ order.cidade }}</span></small>
+            <strong>{{ notification.title }}</strong>
+            <small>{{ notification.order.data }}<span *ngIf="notification.order.cidade"> · {{ notification.order.cidade }}</span></small>
           </span>
           <span class="notification-order-arrow" aria-hidden="true">→</span>
         </a>
       </div>
 
-      <a class="notification-menu-footer" [routerLink]="['/usuario', userId, 'pedidos-recebidos']" (click)="closeNotificationMenu()">Ver pedidos recebidos</a>
+      <a class="notification-menu-footer" routerLink="/feed" (click)="closeNotificationMenu()">Voltar ao início</a>
     </section>
 
     <button class="topbar-account" type="button" (click)="toggleProfileMenu($event)" [attr.aria-expanded]="profileMenuOpen" aria-controls="profileMenu" aria-label="Abrir opções da conta">

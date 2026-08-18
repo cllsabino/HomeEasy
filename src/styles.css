@@ -444,6 +444,19 @@ label, .label {
 .status-success { color: var(--color-success); background: var(--color-successSoft); }
 .order-status-chip { align-self: flex-start; padding: 6px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; line-height: 1.2; }
 
+.proposal-form, .proposal-summary, .order-timeline { margin-top: 24px; padding: 22px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-background); }
+.proposal-form-heading, .proposal-summary { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.proposal-form-heading { margin-bottom: 20px; }
+.proposal-form-heading h2, .proposal-summary h2, .order-timeline h2 { margin: 4px 0 8px; font-size: 1.15rem; }
+.proposal-form-heading p, .proposal-summary p { max-width: 420px; margin: 0; color: var(--color-textMuted); }
+.proposal-form .button-primary { margin-top: 18px; }
+.detail-actions { margin-top: 28px; }
+.order-timeline ol { display: grid; gap: 14px; margin: 18px 0 0; padding: 0; list-style: none; }
+.order-timeline li { display: flex; align-items: center; gap: 12px; }
+.timeline-marker { width: 10px; height: 10px; flex: 0 0 auto; border: 3px solid var(--color-primarySoft); border-radius: 50%; background: var(--color-primary); }
+.order-timeline strong, .order-timeline time { display: block; }
+.order-timeline time { margin-top: 2px; color: var(--color-textMuted); font-size: 0.78rem; }
+
 .empty-state { display: grid; min-height: 320px; place-items: center; padding: 48px 24px; border: 1px dashed var(--color-border); border-radius: 20px; text-align: center; background: var(--color-surface); }
 .empty-state-content { max-width: 440px; }
 .empty-state .icon-badge { margin-right: auto; margin-left: auto; }
@@ -492,6 +505,8 @@ label, .label {
   .page-heading { margin-bottom: 28px; }
   .surface-card { padding: 22px; }
   .search-bar { flex-direction: column; }
+  .proposal-form-heading, .proposal-summary { align-items: stretch; flex-direction: column; }
+  .proposal-summary .button-primary, .proposal-form .button-primary { width: 100%; }
   .form-actions > .button-primary, .form-actions > .button-secondary, .form-actions > .button-danger { width: 100%; }
 }
 

@@ -1,12 +1,18 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, HostListener, Inject, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { combineLatest, Subscription } from 'rxjs';
 
 import { ServicoPedidoService } from '../../Servicos/servico-pedido.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
-import { Pedido } from '../../Usuarios/pedido';
+import { OrderStatus, Pedido } from '../../Usuarios/pedido';
 import { Usuario } from '../../Usuarios/usuario';
-import { isPendingOrder } from '../utils/order-status.utils';
+import { getOrderStatus, isPendingOrder } from '../utils/order-status.utils';
+
+interface OrderNotification {
+  order: Pedido;
+  route: any[];
+  title: string;
+}
 
 @Component({
   selector: 'app-navbar',
@@ -23,7 +29,7 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   profileMenuOpen = false;
   sidebarOpen = false;
   notificationCount = 0;
-  notificationOrders: Pedido[] = [];
+  notificationItems: OrderNotification[] = [];
   user: Usuario;
   private orderSubscription: Subscription;
   private userSubscription: Subscription;
@@ -46,7 +52,7 @@ export class NavbarComponent implements OnChanges, OnDestroy {
       this.clearOrderSubscription();
       this.clearUserSubscription();
       this.notificationCount = 0;
-      this.notificationOrders = [];
+      this.notificationItems = [];
       this.user = null;
     }
   }
@@ -132,14 +138,14 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   get notificationAriaLabel() {
     if (this.notificationCount === 0) {
-      return 'Nenhum pedido novo';
+      return 'Nenhuma atualização pendente';
     }
 
     if (this.notificationCount === 1) {
-      return '1 pedido novo';
+      return '1 atualização pendente';
     }
 
-    return `${this.notificationCount} pedidos novos`;
+    return `${this.notificationCount} atualizações pendentes`;
   }
 
   get notificationBadgeLabel() {
@@ -165,12 +171,37 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   private loadReceivedOrders() {
     this.clearOrderSubscription();
-    this.orderSubscription = this.servicoPedidoService.getPedidosRecebidos(this.userId).subscribe(orders => {
-      const pendingOrders = orders.filter(order => isPendingOrder(order));
+    this.orderSubscription = combineLatest(
+      this.servicoPedidoService.getPedidosRecebidos(this.userId),
+      this.servicoPedidoService.getPedidosFeitos(this.userId)
+    ).subscribe(([receivedOrders, placedOrders]) => {
+      const receivedOrderNotifications = receivedOrders
+        .filter(order => isPendingOrder(order))
+        .map(order => this.createOrderNotification(order, 'newOrder'));
+      const proposalNotifications = placedOrders
+        .filter(order => getOrderStatus(order) === OrderStatus.ProposalReceived)
+        .map(order => this.createOrderNotification(order, 'proposal'));
+      const notifications = receivedOrderNotifications.concat(proposalNotifications);
 
-      this.notificationCount = pendingOrders.length;
-      this.notificationOrders = pendingOrders.slice(0, 4);
+      this.notificationCount = notifications.length;
+      this.notificationItems = notifications.slice(0, 4);
     });
+  }
+
+  private createOrderNotification(order: Pedido, type: 'newOrder' | 'proposal'): OrderNotification {
+    if (type === 'proposal') {
+      return {
+        order,
+        route: ['/usuario', order.idServidor, 'pedidos-feitos', order.id],
+        title: `Nova proposta para ${order.nome || 'seu pedido'}`
+      };
+    }
+
+    return {
+      order,
+      route: ['/usuario', order.idContratante, 'pedidos-recebidos', order.id],
+      title: `Novo pedido de ${order.nome || 'serviço'}`
+    };
   }
 
   private clearOrderSubscription() {

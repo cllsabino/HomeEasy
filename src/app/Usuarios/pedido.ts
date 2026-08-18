@@ -10,6 +10,12 @@ export enum OrderStatus {
     Disputed = 'disputed'
 }
 
+export interface OrderStatusHistoryEntry {
+    status: OrderStatus;
+    actorId: string;
+    changedAt: any;
+}
+
 export class Pedido {
     nome? : string;
     id? : string;
@@ -30,4 +36,8 @@ export class Pedido {
     createdAt? : any;
     updatedAt? : any;
     statusUpdatedBy? : string;
+    proposalPrice? : number;
+    proposalMessage? : string;
+    proposalSentAt? : any;
+    statusHistory? : OrderStatusHistoryEntry[];
 }

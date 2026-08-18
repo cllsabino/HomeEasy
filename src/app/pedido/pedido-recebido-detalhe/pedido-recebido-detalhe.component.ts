@@ -14,7 +14,7 @@ import { Avaliacao } from './../../Usuarios/avaliacao';
 import { ServicosService } from './../../Servicos/servicos.service';
 import { Usuario } from './../../Usuarios/usuario';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
-import { canTransitionOrder, getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
+import { canTransitionOrder, getOrderStatusClass, getOrderStatusHistory, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
   selector: 'app-pedido-recebido-detalhe',
@@ -38,6 +38,8 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
   feedbackType: FeedbackType = 'error';
   isSubmitting = false;
   isConfirmingCancellation = false;
+  proposalPrice: number;
+  proposalMessage = '';
 
   constructor(
     public afs : AngularFirestore, 
@@ -68,7 +70,9 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
       this.cliente = data;
     });
     this.pedidoSubscription = this.servicoPedido.getPedidoRecebido(this.userId, this.pedidoId).subscribe(data => {
-      this.pedido = data; 
+      this.pedido = data;
+      this.proposalPrice = data.proposalPrice || data.preco;
+      this.proposalMessage = data.proposalMessage || '';
     });
     this.usuarioSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data;
@@ -89,7 +93,7 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
        console.error(error);
     }
   }
-  async aceitarPedido(){
+  async submitProposal(){
     if (this.isSubmitting) {
       return;
     }
@@ -97,12 +101,31 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     this.feedbackMessage = '';
     this.isSubmitting = true;
     try {
-      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.Accepted, this.userId);
+      await this.servicoPedido.submitProposal(this.pedido, this.proposalPrice, this.proposalMessage, this.userId);
       this.feedbackType = 'success';
-      this.feedbackMessage = 'Pedido aceito. Agora você pode combinar os detalhes com o cliente.';
+      this.feedbackMessage = 'Proposta enviada. O cliente poderá analisar o valor antes de confirmar.';
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = 'Não foi possível aceitar o pedido. Tente novamente.';
+      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível enviar a proposta. Tente novamente.';
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
+  async startService(){
+    if (this.isSubmitting) {
+      return;
+    }
+
+    this.feedbackMessage = '';
+    this.isSubmitting = true;
+    try {
+      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.InProgress, this.userId);
+      this.feedbackType = 'success';
+      this.feedbackMessage = 'Serviço iniciado. O cliente já pode acompanhar a atualização.';
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível iniciar o serviço.';
     } finally {
       this.isSubmitting = false;
     }
@@ -143,12 +166,20 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     return getOrderStatusClass(this.pedido);
   }
 
-  get canAcceptOrder() {
-    return canTransitionOrder(this.pedido, OrderStatus.Accepted, this.userId);
+  get canSubmitProposal() {
+    return canTransitionOrder(this.pedido, OrderStatus.ProposalReceived, this.userId);
   }
 
   get canDeclineOrder() {
     return canTransitionOrder(this.pedido, OrderStatus.DeclinedByProfessional, this.userId);
+  }
+
+  get canStartService() {
+    return canTransitionOrder(this.pedido, OrderStatus.InProgress, this.userId);
+  }
+
+  get orderHistory() {
+    return getOrderStatusHistory(this.pedido);
   }
 
 }
