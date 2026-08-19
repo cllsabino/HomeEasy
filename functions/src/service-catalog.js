@@ -9,7 +9,25 @@ const serviceCatalog = [
   { id: "re03", nome: "marceneiro", tipo: "Reforma" },
   { id: "re04", nome: "pedreiro", tipo: "Reforma" },
   { id: "re05", nome: "arquiteto", tipo: "Reforma" },
-  { id: "re06", nome: "decorador", tipo: "Reforma" }
+  { id: "re06", nome: "decorador", tipo: "Reforma" },
+  { id: "ma01", nome: "limpeza residencial", tipo: "Manutenção residencial" },
+  { id: "ma02", nome: "limpeza pós-obra", tipo: "Manutenção residencial" },
+  { id: "ma03", nome: "diarista", tipo: "Manutenção residencial" },
+  { id: "ma04", nome: "pintura", tipo: "Manutenção residencial" },
+  { id: "ma05", nome: "jardinagem", tipo: "Manutenção residencial" },
+  { id: "ma06", nome: "montagem de móveis", tipo: "Manutenção residencial" },
+  { id: "ma07", nome: "instalação de ar-condicionado", tipo: "Manutenção residencial" },
+  { id: "ma08", nome: "manutenção de eletrodomésticos", tipo: "Manutenção residencial" },
+  { id: "ma09", nome: "chaveiro", tipo: "Manutenção residencial" },
+  { id: "ma10", nome: "dedetização", tipo: "Manutenção residencial" },
+  { id: "ma11", nome: "mudança e frete", tipo: "Manutenção residencial" },
+  { id: "ma12", nome: "instalação de câmeras", tipo: "Segurança residencial" },
+  { id: "ma13", nome: "gesso e drywall", tipo: "Reforma" },
+  { id: "ma14", nome: "vidraceiro", tipo: "Reforma" },
+  { id: "ma15", nome: "telhadista", tipo: "Reforma" },
+  { id: "ma16", nome: "energia solar", tipo: "Reforma" },
+  { id: "ca01", nome: "cuidador de idosos", tipo: "Cuidados" },
+  { id: "ca02", nome: "cuidador de animais", tipo: "Cuidados" }
 ];
 
 module.exports = { serviceCatalog };

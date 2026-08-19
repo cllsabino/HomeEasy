@@ -161,7 +161,7 @@ npm run build -- --prod
 firebase deploy --only hosting
 ```
 
-As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo. O backend em `functions/` encerra solicitações e propostas expiradas a cada 15 minutos.
+As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo. Solicitações e propostas vencidas são tratadas pela própria aplicação e pelas transações, sem Cloud Functions ou Cloud Scheduler.
 
 ### Backend independente do legado
 
@@ -170,9 +170,9 @@ O redesign usa o projeto `homeeasy-bd496`, enquanto a versão original continua 
 O projeto novo começa com seu próprio catálogo. As contas antigas só podem ser transferidas com acesso administrativo ao projeto de origem e com a exportação oficial do Firebase Authentication; sem essa permissão, cada usuário deve criar uma conta nova no redesign.
 
 1. Habilite autenticação por e-mail e senha no projeto novo.
-2. Ative o plano Blaze, necessário para Cloud Functions e Cloud Scheduler.
+2. Mantenha o projeto no plano Spark; o Home Easy não depende de Cloud Functions nem Cloud Storage.
 3. Gere uma credencial administrativa do projeto novo e mantenha o JSON fora do repositório.
-4. Use Node.js 22 e execute no PowerShell:
+4. Use Node.js 22 e execute os utilitários locais no PowerShell:
 
 ```powershell
 $env:GOOGLE_APPLICATION_CREDENTIALS="C:\caminho\seguro\service-account.json"
@@ -190,7 +190,6 @@ O administrador precisa criar sua conta no redesign antes do comando `bootstrap`
 
 ```bash
 firebase deploy --only firestore:indexes
-firebase deploy --only functions
 firebase deploy --only firestore:rules
 ```
 
@@ -212,8 +211,8 @@ firebase deploy --only firestore:rules
 - [ ] Persistir coordenadas no Firebase para reduzir geocodificação externa
 - [ ] Atualizar o projeto para uma versão moderna do Angular
 - [ ] Ampliar a cobertura de testes automatizados
-- [x] Adicionar expiração agendada no backend
-- [ ] Adicionar notificações push
+- [x] Remover dependências de infraestrutura paga e manter compatibilidade com o plano Spark
+- [ ] Migrar gradualmente para uma API própria com banco relacional
 
 ## 🤝 Contribuindo
 

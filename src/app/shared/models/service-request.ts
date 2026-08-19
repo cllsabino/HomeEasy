@@ -1,4 +1,5 @@
 import { OrderStatus } from '../../Usuarios/pedido';
+import { RequestAttachment, ServiceRequestAnswer } from './service-request-field';
 
 export enum ServiceUrgency {
   Flexible = 'flexible',
@@ -29,6 +30,8 @@ export class ServiceRequest {
   state?: string;
   budgetMinimum?: number;
   budgetMaximum?: number;
+  answers?: ServiceRequestAnswer[];
+  attachments?: RequestAttachment[];
   status?: OrderStatus;
   proposalCount?: number;
   maximumProposals?: number;
@@ -46,6 +49,8 @@ export class ServiceProposal {
   professionalId?: string;
   professionalName?: string;
   professionalVerified?: boolean;
+  professionalRating?: number;
+  professionalCompletedServices?: number;
   price?: number;
   message?: string;
   estimatedDuration?: string;

@@ -12,7 +12,10 @@ import { Servico } from '../../Usuarios/servico';
 import { Usuario } from '../../Usuarios/usuario';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
 import { ServiceRequest, ServiceUrgency } from '../../shared/models/service-request';
+import { RequestAttachment, ServiceRequestAnswer, ServiceRequestField } from '../../shared/models/service-request-field';
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
+import { createCompressedImageAttachment } from '../../shared/utils/image-attachment.utils';
+import { getServiceRequestFields } from '../../shared/utils/service-request-fields.utils';
 
 @Component({
   selector: 'app-service-request-form',
@@ -33,6 +36,10 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   isLoadingCities = false;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
+  specificFields = new Array<ServiceRequestField>();
+  specificValues: { [key: string]: string | number } = {};
+  attachments = new Array<RequestAttachment>();
+  isProcessingAttachments = false;
   readonly urgencyOptions = [
     { value: ServiceUrgency.Flexible, label: 'Posso combinar' },
     { value: ServiceUrgency.ThisWeek, label: 'Ainda esta semana' },
@@ -109,6 +116,8 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     this.request.serviceId = this.serviceId;
     this.request.serviceName = this.service.nome;
     this.request.category = this.service.tipo;
+    this.request.answers = this.createAnswers();
+    this.request.attachments = this.attachments;
 
     try {
       const requestId = await this.requestService.createRequest(this.request, this.userId);
@@ -131,12 +140,55 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
       Number(this.request.budgetMinimum) > Number(this.request.budgetMaximum));
   }
 
+  get hasInvalidSpecificFields() {
+    return this.specificFields.some(field => field.required && !this.specificValues[field.key]);
+  }
+
+  async onAttachmentSelection(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const selectedFiles = input.files ? Array.from(input.files) : [];
+    const remainingSlots = 3 - this.attachments.length;
+
+    if (!remainingSlots || !selectedFiles.length) {
+      input.value = '';
+      return;
+    }
+
+    this.isProcessingAttachments = true;
+    this.feedbackMessage = '';
+    try {
+      const newAttachments = await Promise.all(selectedFiles.slice(0, remainingSlots).map(createCompressedImageAttachment));
+      this.attachments = this.attachments.concat(newAttachments);
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível preparar as imagens.';
+    } finally {
+      this.isProcessingAttachments = false;
+      input.value = '';
+    }
+  }
+
+  removeAttachment(index: number) {
+    this.attachments = this.attachments.filter((attachment, attachmentIndex) => attachmentIndex !== index);
+  }
+
   private loadService() {
     this.unsubscribe(this.serviceSubscription);
     this.serviceSubscription = this.servicesService.getServico(this.serviceId).subscribe(service => {
       this.service = service || {};
+      this.specificFields = getServiceRequestFields(this.service.nome);
       this.isLoading = false;
     });
+  }
+
+  private createAnswers(): ServiceRequestAnswer[] {
+    return this.specificFields.reduce((answers, field) => {
+      const value = this.specificValues[field.key];
+      if (value !== undefined && value !== '') {
+        answers.push({ key: field.key, label: field.label, value, unit: field.unit });
+      }
+      return answers;
+    }, new Array<ServiceRequestAnswer>());
   }
 
   private loadUser() {

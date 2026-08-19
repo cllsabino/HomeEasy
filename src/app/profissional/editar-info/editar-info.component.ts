@@ -29,7 +29,14 @@ export class EditarInfoComponent implements OnInit {
   servicoSubscription : Subscription;
   usuario : Usuario = {};
   usuarioSubscription : Subscription;
+  serviceDetailsSubscription: Subscription;
   isSubmitting = false;
+  readonly weekdays = [
+    { value: 'monday', label: 'Segunda' }, { value: 'tuesday', label: 'Terça' },
+    { value: 'wednesday', label: 'Quarta' }, { value: 'thursday', label: 'Quinta' },
+    { value: 'friday', label: 'Sexta' }, { value: 'saturday', label: 'Sábado' },
+    { value: 'sunday', label: 'Domingo' }
+  ];
 
   constructor(
     public afs : AngularFirestore, 
@@ -56,6 +63,9 @@ export class EditarInfoComponent implements OnInit {
     this.servicoSubscription = this.servicoService.getUserServicoPorId(this.userId, this.serveId).subscribe(data => {
       this.servico = data}
     );
+    this.serviceDetailsSubscription = this.servicoPedido.getDetalheServico(this.userId, this.serveId).subscribe(serviceDetails => {
+      this.servicoped = serviceDetails || {};
+    });
     this.usuarioSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data;
     });
@@ -65,6 +75,7 @@ export class EditarInfoComponent implements OnInit {
     this.serveIdSubscription.unsubscribe();
     this.servicoSubscription.unsubscribe();
     this.usuarioSubscription.unsubscribe();
+    this.serviceDetailsSubscription.unsubscribe();
   }
   async sair(){
     try{
@@ -90,6 +101,22 @@ export class EditarInfoComponent implements OnInit {
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  isWeekdayAvailable(weekday: string) {
+    return Boolean(this.servicoped.availableWeekdays && this.servicoped.availableWeekdays.indexOf(weekday) !== -1);
+  }
+
+  toggleWeekday(weekday: string, checked: boolean) {
+    const availableWeekdays = this.servicoped.availableWeekdays || [];
+    const weekdayIndex = availableWeekdays.indexOf(weekday);
+    if (checked && weekdayIndex === -1) {
+      availableWeekdays.push(weekday);
+    }
+    if (!checked && weekdayIndex !== -1) {
+      availableWeekdays.splice(weekdayIndex, 1);
+    }
+    this.servicoped.availableWeekdays = availableWeekdays;
   }
 
 }

@@ -27,6 +27,12 @@ export class AddprofissioanlComponent implements OnInit {
  servicoSelecionado : Servico;
  servePedido : ServicoPedido = {};
  isSubmitting = false;
+ readonly weekdays = [
+   { value: 'monday', label: 'Segunda' }, { value: 'tuesday', label: 'Terça' },
+   { value: 'wednesday', label: 'Quarta' }, { value: 'thursday', label: 'Quinta' },
+   { value: 'friday', label: 'Sexta' }, { value: 'saturday', label: 'Sábado' },
+   { value: 'sunday', label: 'Domingo' }
+ ];
 
   constructor( 
     public servico : ServicosService, 
@@ -85,5 +91,17 @@ export class AddprofissioanlComponent implements OnInit {
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  toggleWeekday(weekday: string, checked: boolean) {
+    const availableWeekdays = this.servePedido.availableWeekdays || [];
+    const weekdayIndex = availableWeekdays.indexOf(weekday);
+    if (checked && weekdayIndex === -1) {
+      availableWeekdays.push(weekday);
+    }
+    if (!checked && weekdayIndex !== -1) {
+      availableWeekdays.splice(weekdayIndex, 1);
+    }
+    this.servePedido.availableWeekdays = availableWeekdays;
   }
 }
