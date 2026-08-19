@@ -1,0 +1,20 @@
+{
+  "name": "homeeasy-functions",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "check": "node --check index.js && node --check src/marketplace-maintenance.js && node --check src/public-profile.js && node --check src/service-catalog.js && node --check scripts/script-arguments.js && node --check scripts/bootstrap-marketplace.js && node --check scripts/seed-service-catalog.js",
+    "test": "node --test test/*.test.js",
+    "bootstrap": "node scripts/bootstrap-marketplace.js",
+    "seed:services": "node scripts/seed-service-catalog.js"
+  },
+  "dependencies": {
+    "firebase-admin": "14.2.0",
+    "firebase-functions": "7.3.2",
+    "homeeasy": "file:.."
+  }
+}

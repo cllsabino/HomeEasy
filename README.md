@@ -161,9 +161,40 @@ npm run build -- --prod
 firebase deploy --only hosting
 ```
 
-As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo.
+As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo. O backend em `functions/` encerra solicitações e propostas expiradas a cada 15 minutos.
 
-> Antes do primeiro deploy das novas regras, gere `PublicProfiles` para os usuários legados. Publicar as regras estritas sem esse backfill impede a leitura de perfis antigos por outros usuários. O papel `admin` deve ser atribuído por um ambiente confiável, nunca pelo cliente web.
+### Backend independente do legado
+
+O redesign usa o projeto `homeeasy-bd496`, enquanto a versão original continua no `homeeasy-52792`. Essa separação mantém autenticação, dados, regras e funções do produto novo sem alterar o sistema legado.
+
+O projeto novo começa com seu próprio catálogo. As contas antigas só podem ser transferidas com acesso administrativo ao projeto de origem e com a exportação oficial do Firebase Authentication; sem essa permissão, cada usuário deve criar uma conta nova no redesign.
+
+1. Habilite autenticação por e-mail e senha no projeto novo.
+2. Ative o plano Blaze, necessário para Cloud Functions e Cloud Scheduler.
+3. Gere uma credencial administrativa do projeto novo e mantenha o JSON fora do repositório.
+4. Use Node.js 22 e execute no PowerShell:
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\caminho\seguro\service-account.json"
+cd functions
+npm ci
+npm run seed:services -- --project homeeasy-bd496
+npm run bootstrap -- --project homeeasy-bd496 --admin-email seu-email@exemplo.com
+cd ..
+```
+
+O administrador precisa criar sua conta no redesign antes do comando `bootstrap`. O script gera `PublicProfiles` para as contas já cadastradas no projeto novo, atribui o papel administrativo e registra a conclusão em `SystemMigrations/publicProfilesV1`.
+
+5. Confirme os documentos `SystemMigrations/serviceCatalogV1` e `SystemMigrations/publicProfilesV1`.
+6. Publique na ordem abaixo:
+
+```bash
+firebase deploy --only firestore:indexes
+firebase deploy --only functions
+firebase deploy --only firestore:rules
+```
+
+> Nunca versione a credencial administrativa. O `.gitignore` bloqueia nomes comuns de arquivos de service account, mas a chave deve permanecer em uma pasta segura fora do projeto. O papel `admin` nunca é atribuído pelo cliente Angular. Para preservar senhas antigas, use `firebase auth:export` e `firebase auth:import` somente após receber acesso formal ao projeto legado e obter seus parâmetros de hash.
 
 ## 🛣️ Roadmap
 
@@ -176,11 +207,13 @@ As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados p�
 - [x] Disponibilidade profissional e validade de oportunidades
 - [x] Fluxo de verificação e painel de indicadores administrativos
 - [x] Separação entre perfil privado e perfil público
-- [ ] Executar o backfill de perfis públicos antes de publicar as novas regras
+- [x] Separar o backend do redesign do projeto Firebase legado
+- [x] Criar a primeira conta no backend novo e concluir o bootstrap administrativo
 - [ ] Persistir coordenadas no Firebase para reduzir geocodificação externa
 - [ ] Atualizar o projeto para uma versão moderna do Angular
 - [ ] Ampliar a cobertura de testes automatizados
-- [ ] Adicionar notificações push e expiração agendada no backend
+- [x] Adicionar expiração agendada no backend
+- [ ] Adicionar notificações push
 
 ## 🤝 Contribuindo
 

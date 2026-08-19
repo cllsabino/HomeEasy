@@ -13,13 +13,23 @@ service cloud.firestore {
       return signedIn() && get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)).data.role == 'admin';
     }
 
+    function serviceCollectionName() {
+      return 'Serviços';
+    }
+
+    function ratingCollectionName() {
+      return 'Avaliações';
+    }
+
     function offersService(serviceId) {
-      return signedIn() && exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/Serviços/$(serviceId));
+      let serviceCollection = serviceCollectionName();
+      return signedIn() && exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/$(serviceCollection)/$(serviceId));
     }
 
     function isAvailableForService(serviceId) {
+      let serviceCollection = serviceCollectionName();
       return offersService(serviceId) &&
-        get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/Serviços/$(serviceId)).data.available != false;
+        get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/$(serviceCollection)/$(serviceId)).data.available != false;
     }
 
     function isOrderParticipant(order) {
@@ -73,13 +83,15 @@ service cloud.firestore {
       ));
       allow delete: if owns(userId) || isAdmin();
 
-      match /Serviços/{serviceId} {
-        allow read, write: if owns(userId) || isAdmin();
+      match /{userServiceCollection}/{serviceId} {
+        allow read, write: if userServiceCollection == serviceCollectionName() && (owns(userId) || isAdmin());
 
-        match /Avaliações/{ratingId} {
-          allow read: if true;
-          allow create: if signedIn();
-          allow update, delete: if isAdmin();
+        match /{ratingCollection}/{ratingId} {
+          allow read: if userServiceCollection == serviceCollectionName() && ratingCollection == ratingCollectionName();
+          allow create: if userServiceCollection == serviceCollectionName() &&
+            ratingCollection == ratingCollectionName() && signedIn();
+          allow update, delete: if userServiceCollection == serviceCollectionName() &&
+            ratingCollection == ratingCollectionName() && isAdmin();
         }
       }
 
@@ -96,19 +108,19 @@ service cloud.firestore {
       }
     }
 
-    match /Serviços/{serviceId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    match /{serviceCollection}/{serviceId} {
+      allow read: if serviceCollection == serviceCollectionName();
+      allow write: if serviceCollection == serviceCollectionName() && isAdmin();
 
       match /Usuarios/{professionalId} {
-        allow read: if true;
-        allow write: if owns(professionalId) || isAdmin();
+        allow read: if serviceCollection == serviceCollectionName();
+        allow write: if serviceCollection == serviceCollectionName() && (owns(professionalId) || isAdmin());
       }
     }
 
-    match /ServicoPedido/{professionalId}/Serviços/{serviceId} {
-      allow read: if true;
-      allow write: if owns(professionalId) || isAdmin();
+    match /ServicoPedido/{professionalId}/{serviceCollection}/{serviceId} {
+      allow read: if serviceCollection == serviceCollectionName();
+      allow write: if serviceCollection == serviceCollectionName() && (owns(professionalId) || isAdmin());
     }
 
     match /Orders/{orderId} {

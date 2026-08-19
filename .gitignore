@@ -35,6 +35,9 @@ testem.log
 /typings
 /frontend.log
 /frontend.err.log
+/functions/node_modules
+*-service-account*.json
+service-account*.json
 
 # System Files
 .DS_Store
