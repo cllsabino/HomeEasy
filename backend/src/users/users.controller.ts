@@ -1,7 +1,8 @@
-import { Controller, Get, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Put } from '@nestjs/common';
 
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
-import { PublicUser, toPublicUser } from '../shared/utils/public-user.utils';
+import { PublicUser } from '../shared/utils/public-user.utils';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -10,11 +11,19 @@ export class UsersController {
 
   @Get('me')
   async getCurrentUser(@AuthenticatedUser() authenticatedUser: PublicUser) {
-    const user = await this.usersService.findById(authenticatedUser.id);
-    if (!user) {
+    const profile = await this.usersService.findOwnProfile(authenticatedUser.id);
+    if (!profile) {
       throw new NotFoundException('Usuário não encontrado.');
     }
 
-    return toPublicUser(user);
+    return profile;
+  }
+
+  @Put('me')
+  updateCurrentUser(
+    @AuthenticatedUser() authenticatedUser: PublicUser,
+    @Body() updateUserProfileDto: UpdateUserProfileDto
+  ) {
+    return this.usersService.updateOwnProfile(authenticatedUser.id, updateUserProfileDto);
   }
 }
