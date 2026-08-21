@@ -36,6 +36,11 @@ testem.log
 /frontend.log
 /frontend.err.log
 /functions/node_modules
+/backend/node_modules
+/backend/dist
+/backend/coverage
+/backend/.env
+/backend/*.log
 *-service-account*.json
 service-account*.json
 

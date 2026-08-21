@@ -7,7 +7,11 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "backend:install": "npm --prefix backend install",
+    "backend:start": "npm --prefix backend run start:dev",
+    "backend:build": "npm --prefix backend run build",
+    "backend:test": "npm --prefix backend test"
   },
   "private": true,
   "dependencies": {
