@@ -5,6 +5,7 @@ import { MessageType } from './communication.enums';
 import { Conversation } from './conversation.entity';
 
 export interface MessageAttachment {
+  mediaId: string;
   objectKey: string;
   fileName: string;
   contentType: string;

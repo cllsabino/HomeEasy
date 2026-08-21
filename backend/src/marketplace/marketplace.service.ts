@@ -15,6 +15,8 @@ import { Conversation } from '../communications/conversation.entity';
 import { createNotification } from '../communications/notification.utils';
 import { ProfessionalService } from '../professionals/professional-service.entity';
 import { Service } from '../services/service.entity';
+import { MediaPurpose } from '../storage/media-purpose.enum';
+import { StorageService } from '../storage/storage.service';
 import { CancelOrderDto } from './dto/cancel-order.dto';
 import { CreateProposalDto } from './dto/create-proposal.dto';
 import { CreateServiceRequestDto } from './dto/create-service-request.dto';
@@ -45,7 +47,8 @@ export class MarketplaceService {
     @InjectRepository(Service)
     private readonly servicesRepository: Repository<Service>,
     @InjectRepository(ProfessionalProfile)
-    private readonly profilesRepository: Repository<ProfessionalProfile>
+    private readonly profilesRepository: Repository<ProfessionalProfile>,
+    private readonly storageService: StorageService
   ) {}
 
   async createRequest(clientId: string, dto: CreateServiceRequestDto) {
@@ -86,6 +89,41 @@ export class MarketplaceService {
       where: { clientId },
       relations: { service: true },
       order: { createdAt: 'DESC' }
+    });
+  }
+
+  async attachRequestMedia(requestId: string, mediaId: string, clientId: string) {
+    return this.dataSource.transaction(async (manager) => {
+      const request = await manager.findOne(ServiceRequest, {
+        where: { id: requestId },
+        lock: { mode: 'pessimistic_write' }
+      });
+      if (!request) {
+        throw new NotFoundException('Solicitação não encontrada.');
+      }
+      if (request.clientId !== clientId) {
+        throw new ForbiddenException('Somente o cliente pode anexar imagens à solicitação.');
+      }
+      if (request.attachments.length >= 8) {
+        throw new ConflictException('A solicitação já atingiu o limite de oito imagens.');
+      }
+      if (request.attachments.some((attachment) => attachment.mediaId === mediaId)) {
+        return request;
+      }
+      const media = await this.storageService.attachToContext(
+        mediaId,
+        clientId,
+        MediaPurpose.RequestAttachment,
+        requestId,
+        manager
+      );
+      request.attachments.push({
+        mediaId: media.id,
+        objectKey: media.objectKey,
+        fileName: media.fileName,
+        contentType: media.contentType
+      });
+      return manager.save(request);
     });
   }
 

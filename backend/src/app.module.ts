@@ -11,6 +11,7 @@ import { MarketplaceModule } from './marketplace/marketplace.module';
 import { ProfessionalsModule } from './professionals/professionals.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { ServicesModule } from './services/services.module';
+import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 import { validateEnvironment } from './config/environment.validation';
 
@@ -39,7 +40,8 @@ import { validateEnvironment } from './config/environment.validation';
     SchedulesModule,
     MarketplaceModule,
     EngagementModule,
-    CommunicationsModule
+    CommunicationsModule,
+    StorageModule
   ]
 })
 export class AppModule {}

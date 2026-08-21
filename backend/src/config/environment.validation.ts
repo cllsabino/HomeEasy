@@ -10,6 +10,12 @@ interface EnvironmentVariables {
   JWT_ACCESS_SECRET: string;
   JWT_ACCESS_EXPIRES_IN: string;
   REFRESH_TOKEN_DAYS: number;
+  MINIO_ENDPOINT: string;
+  MINIO_PORT: number;
+  MINIO_USE_SSL: boolean;
+  MINIO_ACCESS_KEY: string;
+  MINIO_SECRET_KEY: string;
+  MINIO_BUCKET: string;
 }
 
 export function validateEnvironment(environment: Record<string, unknown>): EnvironmentVariables {
@@ -19,7 +25,11 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
     'DATABASE_NAME',
     'DATABASE_USER',
     'DATABASE_PASSWORD',
-    'JWT_ACCESS_SECRET'
+    'JWT_ACCESS_SECRET',
+    'MINIO_ENDPOINT',
+    'MINIO_ACCESS_KEY',
+    'MINIO_SECRET_KEY',
+    'MINIO_BUCKET'
   ];
   const missingKeys = requiredKeys.filter((key) => !readString(environment[key]).trim());
 
@@ -43,7 +53,13 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
     DATABASE_PASSWORD: readString(environment.DATABASE_PASSWORD),
     JWT_ACCESS_SECRET: accessSecret,
     JWT_ACCESS_EXPIRES_IN: readString(environment.JWT_ACCESS_EXPIRES_IN, '15m'),
-    REFRESH_TOKEN_DAYS: Number(environment.REFRESH_TOKEN_DAYS || 30)
+    REFRESH_TOKEN_DAYS: Number(environment.REFRESH_TOKEN_DAYS || 30),
+    MINIO_ENDPOINT: readString(environment.MINIO_ENDPOINT),
+    MINIO_PORT: Number(environment.MINIO_PORT || 9000),
+    MINIO_USE_SSL: readString(environment.MINIO_USE_SSL, 'false') === 'true',
+    MINIO_ACCESS_KEY: readString(environment.MINIO_ACCESS_KEY),
+    MINIO_SECRET_KEY: readString(environment.MINIO_SECRET_KEY),
+    MINIO_BUCKET: readString(environment.MINIO_BUCKET)
   };
 }
 

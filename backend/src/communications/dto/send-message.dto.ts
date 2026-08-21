@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsOptional, IsString, Length, Max, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, Length, Max, Min } from 'class-validator';
 
 import { MessageType } from '../communication.enums';
 
@@ -18,4 +18,8 @@ export class SendMessageDto {
   @Min(1)
   @Max(99999999)
   budgetAmount?: number;
+
+  @IsOptional()
+  @IsUUID()
+  mediaId?: string;
 }

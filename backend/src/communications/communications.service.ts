@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { Order } from '../marketplace/order.entity';
+import { MediaPurpose } from '../storage/media-purpose.enum';
+import { StorageService } from '../storage/storage.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessageType, NotificationType } from './communication.enums';
 import { validateMessage } from './communication.utils';
@@ -31,7 +33,8 @@ export class CommunicationsService {
     @InjectRepository(UserPresence)
     private readonly presenceRepository: Repository<UserPresence>,
     @InjectRepository(Order)
-    private readonly ordersRepository: Repository<Order>
+    private readonly ordersRepository: Repository<Order>,
+    private readonly storageService: StorageService
   ) {}
 
   async createFromOrder(orderId: string, userId: string) {
@@ -127,12 +130,29 @@ export class CommunicationsService {
         throw new ForbiddenException('Não é possível enviar mensagens nesta conversa.');
       }
 
+      let attachment = null;
+      if (dto.type === MessageType.Image && dto.mediaId) {
+        const media = await this.storageService.attachToContext(
+          dto.mediaId,
+          senderId,
+          MediaPurpose.ChatAttachment,
+          conversationId,
+          manager
+        );
+        attachment = {
+          mediaId: media.id,
+          objectKey: media.objectKey,
+          fileName: media.fileName,
+          contentType: media.contentType,
+          size: media.size
+        };
+      }
       const message = manager.create(Message, {
         conversationId,
         senderId,
         type: dto.type,
         content: dto.content?.trim() || null,
-        attachment: null,
+        attachment,
         budgetAmount: dto.budgetAmount === undefined ? null : dto.budgetAmount.toFixed(2),
         readAt: null
       });

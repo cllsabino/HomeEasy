@@ -14,6 +14,7 @@ import { GeographicPoint } from '../professionals/professional-profile.entity';
 import { ServiceRequestStatus } from './marketplace.enums';
 
 export interface RequestAttachmentMetadata {
+  mediaId: string;
   objectKey: string;
   fileName: string;
   contentType: string;
