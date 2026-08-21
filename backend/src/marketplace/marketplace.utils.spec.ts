@@ -1,9 +1,11 @@
 import { BadRequestException } from '@nestjs/common';
 
+import { ServiceRequestFieldType } from '../services/service-request-field.types';
 import { OrderStatus, ServiceRequestStatus } from './marketplace.enums';
 import {
   canServiceRequestReceiveProposal,
   canTransitionOrder,
+  validateServiceAnswers,
   validateServiceRequest
 } from './marketplace.utils';
 import { Order } from './order.entity';
@@ -43,5 +45,19 @@ describe('marketplace rules', () => {
     } as Order;
     expect(canTransitionOrder(order, 'client-id', OrderStatus.Completed)).toBe(false);
     expect(canTransitionOrder(order, 'professional-id', OrderStatus.Completed)).toBe(true);
+  });
+
+  it('requires the configured service-specific answers', () => {
+    const requestForm = [
+      {
+        key: 'propertySize',
+        label: 'Metragem do imóvel',
+        type: ServiceRequestFieldType.Number,
+        required: true,
+        minimum: 1
+      }
+    ];
+    expect(() => validateServiceAnswers(requestForm, {})).toThrow(BadRequestException);
+    expect(() => validateServiceAnswers(requestForm, { propertySize: 80 })).not.toThrow();
   });
 });

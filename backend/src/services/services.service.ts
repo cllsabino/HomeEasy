@@ -15,7 +15,7 @@ export class ServicesService {
     return this.servicesRepository.find({
       where: { isActive: true },
       order: { category: 'ASC', name: 'ASC' },
-      select: { id: true, name: true, category: true }
+      select: { id: true, name: true, category: true, requestForm: true }
     });
   }
 }

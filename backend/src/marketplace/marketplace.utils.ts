@@ -1,6 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 
 import { CreateServiceRequestDto } from './dto/create-service-request.dto';
+import {
+  ServiceRequestFieldDefinition,
+  ServiceRequestFieldType
+} from '../services/service-request-field.types';
 import { OrderStatus, ServiceRequestStatus } from './marketplace.enums';
 import { Order } from './order.entity';
 import { ServiceRequest } from './service-request.entity';
@@ -20,6 +24,39 @@ export function validateServiceRequest(dto: CreateServiceRequestDto) {
   }
   if (dto.preferredAt && new Date(dto.preferredAt) <= new Date()) {
     throw new BadRequestException('A data preferida precisa estar no futuro.');
+  }
+}
+
+export function validateServiceAnswers(
+  requestForm: ServiceRequestFieldDefinition[],
+  answers: Record<string, string | number | boolean>
+) {
+  const allowedKeys = new Set(requestForm.map((field) => field.key));
+  for (const key of Object.keys(answers)) {
+    if (!allowedKeys.has(key)) {
+      throw new BadRequestException(`O campo específico “${key}” não pertence ao serviço selecionado.`);
+    }
+  }
+  for (const field of requestForm) {
+    const value = answers[field.key];
+    if (field.required && (value === undefined || value === '')) {
+      throw new BadRequestException(`Responda ao campo obrigatório “${field.label}”.`);
+    }
+    if (value === undefined) {
+      continue;
+    }
+    if (field.type === ServiceRequestFieldType.Number) {
+      const numericValue = Number(value);
+      if (!Number.isFinite(numericValue) || (field.minimum !== undefined && numericValue < field.minimum)) {
+        throw new BadRequestException(`Informe um valor válido para “${field.label}”.`);
+      }
+    }
+    if (
+      field.type === ServiceRequestFieldType.Select &&
+      !field.options?.some((option) => option.value === value)
+    ) {
+      throw new BadRequestException(`Selecione uma opção válida para “${field.label}”.`);
+    }
   }
 }
 

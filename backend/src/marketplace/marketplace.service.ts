@@ -28,6 +28,7 @@ import { ServiceRequest } from './service-request.entity';
 import {
   canServiceRequestReceiveProposal,
   canTransitionOrder,
+  validateServiceAnswers,
   validateServiceRequest
 } from './marketplace.utils';
 
@@ -59,6 +60,7 @@ export class MarketplaceService {
     if (!service) {
       throw new BadRequestException('O serviço selecionado não existe ou está indisponível.');
     }
+    validateServiceAnswers(service.requestForm, dto.answers);
 
     const request = this.requestsRepository.create({
       clientId,

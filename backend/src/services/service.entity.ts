@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { ServiceRequestFieldDefinition } from './service-request-field.types';
 
 @Entity({ name: 'services' })
 export class Service {
@@ -13,6 +14,9 @@ export class Service {
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
+
+  @Column({ name: 'request_form', type: 'jsonb', default: () => "'[]'::jsonb" })
+  requestForm: ServiceRequestFieldDefinition[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
