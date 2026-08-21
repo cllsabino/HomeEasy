@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
+import { CommunicationsModule } from './communications/communications.module';
 import { DatabaseModule } from './database/database.module';
 import { EngagementModule } from './engagement/engagement.module';
 import { HealthModule } from './health/health.module';
@@ -37,7 +38,8 @@ import { validateEnvironment } from './config/environment.validation';
     ProfessionalsModule,
     SchedulesModule,
     MarketplaceModule,
-    EngagementModule
+    EngagementModule,
+    CommunicationsModule
   ]
 })
 export class AppModule {}

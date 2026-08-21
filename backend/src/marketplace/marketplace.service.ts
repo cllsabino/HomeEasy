@@ -6,10 +6,13 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
 import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
+import { NotificationType } from '../communications/communication.enums';
+import { Conversation } from '../communications/conversation.entity';
+import { createNotification } from '../communications/notification.utils';
 import { ProfessionalService } from '../professionals/professional-service.entity';
 import { Service } from '../services/service.entity';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -167,6 +170,13 @@ export class MarketplaceService {
         request.proposalCount += 1;
         request.status = ServiceRequestStatus.ProposalReceived;
         await manager.save(request);
+        await createNotification(manager, {
+          userId: request.clientId,
+          type: NotificationType.NewProposal,
+          title: 'Nova proposta recebida',
+          body: 'Um profissional enviou uma proposta para sua solicitação.',
+          actionUrl: `/solicitacoes/${request.id}/propostas`
+        });
         return proposal;
       });
     } catch (error) {
@@ -250,7 +260,23 @@ export class MarketplaceService {
         cancellationDetails: null,
         cancelledBy: null
       });
-      return manager.save(order);
+      const savedOrder = await manager.save(order);
+      const conversation = await manager.save(
+        manager.create(Conversation, {
+          orderId: savedOrder.id,
+          clientId,
+          professionalId: proposal.professionalId,
+          lastMessageAt: null
+        })
+      );
+      await createNotification(manager, {
+        userId: proposal.professionalId,
+        type: NotificationType.ProposalAccepted,
+        title: 'Proposta aceita',
+        body: 'O cliente aceitou sua proposta. Combine os detalhes pela conversa.',
+        actionUrl: `/conversas/${conversation.id}`
+      });
+      return savedOrder;
     });
   }
 
@@ -318,7 +344,9 @@ export class MarketplaceService {
         throw new ConflictException('Esta mudança de status não é permitida para o pedido atual.');
       }
       order.status = nextStatus;
-      return manager.save(order);
+      const savedOrder = await manager.save(order);
+      await this.notifyOrderParticipant(manager, savedOrder, actorId, 'O status do pedido foi atualizado.');
+      return savedOrder;
     });
   }
 
@@ -356,7 +384,9 @@ export class MarketplaceService {
       order.cancellationReason = dto.reason;
       order.cancellationDetails = dto.details?.trim() || null;
       order.cancelledBy = actorId;
-      return manager.save(order);
+      const savedOrder = await manager.save(order);
+      await this.notifyOrderParticipant(manager, savedOrder, actorId, 'O pedido foi cancelado.');
+      return savedOrder;
     });
   }
 
@@ -410,6 +440,17 @@ export class MarketplaceService {
         .andWhere('valid_until <= now()')
         .execute()
     ]);
+  }
+
+  private async notifyOrderParticipant(manager: EntityManager, order: Order, actorId: string, body: string) {
+    const recipientId = actorId === order.clientId ? order.professionalId : order.clientId;
+    await createNotification(manager, {
+      userId: recipientId,
+      type: NotificationType.OrderUpdated,
+      title: 'Pedido atualizado',
+      body,
+      actionUrl: `/pedidos/${order.id}`
+    });
   }
 
   private isUniqueConstraintViolation(error: unknown) {

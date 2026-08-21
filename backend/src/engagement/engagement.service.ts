@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 
 import { OrderStatus } from '../marketplace/marketplace.enums';
 import { Order } from '../marketplace/order.entity';
+import { NotificationType } from '../communications/communication.enums';
+import { Notification } from '../communications/notification.entity';
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
 import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -20,7 +22,9 @@ export class EngagementService {
     @InjectRepository(Order)
     private readonly ordersRepository: Repository<Order>,
     @InjectRepository(ProfessionalProfile)
-    private readonly profilesRepository: Repository<ProfessionalProfile>
+    private readonly profilesRepository: Repository<ProfessionalProfile>,
+    @InjectRepository(Notification)
+    private readonly notificationsRepository: Repository<Notification>
   ) {}
 
   async addFavorite(clientId: string, professionalId: string) {
@@ -69,7 +73,7 @@ export class EngagementService {
     if (reviewExists) {
       throw new ConflictException('Este pedido já foi avaliado.');
     }
-    return this.reviewsRepository.save(
+    const review = await this.reviewsRepository.save(
       this.reviewsRepository.create({
         orderId,
         clientId,
@@ -81,6 +85,17 @@ export class EngagementService {
         isPublished: true
       })
     );
+    await this.notificationsRepository.save(
+      this.notificationsRepository.create({
+        userId: order.professionalId,
+        type: NotificationType.ReviewReceived,
+        title: 'Nova avaliação recebida',
+        body: `Você recebeu uma avaliação de ${dto.rating} estrela(s).`,
+        actionUrl: `/avaliacoes/${review.id}`,
+        readAt: null
+      })
+    );
+    return review;
   }
 
   async respondReview(reviewId: string, professionalId: string, response: string) {
