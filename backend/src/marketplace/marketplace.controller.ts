@@ -70,6 +70,14 @@ export class MarketplaceController {
     return this.marketplaceService.findOwnOrders(authenticatedUser.id);
   }
 
+  @Post('orders/:orderId/rehire')
+  rehire(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @AuthenticatedUser() authenticatedUser: PublicUser
+  ) {
+    return this.marketplaceService.rehire(orderId, authenticatedUser.id);
+  }
+
   @Patch('orders/:orderId/status')
   updateOrderStatus(
     @Param('orderId', ParseUUIDPipe) orderId: string,

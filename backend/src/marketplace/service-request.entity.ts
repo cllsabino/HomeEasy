@@ -77,6 +77,9 @@ export class ServiceRequest {
   @Column({ name: 'maximum_proposals', type: 'smallint', default: 4 })
   maximumProposals: number;
 
+  @Column({ name: 'preferred_professional_id', type: 'uuid', nullable: true })
+  preferredProfessionalId: string | null;
+
   @Column({ name: 'expires_at', type: 'timestamptz' })
   expiresAt: Date;
 

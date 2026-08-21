@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
+import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
 import { ProfessionalService } from '../professionals/professional-service.entity';
 import { Service } from '../services/service.entity';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -70,6 +71,7 @@ export class MarketplaceService {
       status: ServiceRequestStatus.Requested,
       proposalCount: 0,
       maximumProposals,
+      preferredProfessionalId: null,
       expiresAt: new Date(Date.now() + requestLifetimeMilliseconds)
     });
     return this.requestsRepository.save(request);
@@ -108,6 +110,9 @@ export class MarketplaceService {
       })
       .andWhere('request.expiresAt > now()')
       .andWhere('request.proposalCount < request.maximumProposals')
+      .andWhere(
+        '(request.preferredProfessionalId IS NULL OR request.preferredProfessionalId = :professionalId)'
+      )
       .andWhere(
         '(request.location IS NOT NULL AND ST_DWithin(request.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, :radiusMeters)) OR (request.location IS NULL AND request.state = :state AND LOWER(request.city) = LOWER(:city))'
       )
@@ -175,7 +180,7 @@ export class MarketplaceService {
   async findRequestProposals(requestId: string, clientId: string) {
     await this.assertRequestOwner(requestId, clientId);
     await this.expireOpenRecords();
-    return this.proposalsRepository
+    const proposals = await this.proposalsRepository
       .createQueryBuilder('proposal')
       .innerJoinAndSelect('proposal.professional', 'profile')
       .innerJoinAndSelect('profile.user', 'user')
@@ -183,6 +188,20 @@ export class MarketplaceService {
       .orderBy('proposal.price + proposal.travelFee', 'ASC')
       .addOrderBy('proposal.createdAt', 'ASC')
       .getMany();
+    return proposals.map((proposal) => ({
+      id: proposal.id,
+      requestId: proposal.requestId,
+      price: Number(proposal.price),
+      message: proposal.message,
+      estimatedDurationMinutes: proposal.estimatedDurationMinutes,
+      materialsIncluded: proposal.materialsIncluded,
+      travelFee: Number(proposal.travelFee),
+      paymentMethods: proposal.paymentMethods,
+      status: proposal.status,
+      validUntil: proposal.validUntil,
+      createdAt: proposal.createdAt,
+      professional: toPublicProfessionalProfile(proposal.professional)
+    }));
   }
 
   async acceptProposal(requestId: string, proposalId: string, clientId: string) {
@@ -244,6 +263,45 @@ export class MarketplaceService {
       .where('order.clientId = :userId OR order.professionalId = :userId', { userId })
       .orderBy('order.createdAt', 'DESC')
       .getMany();
+  }
+
+  async rehire(orderId: string, clientId: string) {
+    const previousOrder = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: { request: true }
+    });
+    if (!previousOrder) {
+      throw new NotFoundException('Pedido anterior não encontrado.');
+    }
+    if (previousOrder.clientId !== clientId) {
+      throw new ForbiddenException('Somente o cliente do pedido pode solicitar uma recontratação.');
+    }
+    if (previousOrder.status !== OrderStatus.Completed) {
+      throw new ConflictException('A recontratação está disponível apenas para serviços concluídos.');
+    }
+
+    const previousRequest = previousOrder.request;
+    const request = this.requestsRepository.create({
+      clientId,
+      serviceId: previousRequest.serviceId,
+      description: previousRequest.description,
+      answers: previousRequest.answers,
+      attachments: [],
+      address: previousRequest.address,
+      city: previousRequest.city,
+      state: previousRequest.state,
+      location: previousRequest.location,
+      budgetMinimum: previousRequest.budgetMinimum,
+      budgetMaximum: previousRequest.budgetMaximum,
+      preferredAt: null,
+      status: ServiceRequestStatus.Requested,
+      proposalCount: 0,
+      maximumProposals: 1,
+      preferredProfessionalId: previousOrder.professionalId,
+      expiresAt: new Date(Date.now() + requestLifetimeMilliseconds)
+    });
+    const savedRequest = await this.requestsRepository.save(request);
+    return savedRequest;
   }
 
   async updateOrderStatus(orderId: string, actorId: string, nextStatus: OrderStatus) {
