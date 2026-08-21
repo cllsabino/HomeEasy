@@ -1,0 +1,263 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+
+import { NotificationType } from '../communications/communication.enums';
+import { createNotification } from '../communications/notification.utils';
+import { OrderStatus } from '../marketplace/marketplace.enums';
+import { Order } from '../marketplace/order.entity';
+import { ProfessionalProfile } from '../professionals/professional-profile.entity';
+import { ProfessionalVerificationStatus } from '../professionals/professional-verification-status.enum';
+import { MediaPurpose } from '../storage/media-purpose.enum';
+import { StorageService } from '../storage/storage.service';
+import { CreateDisputeDto } from './dto/create-dispute.dto';
+import { CreateReportDto } from './dto/create-report.dto';
+import { SubmitDocumentDto } from './dto/submit-document.dto';
+import { Dispute } from './dispute.entity';
+import { ModerationStatus, VerificationDocumentType } from './moderation.enums';
+import { Report } from './report.entity';
+import { VerificationDocument } from './verification-document.entity';
+
+@Injectable()
+export class ModerationService {
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly storageService: StorageService,
+    @InjectRepository(VerificationDocument)
+    private readonly documentsRepository: Repository<VerificationDocument>,
+    @InjectRepository(Report)
+    private readonly reportsRepository: Repository<Report>,
+    @InjectRepository(Dispute)
+    private readonly disputesRepository: Repository<Dispute>,
+    @InjectRepository(Order)
+    private readonly ordersRepository: Repository<Order>,
+    @InjectRepository(ProfessionalProfile)
+    private readonly profilesRepository: Repository<ProfessionalProfile>
+  ) {}
+
+  async submitDocument(professionalId: string, dto: SubmitDocumentDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const profile = await manager.findOne(ProfessionalProfile, { where: { userId: professionalId } });
+      if (!profile) {
+        throw new NotFoundException('Crie o perfil profissional antes de enviar documentos.');
+      }
+      const pendingTypeExists = await manager.exists(VerificationDocument, {
+        where: { professionalId, type: dto.type, status: ModerationStatus.Pending }
+      });
+      if (pendingTypeExists) {
+        throw new ConflictException('Já existe um documento deste tipo aguardando análise.');
+      }
+      const document = await manager.save(
+        manager.create(VerificationDocument, {
+          professionalId,
+          mediaId: dto.mediaId,
+          type: dto.type,
+          status: ModerationStatus.Pending,
+          reviewNotes: null,
+          reviewedBy: null,
+          reviewedAt: null
+        })
+      );
+      await this.storageService.attachToContext(
+        dto.mediaId,
+        professionalId,
+        MediaPurpose.VerificationDocument,
+        document.id,
+        manager
+      );
+      profile.verificationStatus = ProfessionalVerificationStatus.Pending;
+      await manager.save(profile);
+      return document;
+    });
+  }
+
+  findOwnDocuments(professionalId: string) {
+    return this.documentsRepository.find({
+      where: { professionalId },
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  async createReport(reporterId: string, dto: CreateReportDto) {
+    if (!dto.targetUserId && !dto.orderId && !dto.conversationId && !dto.reviewId) {
+      throw new BadRequestException('Informe o perfil, pedido, conversa ou avaliação denunciada.');
+    }
+    if (dto.targetUserId === reporterId) {
+      throw new BadRequestException('Você não pode denunciar a própria conta.');
+    }
+    return this.reportsRepository.save(
+      this.reportsRepository.create({
+        reporterId,
+        targetUserId: dto.targetUserId || null,
+        orderId: dto.orderId || null,
+        conversationId: dto.conversationId || null,
+        reviewId: dto.reviewId || null,
+        category: dto.category,
+        description: dto.description.trim(),
+        status: ModerationStatus.Pending,
+        resolutionNotes: null,
+        reviewedBy: null
+      })
+    );
+  }
+
+  async createDispute(orderId: string, userId: string, dto: CreateDisputeDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const order = await manager.findOne(Order, {
+        where: { id: orderId },
+        lock: { mode: 'pessimistic_write' }
+      });
+      if (!order) {
+        throw new NotFoundException('Pedido não encontrado.');
+      }
+      if (order.clientId !== userId && order.professionalId !== userId) {
+        throw new ForbiddenException('Você não participa deste pedido.');
+      }
+      if ([OrderStatus.CancelledByClient, OrderStatus.CancelledByProfessional].includes(order.status)) {
+        throw new ConflictException('Pedidos cancelados não podem abrir uma disputa de execução.');
+      }
+      const disputeExists = await manager.exists(Dispute, { where: { orderId } });
+      if (disputeExists) {
+        throw new ConflictException('Este pedido já possui uma disputa.');
+      }
+      const dispute = await manager.save(
+        manager.create(Dispute, {
+          orderId,
+          openedBy: userId,
+          reason: dto.reason,
+          description: dto.description.trim(),
+          status: ModerationStatus.Pending,
+          resolutionNotes: null,
+          reviewedBy: null
+        })
+      );
+      order.status = OrderStatus.Disputed;
+      await manager.save(order);
+      const recipientId = userId === order.clientId ? order.professionalId : order.clientId;
+      await createNotification(manager, {
+        userId: recipientId,
+        type: NotificationType.DisputeUpdated,
+        title: 'Disputa aberta',
+        body: 'Uma disputa foi aberta para o pedido.',
+        actionUrl: `/pedidos/${order.id}`
+      });
+      return dispute;
+    });
+  }
+
+  findAdminQueue() {
+    return Promise.all([
+      this.documentsRepository.find({
+        where: { status: ModerationStatus.Pending },
+        relations: { professional: true },
+        order: { createdAt: 'ASC' }
+      }),
+      this.reportsRepository.find({
+        where: { status: ModerationStatus.Pending },
+        order: { createdAt: 'ASC' }
+      }),
+      this.disputesRepository.find({
+        where: { status: ModerationStatus.Pending },
+        order: { createdAt: 'ASC' }
+      })
+    ]).then(([documents, reports, disputes]) => ({ documents, reports, disputes }));
+  }
+
+  async reviewDocument(documentId: string, adminId: string, status: ModerationStatus, notes?: string) {
+    if (![ModerationStatus.Approved, ModerationStatus.Rejected].includes(status)) {
+      throw new BadRequestException('A análise deve aprovar ou rejeitar o documento.');
+    }
+    return this.dataSource.transaction(async (manager) => {
+      const document = await manager.findOne(VerificationDocument, { where: { id: documentId } });
+      if (!document) {
+        throw new NotFoundException('Documento não encontrado.');
+      }
+      if (document.status !== ModerationStatus.Pending) {
+        throw new ConflictException('Este documento já foi analisado.');
+      }
+      document.status = status;
+      document.reviewNotes = notes?.trim() || null;
+      document.reviewedBy = adminId;
+      document.reviewedAt = new Date();
+      await manager.save(document);
+      await this.updateVerificationLevel(manager, document.professionalId);
+      return document;
+    });
+  }
+
+  async reviewReport(reportId: string, adminId: string, status: ModerationStatus, notes?: string) {
+    if (![ModerationStatus.InReview, ModerationStatus.Rejected, ModerationStatus.Resolved].includes(status)) {
+      throw new BadRequestException('O status informado não é válido para uma denúncia.');
+    }
+    const report = await this.reportsRepository.findOne({ where: { id: reportId } });
+    if (!report) {
+      throw new NotFoundException('Denúncia não encontrada.');
+    }
+    report.status = status;
+    report.resolutionNotes = notes?.trim() || null;
+    report.reviewedBy = adminId;
+    return this.reportsRepository.save(report);
+  }
+
+  async reviewDispute(disputeId: string, adminId: string, status: ModerationStatus, notes?: string) {
+    if (![ModerationStatus.InReview, ModerationStatus.Rejected, ModerationStatus.Resolved].includes(status)) {
+      throw new BadRequestException('O status informado não é válido para uma disputa.');
+    }
+    return this.dataSource.transaction(async (manager) => {
+      const dispute = await manager.findOne(Dispute, {
+        where: { id: disputeId },
+        relations: { order: true }
+      });
+      if (!dispute) {
+        throw new NotFoundException('Disputa não encontrada.');
+      }
+      dispute.status = status;
+      dispute.resolutionNotes = notes?.trim() || null;
+      dispute.reviewedBy = adminId;
+      const savedDispute = await manager.save(dispute);
+      for (const userId of [dispute.order.clientId, dispute.order.professionalId]) {
+        await createNotification(manager, {
+          userId,
+          type: NotificationType.DisputeUpdated,
+          title: 'Disputa atualizada',
+          body: 'A moderação atualizou sua disputa.',
+          actionUrl: `/pedidos/${dispute.orderId}`
+        });
+      }
+      return savedDispute;
+    });
+  }
+
+  async setVerificationStatus(professionalId: string, status: ProfessionalVerificationStatus) {
+    const profile = await this.profilesRepository.findOne({ where: { userId: professionalId } });
+    if (!profile) {
+      throw new NotFoundException('Perfil profissional não encontrado.');
+    }
+    profile.verificationStatus = status;
+    return this.profilesRepository.save(profile);
+  }
+
+  private async updateVerificationLevel(manager: EntityManager, professionalId: string) {
+    const approvedDocuments = await manager.find(VerificationDocument, {
+      where: { professionalId, status: ModerationStatus.Approved }
+    });
+    const approvedTypes = new Set(approvedDocuments.map((document) => document.type));
+    let verificationStatus = ProfessionalVerificationStatus.Pending;
+    if (approvedTypes.has(VerificationDocumentType.Identity)) {
+      verificationStatus = ProfessionalVerificationStatus.IdentityVerified;
+    }
+    if (
+      approvedTypes.has(VerificationDocumentType.Identity) &&
+      approvedTypes.has(VerificationDocumentType.ProfessionalCertificate)
+    ) {
+      verificationStatus = ProfessionalVerificationStatus.ProfessionalVerified;
+    }
+    await manager.update(ProfessionalProfile, { userId: professionalId }, { verificationStatus });
+  }
+}

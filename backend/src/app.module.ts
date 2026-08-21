@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { EngagementModule } from './engagement/engagement.module';
 import { HealthModule } from './health/health.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
+import { ModerationModule } from './moderation/moderation.module';
 import { ProfessionalsModule } from './professionals/professionals.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { ServicesModule } from './services/services.module';
@@ -41,7 +42,8 @@ import { validateEnvironment } from './config/environment.validation';
     MarketplaceModule,
     EngagementModule,
     CommunicationsModule,
-    StorageModule
+    StorageModule,
+    ModerationModule
   ]
 })
 export class AppModule {}
