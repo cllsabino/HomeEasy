@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
 
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { map } from 'rxjs/operators';
 import { Usuario } from '../Usuarios/usuario';
 
@@ -8,24 +9,26 @@ import { Usuario } from '../Usuarios/usuario';
   providedIn: 'root'
 })
 
+@RunInFirebaseInjectionContext
 export class LoginServiceService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
 
   constructor(public afAuth : AngularFireAuth) { }
 
   login(user : Usuario){
-     return this.afAuth.auth.signInWithEmailAndPassword(user.email, user.senha);
+     return this.afAuth.signInWithEmailAndPassword(user.email, user.senha);
   }
 
   recuperarsenha(user : Usuario){
-     return this.afAuth.auth.sendPasswordResetEmail(user.email);
+     return this.afAuth.sendPasswordResetEmail(user.email);
   }
 
-  getAuth(){
-     return this.afAuth.auth;
+  getAuthState(){
+     return this.afAuth.authState;
   }
 
   sair(){
-     return this.afAuth.auth.signOut();
+     return this.afAuth.signOut();
   }
 
   isAuth() {

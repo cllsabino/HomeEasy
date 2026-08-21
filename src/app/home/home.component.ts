@@ -1,10 +1,12 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
 
 @Component({
+  standalone: false,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -20,7 +22,7 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
 
     if (currentUser) {
       this.authenticated = true;

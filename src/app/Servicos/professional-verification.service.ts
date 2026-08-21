@@ -1,14 +1,17 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import * as firebase from 'firebase/app';
-import 'firebase/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 import { map } from 'rxjs/operators';
 
 import { ProfessionalVerificationStatus, UserRole, Usuario } from '../Usuarios/usuario';
 import { createPublicProfile } from '../shared/utils/public-profile.utils';
 
 @Injectable({ providedIn: 'root' })
+@RunInFirebaseInjectionContext
 export class ProfessionalVerificationService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   constructor(private afs: AngularFirestore) { }
 
   requestVerification(userId: string) {

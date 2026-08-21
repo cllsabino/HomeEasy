@@ -1,11 +1,12 @@
-import { TestBed, async, inject } from '@angular/core/testing';
+import { AppModule } from '../app.module';
+import { TestBed, waitForAsync, inject } from '@angular/core/testing';
 
 import { LoginGuard } from './login.guard';
 
 describe('LoginGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [LoginGuard]
+      imports: [AppModule]
     });
   });
 

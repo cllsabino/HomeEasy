@@ -1,7 +1,8 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -14,6 +15,7 @@ import { ChatService } from './../../Servicos/chat.service';
 import { UsuarioService } from './../../Servicos/usuario.service';
 
 @Component({
+  standalone: false,
   selector: 'app-lista-contato',
   templateUrl: './lista-contato.component.html',
   styleUrls: ['./lista-contato.component.css']
@@ -40,9 +42,9 @@ export class ListaContatoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
 
     this.listaContatosSubscription = this.chatService.getContatos(this.userId).pipe(
@@ -64,8 +66,8 @@ export class ListaContatoComponent implements OnInit {
     }
   }
   ngOnDestroy(){
-    this.listaContatosSubscription.unsubscribe();
-    this.userSubscription.unsubscribe();
+    this.listaContatosSubscription?.unsubscribe();
+    this.userSubscription?.unsubscribe();
   }
  
 }

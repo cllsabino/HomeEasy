@@ -1,16 +1,20 @@
-import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { CanActivate, Router } from '@angular/router';
 
 import { UserRole, Usuario } from '../Usuarios/usuario';
 
 @Injectable({ providedIn: 'root' })
+@RunInFirebaseInjectionContext
 export class AdminGuard implements CanActivate {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore, private router: Router) { }
 
   canActivate(): Promise<boolean> {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     if (!currentUser) {
       this.router.navigate(['/login']);
       return Promise.resolve(false);

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-back-link',
   templateUrl: './back-link.component.html',
   styleUrls: ['./back-link.component.css']

@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { map } from 'rxjs/operators';
 
 import { Servico } from '../Usuarios/servico';
@@ -9,7 +10,9 @@ import { createPublicProfile } from '../shared/utils/public-profile.utils';
 @Injectable({
   providedIn: 'root'
 })
+@RunInFirebaseInjectionContext
 export class ServicosService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   servicoCollection : AngularFirestoreCollection<Servico>;
   domesticoCollection : AngularFirestoreCollection<Servico>;
   reformaCollection : AngularFirestoreCollection<Servico>;

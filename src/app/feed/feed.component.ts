@@ -1,8 +1,10 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
+import { EnvironmentInjector, inject, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
@@ -54,11 +56,14 @@ interface ServiceRegionAccumulator {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-feed',
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css']
 })
+@RunInFirebaseInjectionContext
 export class FeedComponent implements OnInit, OnDestroy {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   domesticServices = new Array<Servico>();
   filteredDomesticServices = new Array<Servico>();
   domesticServicesSubscription: Subscription;
@@ -124,18 +129,18 @@ export class FeedComponent implements OnInit, OnDestroy {
       this.initializeFilterMetadata();
     });
 
-    if (this.afAuth.auth.currentUser != null) {
+    if (getCurrentFirebaseUser() != null) {
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     } else {
       this.entrarSair = false;
     }
   }
 
   ngOnDestroy() {
-    this.domesticServicesSubscription.unsubscribe();
-    this.renovationServicesSubscription.unsubscribe();
-    this.queryParamsSubscription.unsubscribe();
+    this.domesticServicesSubscription?.unsubscribe();
+    this.renovationServicesSubscription?.unsubscribe();
+    this.queryParamsSubscription?.unsubscribe();
 
     if (this.searchDebounce) {
       clearTimeout(this.searchDebounce);

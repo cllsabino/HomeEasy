@@ -1,6 +1,7 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { Usuario } from './../../Usuarios/usuario';
@@ -8,6 +9,7 @@ import { FeedbackType } from '../../shared/action-feedback/action-feedback.compo
 import { resolveAuthErrorMessage } from '../../shared/utils/auth-error.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-recuperar-senha',
   templateUrl: './recuperar-senha.component.html',
   styleUrls: ['./recuperar-senha.component.css']
@@ -27,9 +29,9 @@ export class RecuperarSenhaComponent implements OnInit {
   ) { }
 
   ngOnInit() {    
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false
   }
 

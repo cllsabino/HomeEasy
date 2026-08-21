@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
+import { EnvironmentInjector, inject, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
@@ -11,11 +13,14 @@ import { resolveAuthErrorMessage } from '../shared/utils/auth-error.utils';
 type AuthMode = 'login' | 'register';
 
 @Component({
+  standalone: false,
   selector: 'app-login-cadastro',
   templateUrl: './login-cadastro.component.html',
   styleUrls: ['./login-cadastro.component.css']
 })
+@RunInFirebaseInjectionContext
 export class LoginCadastroComponent implements OnInit {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   loginUser: Usuario = {};
   registrationUser: Usuario = {};
   feedbackMessage = '';
@@ -41,7 +46,7 @@ export class LoginCadastroComponent implements OnInit {
       this.returnUrl = requestedReturnUrl;
     }
 
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
 
     if (currentUser) {
       this.authenticated = true;
@@ -82,7 +87,7 @@ export class LoginCadastroComponent implements OnInit {
     this.isRegistrationSubmitting = true;
 
     try {
-      const newUser = await this.afAuth.auth.createUserWithEmailAndPassword(
+      const newUser = await this.afAuth.createUserWithEmailAndPassword(
         this.registrationUser.email,
         this.registrationUser.senha
       );

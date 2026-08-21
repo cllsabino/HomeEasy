@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -10,6 +11,7 @@ import { Usuario } from './../Usuarios/usuario';
 import { Servico } from './../Usuarios/servico';
 
 @Component({
+  standalone: false,
   selector: 'app-profissional',
   templateUrl: './profissional.component.html',
   styleUrls: ['./profissional.component.css']
@@ -27,9 +29,9 @@ export class ProfissionalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     } else this.entrarSair = false;
   }
   async sair(){

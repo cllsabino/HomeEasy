@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators"
 
@@ -9,7 +10,9 @@ import { Mensagem } from '../Usuarios/mensagem';
     providedIn: 'root'
   })
 
+@RunInFirebaseInjectionContext
 export class ContatoService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   mensagemInfo: Observable<Mensagem[]>;
   mensagemCollection: AngularFirestoreCollection<Mensagem>;
 

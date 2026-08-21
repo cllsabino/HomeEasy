@@ -6,6 +6,7 @@ import { ServiceRegion } from '../../shared/models/service-region';
 declare const L: any;
 
 @Component({
+  standalone: false,
   selector: 'app-regional-service-map',
   templateUrl: './regional-service-map.component.html',
   styleUrls: ['./regional-service-map.component.css']

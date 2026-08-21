@@ -1,10 +1,12 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
 
 @Component({
+  standalone: false,
   selector: 'app-sobre-nos',
   templateUrl: './sobre-nos.component.html',
   styleUrls: ['./sobre-nos.component.css']
@@ -20,9 +22,9 @@ export class SobreNosComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
   }
   async sair(){

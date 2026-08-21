@@ -1,8 +1,9 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
@@ -14,6 +15,7 @@ import { AvalicaoService } from './../../Servicos/avaliacao.service';
 import { Avaliacao } from './../../Usuarios/avaliacao';
 
 @Component({
+  standalone: false,
   selector: 'app-avaliacoes',
   templateUrl: './avaliacoes.component.html',
   styleUrls: ['./avaliacoes.component.css']
@@ -42,8 +44,8 @@ export class AvaliacoesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
-      this.userId = this.afAuth.auth.currentUser.uid;
+    if(getCurrentFirebaseUser() != null){
+      this.userId = getCurrentFirebaseUser().uid;
       this.entrarSair = true;
     } 
     else this.entrarSair = false;
@@ -59,9 +61,9 @@ export class AvaliacoesComponent implements OnInit {
     });
   }
   ngOnDestroy(){
-    this.servidorIdSubscription.unsubscribe();
-    this.serveIdSubscription.unsubscribe();
-    this.AvaliacoesArraySubscription.unsubscribe();
+    this.servidorIdSubscription?.unsubscribe();
+    this.serveIdSubscription?.unsubscribe();
+    this.AvaliacoesArraySubscription?.unsubscribe();
   }
   async sair(){
     try{

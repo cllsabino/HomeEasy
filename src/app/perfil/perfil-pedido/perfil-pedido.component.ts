@@ -1,7 +1,8 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
@@ -12,6 +13,7 @@ import { ServicoPedido } from './../../Usuarios/serico-pedido';
 import { UsuarioService } from './../../Servicos/usuario.service';
 
 @Component({
+  standalone: false,
   selector: 'app-perfil-pedido',
   templateUrl: './perfil-pedido.component.html',
   styleUrls: ['./perfil-pedido.component.css']
@@ -40,8 +42,8 @@ export class PerfilPedidoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
-      this.userId = this.afAuth.auth.currentUser.uid;
+    if(getCurrentFirebaseUser() != null){
+      this.userId = getCurrentFirebaseUser().uid;
       this.entrarSair = true;
     } 
     else this.entrarSair = false;
@@ -60,9 +62,9 @@ export class PerfilPedidoComponent implements OnInit {
     );
   }
   ngOnDestroy(){
-    this.serveIDSubscription.unsubscribe();
-    this.usuarioIDSubscription.unsubscribe();
-    this.userSubscription.unsubscribe();
+    this.serveIDSubscription?.unsubscribe();
+    this.usuarioIDSubscription?.unsubscribe();
+    this.userSubscription?.unsubscribe();
   }
   async sair(){
     try{

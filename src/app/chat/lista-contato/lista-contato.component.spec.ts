@@ -1,4 +1,5 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { AppModule } from '../../app.module';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListaContatoComponent } from './lista-contato.component';
 
@@ -6,9 +7,9 @@ describe('ListaContatoComponent', () => {
   let component: ListaContatoComponent;
   let fixture: ComponentFixture<ListaContatoComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ListaContatoComponent ]
+      imports: [AppModule]
     })
     .compileComponents();
   }));

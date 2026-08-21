@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import * as firebase from 'firebase/app';
-import 'firebase/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 import { map } from 'rxjs/operators';
 
 import { OrderStatus, Pedido } from '../Usuarios/pedido';
@@ -17,7 +18,9 @@ const maximumRequestProposals = 4;
 @Injectable({
   providedIn: 'root'
 })
+@RunInFirebaseInjectionContext
 export class ServiceRequestService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   private requestsCollection: AngularFirestoreCollection<ServiceRequest>;
 
   constructor(private afs: AngularFirestore) {

@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -18,6 +19,7 @@ import { createCompressedImageAttachment } from '../../shared/utils/image-attach
 import { getServiceRequestFields } from '../../shared/utils/service-request-fields.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-service-request-form',
   templateUrl: './service-request-form.component.html',
   styleUrls: ['./service-request-form.component.css']
@@ -64,7 +66,7 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {

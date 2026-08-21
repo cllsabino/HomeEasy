@@ -7,8 +7,8 @@
 
   Uma plataforma que conecta clientes a profissionais de serviços domésticos e reformas — da busca ao atendimento, em um só lugar.
 
-  [![Angular](https://img.shields.io/badge/Angular-6.0-DD0031?logo=angular&logoColor=white)](https://angular.io/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-2.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Angular](https://img.shields.io/badge/Angular-20.3-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
   [![Firebase](https://img.shields.io/badge/Firebase-Hosting%20%2B%20Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
   [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
   [![Status](https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-164E63)](#roadmap)
@@ -81,12 +81,13 @@ A atualização não se limitou a trocar cores ou aplicar CSS. A interface foi r
 
 | Camada | Tecnologias |
 | --- | --- |
-| Interface | Angular 6, TypeScript, HTML5 e CSS3 |
+| Interface | Angular 20, TypeScript 5.9, HTML5 e CSS3 |
 | Autenticação | Firebase Authentication |
 | Dados | Cloud Firestore e Firebase Realtime Database |
+| Backend próprio | NestJS 11, PostgreSQL/PostGIS e MinIO |
 | Hospedagem | Firebase Hosting |
 | Mapas | Leaflet, OpenStreetMap e Nominatim |
-| Testes | Jasmine, Karma e Protractor |
+| Testes | Jasmine, Karma e Jest |
 
 ## 🧭 Estrutura do projeto
 
@@ -107,7 +108,7 @@ src/app/
 
 ### Pré-requisitos
 
-- [Node.js](https://nodejs.org/) e npm instalados.
+- [Node.js 22](https://nodejs.org/) e npm instalados.
 - Um projeto Firebase configurado para usar os recursos de autenticação e dados.
 
 ### Instalação
@@ -118,26 +119,6 @@ cd HomeEasy-1
 npm install
 ```
 
-<details>
-  <summary><strong>Windows PowerShell — Node 17 ou superior</strong></summary>
-
-  O Webpack usado pelo Angular 6 precisa do modo de compatibilidade do OpenSSL em versões modernas do Node:
-
-  ```powershell
-  $env:NODE_OPTIONS="--openssl-legacy-provider"
-  npm start
-  ```
-</details>
-
-<details>
-  <summary><strong>Linux/macOS — Node 17 ou superior</strong></summary>
-
-  ```bash
-  export NODE_OPTIONS=--openssl-legacy-provider
-  npm start
-  ```
-</details>
-
 Com o servidor iniciado, acesse **http://localhost:4200**. O Angular recompila a aplicação automaticamente quando um arquivo é alterado.
 
 ### Comandos disponíveis
@@ -146,9 +127,10 @@ Com o servidor iniciado, acesse **http://localhost:4200**. O Angular recompila a
 | --- | --- |
 | `npm start` | Inicia o servidor de desenvolvimento |
 | `npm run build` | Gera a aplicação em `dist/HomeEasy` |
+| `npm run build:prod` | Gera o bundle otimizado de produção |
 | `npm test` | Executa os testes unitários com Karma |
-| `npm run e2e` | Executa os testes de ponta a ponta |
-| `npm run lint` | Analisa o código com TSLint |
+| `npm run backend:start` | Inicia a API NestJS em modo de desenvolvimento |
+| `npm run backend:test` | Executa os testes da API com Jest |
 
 ## 🔥 Firebase
 
@@ -157,7 +139,7 @@ Os ambientes ficam em `src/environments/`. Para usar outro projeto Firebase, sub
 O deploy utiliza o diretório `dist/HomeEasy` e mantém o roteamento da SPA por meio das regras definidas em `firebase.json`.
 
 ```bash
-npm run build -- --prod
+npm run build:prod
 firebase deploy --only hosting
 ```
 
@@ -209,7 +191,7 @@ firebase deploy --only firestore:rules
 - [x] Separar o backend do redesign do projeto Firebase legado
 - [x] Criar a primeira conta no backend novo e concluir o bootstrap administrativo
 - [ ] Persistir coordenadas no Firebase para reduzir geocodificação externa
-- [ ] Atualizar o projeto para uma versão moderna do Angular
+- [x] Atualizar o projeto para Angular 20, TypeScript 5.9 e RxJS 7
 - [ ] Ampliar a cobertura de testes automatizados
 - [x] Remover dependências de infraestrutura paga e manter compatibilidade com o plano Spark
 - [ ] Migrar gradualmente para uma API própria com banco relacional

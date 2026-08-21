@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
@@ -10,6 +11,7 @@ import { FeedbackType } from '../shared/action-feedback/action-feedback.componen
 
 
 @Component({
+  standalone: false,
   selector: 'app-contato',
   templateUrl: './contato.component.html',
   styleUrls: ['./contato.component.css']
@@ -30,9 +32,9 @@ export class ContatoComponent implements OnInit {
     ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
   }
   async sendMessage(contactForm: NgForm){

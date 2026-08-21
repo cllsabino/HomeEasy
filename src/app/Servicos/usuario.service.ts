@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -12,7 +13,9 @@ import { createPublicProfile } from '../shared/utils/public-profile.utils';
 @Injectable({
   providedIn: 'root'
 })
+@RunInFirebaseInjectionContext
 export class UsuarioService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   usuarioCollection : AngularFirestoreCollection<Usuario>;
   usuarioDocument : AngularFirestoreDocument<Usuario>;
   

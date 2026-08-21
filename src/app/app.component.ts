@@ -6,6 +6,7 @@ import { colors } from './shared/colors';
 import { NotificationService } from './shared/notification/notification.service';
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

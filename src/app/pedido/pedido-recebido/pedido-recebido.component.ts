@@ -1,7 +1,8 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -15,6 +16,7 @@ import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-pedido-recebido',
   templateUrl: './pedido-recebido.component.html',
   styleUrls: ['./pedido-recebido.component.css']
@@ -43,9 +45,9 @@ export class PedidoRecebidoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
@@ -57,8 +59,8 @@ export class PedidoRecebidoComponent implements OnInit {
     });
   }
   ngOnDestroy(){ 
-    this.userSubscription.unsubscribe();
-    this.pedidosRecebidosSubscription.unsubscribe();
+    this.userSubscription?.unsubscribe();
+    this.pedidosRecebidosSubscription?.unsubscribe();
   }
   async sair(){
     try{

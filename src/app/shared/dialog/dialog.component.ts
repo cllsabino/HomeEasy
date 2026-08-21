@@ -16,6 +16,7 @@ import {
 export type DialogType = 'error' | 'info' | 'success' | 'warning';
 
 @Component({
+  standalone: false,
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.css']

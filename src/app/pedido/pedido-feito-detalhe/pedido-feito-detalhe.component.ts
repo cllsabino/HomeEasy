@@ -1,8 +1,9 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
@@ -18,6 +19,7 @@ import { FeedbackType } from '../../shared/action-feedback/action-feedback.compo
 import { canTransitionOrder, getOrderStatus, getOrderStatusClass, getOrderStatusHistory, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-pedido-feito-detalhe',
   templateUrl: './pedido-feito-detalhe.component.html',
   styleUrls: ['./pedido-feito-detalhe.component.css']
@@ -60,9 +62,9 @@ export class PedidoFeitoDetalheComponent implements OnInit {
   ) { }
 
   ngOnInit() { 
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
 
     this.servidorIdSubscription = this.active.params.subscribe(
@@ -82,11 +84,11 @@ export class PedidoFeitoDetalheComponent implements OnInit {
     });
   }
   ngOnDestroy(){
-    this.servidorIdSubscription.unsubscribe();
-    this.servidorSubscription.unsubscribe();
-    this.pedidoIdSubscription.unsubscribe();
-    this.pedidoSubscription.unsubscribe();
-    this.usuarioSubscription.unsubscribe();
+    this.servidorIdSubscription?.unsubscribe();
+    this.servidorSubscription?.unsubscribe();
+    this.pedidoIdSubscription?.unsubscribe();
+    this.pedidoSubscription?.unsubscribe();
+    this.usuarioSubscription?.unsubscribe();
   }
   async sair(){
     try{

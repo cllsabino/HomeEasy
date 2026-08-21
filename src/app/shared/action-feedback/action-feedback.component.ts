@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 export type FeedbackType = 'error' | 'info' | 'success';
 
 @Component({
+  standalone: false,
   selector: 'app-action-feedback',
   templateUrl: './action-feedback.component.html',
   styleUrls: ['./action-feedback.component.css']

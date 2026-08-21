@@ -8,6 +8,7 @@ import { Usuario } from '../../Usuarios/usuario';
 import { normalizeSearchText } from '../../shared/utils/text-search.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-floating-chat',
   templateUrl: './floating-chat.component.html',
   styleUrls: ['./floating-chat.component.css']
@@ -94,7 +95,7 @@ export class FloatingChatComponent implements OnChanges, OnDestroy {
 
   private clearContactsSubscription() {
     if (this.contactsSubscription) {
-      this.contactsSubscription.unsubscribe();
+      this.contactsSubscription?.unsubscribe();
       this.contactsSubscription = null;
     }
   }

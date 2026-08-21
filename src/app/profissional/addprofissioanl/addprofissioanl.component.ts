@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -13,6 +14,7 @@ import { ServicoPedido } from './../../Usuarios/serico-pedido';
 import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
+  standalone: false,
   selector: 'app-addprofissioanl',
   templateUrl: './addprofissioanl.component.html',
   styleUrls: ['./addprofissioanl.component.css']
@@ -45,9 +47,9 @@ export class AddprofissioanlComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     } else this.entrarSair = false;
 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
@@ -59,9 +61,9 @@ export class AddprofissioanlComponent implements OnInit {
     });
   }
   ngOnDestroy(){
-    if(this.afAuth.auth.currentUser != null){
-      this.userSubscription.unsubscribe();
-      this.servicosSubscription.unsubscribe();
+    if(getCurrentFirebaseUser() != null){
+      this.userSubscription?.unsubscribe();
+      this.servicosSubscription?.unsubscribe();
     }
   }
   async sair(){

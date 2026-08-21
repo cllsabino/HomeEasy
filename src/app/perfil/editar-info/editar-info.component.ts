@@ -1,6 +1,7 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -14,6 +15,7 @@ import { formatCnpj, formatCpf, formatPhone, removeInputMask } from '../../share
 import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
+  standalone: false,
   selector: 'app-editar-info',
   templateUrl: './editar-info.component.html',
   styleUrls: ['./editar-info.component.css']
@@ -50,8 +52,8 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    if (this.afAuth.auth.currentUser != null) {
-      this.userId = this.afAuth.auth.currentUser.uid;
+    if (getCurrentFirebaseUser() != null) {
+      this.userId = getCurrentFirebaseUser().uid;
       this.entrarSair = true;
     } else {
       this.entrarSair = false;

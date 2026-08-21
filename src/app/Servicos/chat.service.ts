@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators"
 
@@ -13,7 +14,9 @@ import { Chat } from 'src/app/Usuarios/chat';
     providedIn: 'root'
   })
 
+@RunInFirebaseInjectionContext
 export class ChatService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   chatCollection: AngularFirestoreCollection;
   contatosCollection : AngularFirestoreCollection;
 

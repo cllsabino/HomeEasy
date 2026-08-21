@@ -18,6 +18,7 @@ interface OrderNotification {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
@@ -229,14 +230,14 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   private clearOrderSubscription() {
     if (this.orderSubscription) {
-      this.orderSubscription.unsubscribe();
+      this.orderSubscription?.unsubscribe();
       this.orderSubscription = null;
     }
   }
 
   private clearUserSubscription() {
     if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
+      this.userSubscription?.unsubscribe();
       this.userSubscription = null;
     }
   }

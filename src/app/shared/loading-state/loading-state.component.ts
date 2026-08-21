@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-loading-state',
   templateUrl: './loading-state.component.html',
   styleUrls: ['./loading-state.component.css']

@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -11,6 +12,7 @@ import { OrderStatus } from '../../Usuarios/pedido';
 import { getStatusClass, getStatusLabel } from '../../shared/utils/order-status.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-service-request-detail',
   templateUrl: './service-request-detail.component.html',
   styleUrls: ['./service-request-detail.component.css']
@@ -43,7 +45,7 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {

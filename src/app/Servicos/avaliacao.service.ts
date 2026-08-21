@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
@@ -11,7 +12,9 @@ import { Avaliacao } from './../Usuarios/avaliacao';
 @Injectable({
   providedIn: 'root'
 })
+@RunInFirebaseInjectionContext
 export class AvalicaoService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   usuarioCollection : AngularFirestoreCollection<Usuario>;
   
   constructor(private afs : AngularFirestore) {  

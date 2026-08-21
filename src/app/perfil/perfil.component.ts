@@ -1,6 +1,7 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -15,6 +16,7 @@ import { ProfessionalVerificationService } from '../Servicos/professional-verifi
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 
 @Component({
+  standalone: false,
   selector: 'app-perfil',
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css']
@@ -43,9 +45,9 @@ export class PerfilComponent implements OnInit {
     ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
  
     this.userSubscription = this.usuarioService.getUserWithProfilePhoto(this.userId).subscribe(data => {
@@ -97,8 +99,8 @@ export class PerfilComponent implements OnInit {
   }
 
   ngOnDestroy(){ 
-    this.userSubscription.unsubscribe();
-    this.servicosSubscription.unsubscribe();
+    this.userSubscription?.unsubscribe();
+    this.servicosSubscription?.unsubscribe();
   }
   async sair(){
     try{

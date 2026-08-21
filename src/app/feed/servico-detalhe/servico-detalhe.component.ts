@@ -1,7 +1,8 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -11,6 +12,7 @@ import { Usuario } from 'src/app/Usuarios/usuario';
 import { UsuarioService } from '../../Servicos/usuario.service';
 
 @Component({
+  standalone: false,
   selector: 'app-servico-detalhe',
   templateUrl: './servico-detalhe.component.html',
   styleUrls: ['./servico-detalhe.component.css']
@@ -45,15 +47,15 @@ export class ServicoDetalheComponent implements OnInit {
     this.isLoading = false;
     });
 
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     } else this.entrarSair = false;
   }
 
   ngOnDestroy(){
-    this.usuariosSubscription.unsubscribe();
-    this.serveIDSubscription.unsubscribe();
+    this.usuariosSubscription?.unsubscribe();
+    this.serveIDSubscription?.unsubscribe();
   }
 
   async sair(){

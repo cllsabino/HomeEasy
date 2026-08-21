@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -11,6 +12,7 @@ import { FeedbackType } from '../../shared/action-feedback/action-feedback.compo
 import { ServiceProposal, ServiceRequest } from '../../shared/models/service-request';
 
 @Component({
+  standalone: false,
   selector: 'app-service-opportunity-detail',
   templateUrl: './service-opportunity-detail.component.html',
   styleUrls: ['./service-opportunity-detail.component.css']
@@ -40,7 +42,7 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {

@@ -1,6 +1,7 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ActivatedRoute, Router, Params} from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -14,6 +15,7 @@ import { ChatService } from './../Servicos/chat.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 
 @Component({
+  standalone: false,
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
@@ -47,9 +49,9 @@ export class ChatComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
 
     this.servidorIdSubscription = this.active.params.subscribe(
@@ -98,10 +100,10 @@ export class ChatComponent implements OnInit {
     }
   }
   ngOnDestroy(){
-    this.servidorIdSubscription.unsubscribe();
-    this.servidorSubscription.unsubscribe();
-    this.mensagensArraySubscription.unsubscribe();
-    this.userSubscription.unsubscribe();
+    this.servidorIdSubscription?.unsubscribe();
+    this.servidorSubscription?.unsubscribe();
+    this.mensagensArraySubscription?.unsubscribe();
+    this.userSubscription?.unsubscribe();
   }
   async sair(){
     try{

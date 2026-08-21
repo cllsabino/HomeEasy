@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -17,7 +18,9 @@ export interface MarketplaceMetrics {
 }
 
 @Injectable({ providedIn: 'root' })
+@RunInFirebaseInjectionContext
 export class MarketplaceMetricsService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   constructor(private afs: AngularFirestore) { }
 
   getMetrics() {

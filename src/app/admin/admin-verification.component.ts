@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -10,6 +11,7 @@ import { Usuario } from '../Usuarios/usuario';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 
 @Component({
+  standalone: false,
   selector: 'app-admin-verification',
   templateUrl: './admin-verification.component.html',
   styleUrls: ['./admin-verification.component.css']
@@ -45,7 +47,7 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     this.userId = currentUser ? currentUser.uid : '';
     this.professionalsSubscription = this.verificationService.getPendingProfessionals().subscribe(professionals => {
       this.professionals = professionals;
@@ -56,10 +58,10 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.professionalsSubscription) {
-      this.professionalsSubscription.unsubscribe();
+      this.professionalsSubscription?.unsubscribe();
     }
     if (this.metricsSubscription) {
-      this.metricsSubscription.unsubscribe();
+      this.metricsSubscription?.unsubscribe();
     }
   }
 

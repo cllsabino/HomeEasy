@@ -1,5 +1,6 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { combineLatest, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -14,6 +15,7 @@ import { ServiceRequest, ServiceUrgency } from '../../shared/models/service-requ
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
 
 @Component({
+  standalone: false,
   selector: 'app-service-opportunity-list',
   templateUrl: './service-opportunity-list.component.html',
   styleUrls: ['./service-opportunity-list.component.css']
@@ -37,7 +39,7 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = this.afAuth.auth.currentUser;
+    const currentUser = getCurrentFirebaseUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.requestsSubscription = combineLatest(
@@ -62,7 +64,7 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.requestsSubscription) {
-      this.requestsSubscription.unsubscribe();
+      this.requestsSubscription?.unsubscribe();
     }
   }
 

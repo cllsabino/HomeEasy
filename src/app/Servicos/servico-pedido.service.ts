@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
+import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators"
-import * as firebase from 'firebase/app';
-import 'firebase/firestore';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 
 import { ServicoPedido } from './../Usuarios/serico-pedido';
 import { Servico } from '../Usuarios/servico';
@@ -15,7 +16,9 @@ import { canTransitionOrder, getLegacyOrderFlags, getOrderStatus } from '../shar
     providedIn: 'root'
   })
 
+@RunInFirebaseInjectionContext
 export class ServicoPedidoService {
+  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   servicoPedidoCollection: AngularFirestoreCollection;
   servicoCollection : AngularFirestoreCollection;
   usuariosCollection : AngularFirestoreCollection;

@@ -1,8 +1,9 @@
+import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
@@ -15,6 +16,7 @@ import { UsuarioService } from './../../Servicos/usuario.service';
 import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
+  standalone: false,
   selector: 'app-editar-info',
   templateUrl: './editar-info.component.html',
   styleUrls: ['./editar-info.component.css']
@@ -52,9 +54,9 @@ export class EditarInfoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(this.afAuth.auth.currentUser != null){
+    if(getCurrentFirebaseUser() != null){
       this.entrarSair = true;
-      this.userId = this.afAuth.auth.currentUser.uid;
+      this.userId = getCurrentFirebaseUser().uid;
     }else this.entrarSair = false;
 
     this.serveIdSubscription = this.active.params.subscribe(
@@ -72,10 +74,10 @@ export class EditarInfoComponent implements OnInit {
 
   }
   ngOnDestroy(){
-    this.serveIdSubscription.unsubscribe();
-    this.servicoSubscription.unsubscribe();
-    this.usuarioSubscription.unsubscribe();
-    this.serviceDetailsSubscription.unsubscribe();
+    this.serveIdSubscription?.unsubscribe();
+    this.servicoSubscription?.unsubscribe();
+    this.usuarioSubscription?.unsubscribe();
+    this.serviceDetailsSubscription?.unsubscribe();
   }
   async sair(){
     try{
