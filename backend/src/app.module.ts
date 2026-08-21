@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { ProfessionalsModule } from './professionals/professionals.module';
+import { SchedulesModule } from './schedules/schedules.module';
 import { ServicesModule } from './services/services.module';
 import { UsersModule } from './users/users.module';
 import { validateEnvironment } from './config/environment.validation';
@@ -31,7 +32,8 @@ import { validateEnvironment } from './config/environment.validation';
     UsersModule,
     AuthModule,
     ServicesModule,
-    ProfessionalsModule
+    ProfessionalsModule,
+    SchedulesModule
   ]
 })
 export class AppModule {}
