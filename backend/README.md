@@ -34,5 +34,12 @@ A API fica disponível em `http://localhost:3000/api`.
 | `POST` | `/api/auth/refresh` | Público |
 | `POST` | `/api/auth/logout` | Público |
 | `GET` | `/api/users/me` | Bearer token |
+| `GET` | `/api/professionals` | Público; filtros por serviço, região e distância |
+| `GET` | `/api/professionals/:professionalId` | Público |
+| `GET` | `/api/professionals/me` | Bearer token |
+| `PUT` | `/api/professionals/me` | Bearer token |
+| `PUT` | `/api/professionals/me/services` | Bearer token |
+
+A localização exata e o telefone ficam restritos ao proprietário do perfil. A busca pública utiliza PostGIS para filtrar e ordenar por distância, retornando somente cidade, estado e distância aproximada.
 
 As tabelas são alteradas somente por migrations. `synchronize` permanece desativado em todos os ambientes.
