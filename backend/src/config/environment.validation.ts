@@ -16,6 +16,13 @@ interface EnvironmentVariables {
   MINIO_ACCESS_KEY: string;
   MINIO_SECRET_KEY: string;
   MINIO_BUCKET: string;
+  FRONTEND_BASE_URL: string;
+  SMTP_HOST: string;
+  SMTP_PORT: number;
+  SMTP_SECURE: boolean;
+  SMTP_FROM: string;
+  SMTP_USER: string;
+  SMTP_PASSWORD: string;
 }
 
 export function validateEnvironment(environment: Record<string, unknown>): EnvironmentVariables {
@@ -59,7 +66,14 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
     MINIO_USE_SSL: readString(environment.MINIO_USE_SSL, 'false') === 'true',
     MINIO_ACCESS_KEY: readString(environment.MINIO_ACCESS_KEY),
     MINIO_SECRET_KEY: readString(environment.MINIO_SECRET_KEY),
-    MINIO_BUCKET: readString(environment.MINIO_BUCKET)
+    MINIO_BUCKET: readString(environment.MINIO_BUCKET),
+    FRONTEND_BASE_URL: readString(environment.FRONTEND_BASE_URL, 'http://localhost:4200'),
+    SMTP_HOST: readString(environment.SMTP_HOST, 'localhost'),
+    SMTP_PORT: Number(environment.SMTP_PORT || 1025),
+    SMTP_SECURE: readString(environment.SMTP_SECURE, 'false') === 'true',
+    SMTP_FROM: readString(environment.SMTP_FROM, 'Home Easy <nao-responda@homeeasy.local>'),
+    SMTP_USER: readString(environment.SMTP_USER),
+    SMTP_PASSWORD: readString(environment.SMTP_PASSWORD)
   };
 }
 

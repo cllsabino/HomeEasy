@@ -470,7 +470,7 @@ export class MarketplaceService {
     }
   }
 
-  private async expireOpenRecords() {
+  async expireOpenRecords() {
     await Promise.all([
       this.requestsRepository
         .createQueryBuilder()

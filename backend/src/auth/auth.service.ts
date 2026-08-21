@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  ServiceUnavailableException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,10 +14,12 @@ import { DataSource, IsNull, Repository } from 'typeorm';
 import { toPublicUser } from '../shared/utils/public-user.utils';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
+import { MailService } from '../mail/mail.service';
 import { AccessTokenPayload, AuthResponse } from './auth.types';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshToken } from './refresh-token.entity';
+import { PasswordResetToken } from './password-reset-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +28,11 @@ export class AuthService {
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly mailService: MailService,
     @InjectRepository(RefreshToken)
-    private readonly refreshTokensRepository: Repository<RefreshToken>
+    private readonly refreshTokensRepository: Repository<RefreshToken>,
+    @InjectRepository(PasswordResetToken)
+    private readonly passwordResetTokensRepository: Repository<PasswordResetToken>
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -83,6 +93,54 @@ export class AuthService {
       { tokenHash: this.hashRefreshToken(rawRefreshToken), revokedAt: IsNull() },
       { revokedAt: new Date() }
     );
+  }
+
+  async requestPasswordReset(email: string) {
+    const user = await this.usersService.findByEmailWithPassword(email);
+    if (!user) {
+      return { message: 'Se existir uma conta com este e-mail, enviaremos as instruções de recuperação.' };
+    }
+
+    const rawToken = randomBytes(48).toString('base64url');
+    const token = await this.passwordResetTokensRepository.save(
+      this.passwordResetTokensRepository.create({
+        tokenHash: this.hashRefreshToken(rawToken),
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+        usedAt: null
+      })
+    );
+    try {
+      await this.mailService.sendPasswordReset(user.email, rawToken);
+    } catch {
+      await this.passwordResetTokensRepository.delete(token.id);
+      throw new ServiceUnavailableException(
+        'O serviço de e-mail está indisponível. Tente novamente mais tarde.'
+      );
+    }
+    return { message: 'Se existir uma conta com este e-mail, enviaremos as instruções de recuperação.' };
+  }
+
+  async resetPassword(rawToken: string, password: string) {
+    const tokenHash = this.hashRefreshToken(rawToken);
+    await this.dataSource.transaction(async (manager) => {
+      const token = await manager.findOne(PasswordResetToken, {
+        where: { tokenHash },
+        lock: { mode: 'pessimistic_write' }
+      });
+      if (!token || token.usedAt || token.expiresAt <= new Date()) {
+        throw new UnauthorizedException('O link de recuperação expirou ou já foi utilizado.');
+      }
+      const passwordHash = await hash(password, 12);
+      await manager.update(User, { id: token.userId }, { passwordHash });
+      token.usedAt = new Date();
+      await manager.save(token);
+      await manager.update(
+        RefreshToken,
+        { userId: token.userId, revokedAt: IsNull() },
+        { revokedAt: new Date() }
+      );
+    });
   }
 
   private async createSession(

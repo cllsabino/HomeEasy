@@ -6,6 +6,7 @@ import { ProfessionalsModule } from '../professionals/professionals.module';
 import { Service } from '../services/service.entity';
 import { StorageModule } from '../storage/storage.module';
 import { MarketplaceController } from './marketplace.controller';
+import { MarketplaceExpirationService } from './marketplace-expiration.service';
 import { MarketplaceService } from './marketplace.service';
 import { Order } from './order.entity';
 import { Proposal } from './proposal.entity';
@@ -18,7 +19,7 @@ import { ServiceRequest } from './service-request.entity';
     ProfessionalsModule
   ],
   controllers: [MarketplaceController],
-  providers: [MarketplaceService],
+  providers: [MarketplaceService, MarketplaceExpirationService],
   exports: [MarketplaceService]
 })
 export class MarketplaceModule {}

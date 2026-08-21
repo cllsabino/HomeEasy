@@ -5,10 +5,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersModule } from '../users/users.module';
+import { MailModule } from '../mail/mail.module';
 import { AccessTokenGuard } from './access-token.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RefreshToken } from './refresh-token.entity';
+import { PasswordResetToken } from './password-reset-token.entity';
 
 @Module({
   imports: [
@@ -18,7 +20,8 @@ import { RefreshToken } from './refresh-token.entity';
         secret: configService.getOrThrow<string>('JWT_ACCESS_SECRET')
       })
     }),
-    TypeOrmModule.forFeature([RefreshToken]),
+    TypeOrmModule.forFeature([RefreshToken, PasswordResetToken]),
+    MailModule,
     UsersModule
   ],
   controllers: [AuthController],

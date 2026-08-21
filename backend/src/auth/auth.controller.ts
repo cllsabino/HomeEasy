@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from './public.decorator';
 
 @Controller('auth')
@@ -35,5 +37,19 @@ export class AuthController {
   @Post('logout')
   logout(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.logout(refreshTokenDto.refreshToken);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('password-reset/request')
+  requestPasswordReset(@Body() requestPasswordResetDto: RequestPasswordResetDto) {
+    return this.authService.requestPasswordReset(requestPasswordResetDto.email);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('password-reset/confirm')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
   }
 }
