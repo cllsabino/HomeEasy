@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 import { Service } from '../services/service.entity';
 import { normalizePhone } from '../shared/utils/phone.utils';
@@ -9,11 +9,16 @@ import { ReplaceProfessionalServicesDto } from './dto/replace-professional-servi
 import { UpdateProfessionalProfileDto } from './dto/update-professional-profile.dto';
 import { ProfessionalProfile } from './professional-profile.entity';
 import { ProfessionalService } from './professional-service.entity';
-import { toPrivateProfessionalProfile, toPublicProfessionalProfile } from './professional-profile.utils';
+import {
+  ProfessionalMetrics,
+  toPrivateProfessionalProfile,
+  toPublicProfessionalProfile
+} from './professional-profile.utils';
 
 @Injectable()
 export class ProfessionalsService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(ProfessionalProfile)
     private readonly profilesRepository: Repository<ProfessionalProfile>,
     @InjectRepository(ProfessionalService)
@@ -58,6 +63,7 @@ export class ProfessionalsService {
     }
 
     const [result, total] = await Promise.all([queryBuilder.getRawAndEntities(), queryBuilder.getCount()]);
+    const metrics = await this.findMetrics(result.entities.map((profile) => profile.userId));
     const professionals = result.entities.map((profile) => {
       const matchingRow = result.raw.find(
         (row: Record<string, unknown>) => row.profile_user_id === profile.userId
@@ -65,7 +71,8 @@ export class ProfessionalsService {
       const distanceMeters = matchingRow?.distance_meters;
       return toPublicProfessionalProfile(
         profile,
-        distanceMeters === undefined ? undefined : Number(distanceMeters)
+        distanceMeters === undefined ? undefined : Number(distanceMeters),
+        metrics.get(profile.userId)
       );
     });
 
@@ -81,7 +88,8 @@ export class ProfessionalsService {
       throw new NotFoundException('Perfil profissional não encontrado.');
     }
 
-    return toPublicProfessionalProfile(profile);
+    const metrics = await this.findMetrics([professionalId]);
+    return toPublicProfessionalProfile(profile, undefined, metrics.get(professionalId));
   }
 
   async findOwn(userId: string) {
@@ -92,7 +100,8 @@ export class ProfessionalsService {
       throw new NotFoundException('Perfil profissional não encontrado.');
     }
 
-    return toPrivateProfessionalProfile(profile);
+    const metrics = await this.findMetrics([userId]);
+    return toPrivateProfessionalProfile(profile, metrics.get(userId));
   }
 
   async updateOwn(userId: string, dto: UpdateProfessionalProfileDto) {
@@ -151,6 +160,63 @@ export class ProfessionalsService {
     });
 
     return this.findOwn(userId);
+  }
+
+  async findMetrics(professionalIds: string[]) {
+    const metrics = new Map<string, ProfessionalMetrics>();
+    const uniqueProfessionalIds = [...new Set(professionalIds)];
+    if (!uniqueProfessionalIds.length) {
+      return metrics;
+    }
+    const rows = await this.dataSource.query<
+      Array<{
+        professional_id: string;
+        completed_services: string;
+        cancelled_orders: string;
+        total_orders: string;
+        average_response_minutes: string | null;
+        direct_requests: string;
+        direct_responses: string;
+        average_rating: string | null;
+        verified_review_count: string;
+      }>
+    >(
+      `SELECT professional_id,
+        (SELECT COUNT(*) FROM orders WHERE professional_id = ids.professional_id AND status = 'completed') AS completed_services,
+        (SELECT COUNT(*) FROM orders WHERE professional_id = ids.professional_id AND status IN ('cancelled_by_client', 'cancelled_by_professional')) AS cancelled_orders,
+        (SELECT COUNT(*) FROM orders WHERE professional_id = ids.professional_id) AS total_orders,
+        (SELECT AVG(EXTRACT(EPOCH FROM (proposal.created_at - request.created_at)) / 60)
+          FROM proposals proposal
+          JOIN service_requests request ON request.id = proposal.request_id
+          WHERE proposal.professional_id = ids.professional_id) AS average_response_minutes,
+        (SELECT COUNT(*) FROM service_requests WHERE preferred_professional_id = ids.professional_id) AS direct_requests,
+        (SELECT COUNT(*) FROM proposals proposal
+          JOIN service_requests request ON request.id = proposal.request_id
+          WHERE proposal.professional_id = ids.professional_id
+          AND request.preferred_professional_id = ids.professional_id) AS direct_responses,
+        (SELECT AVG(rating) FROM reviews WHERE professional_id = ids.professional_id AND is_published = true) AS average_rating,
+        (SELECT COUNT(*) FROM reviews WHERE professional_id = ids.professional_id AND is_published = true) AS verified_review_count
+      FROM unnest($1::uuid[]) AS ids(professional_id)`,
+      [uniqueProfessionalIds]
+    );
+    for (const row of rows) {
+      const totalOrders = Number(row.total_orders);
+      const directRequests = Number(row.direct_requests);
+      metrics.set(row.professional_id, {
+        completedServices: Number(row.completed_services),
+        cancellationRate: totalOrders
+          ? Math.round((Number(row.cancelled_orders) / totalOrders) * 1000) / 10
+          : null,
+        averageResponseMinutes:
+          row.average_response_minutes === null ? null : Math.round(Number(row.average_response_minutes)),
+        responseRate: directRequests
+          ? Math.round((Number(row.direct_responses) / directRequests) * 1000) / 10
+          : null,
+        averageRating: row.average_rating === null ? null : Math.round(Number(row.average_rating) * 10) / 10,
+        verifiedReviewCount: Number(row.verified_review_count)
+      });
+    }
+    return metrics;
   }
 
   private createProfileQuery(onlyActiveServices: boolean) {

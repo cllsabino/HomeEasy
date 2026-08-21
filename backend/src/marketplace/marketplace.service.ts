@@ -10,6 +10,7 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
 import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
+import { ProfessionalsService } from '../professionals/professionals.service';
 import { NotificationType } from '../communications/communication.enums';
 import { Conversation } from '../communications/conversation.entity';
 import { createNotification } from '../communications/notification.utils';
@@ -48,7 +49,8 @@ export class MarketplaceService {
     private readonly servicesRepository: Repository<Service>,
     @InjectRepository(ProfessionalProfile)
     private readonly profilesRepository: Repository<ProfessionalProfile>,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly professionalsService: ProfessionalsService
   ) {}
 
   async createRequest(clientId: string, dto: CreateServiceRequestDto) {
@@ -236,6 +238,9 @@ export class MarketplaceService {
       .orderBy('proposal.price + proposal.travelFee', 'ASC')
       .addOrderBy('proposal.createdAt', 'ASC')
       .getMany();
+    const metrics = await this.professionalsService.findMetrics(
+      proposals.map((proposal) => proposal.professionalId)
+    );
     return proposals.map((proposal) => ({
       id: proposal.id,
       requestId: proposal.requestId,
@@ -248,7 +253,11 @@ export class MarketplaceService {
       status: proposal.status,
       validUntil: proposal.validUntil,
       createdAt: proposal.createdAt,
-      professional: toPublicProfessionalProfile(proposal.professional)
+      professional: toPublicProfessionalProfile(
+        proposal.professional,
+        undefined,
+        metrics.get(proposal.professionalId)
+      )
     }));
   }
 

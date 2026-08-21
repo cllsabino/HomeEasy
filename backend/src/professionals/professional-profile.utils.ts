@@ -1,5 +1,14 @@
 import { ProfessionalProfile } from './professional-profile.entity';
 
+export interface ProfessionalMetrics {
+  completedServices: number;
+  cancellationRate: number | null;
+  averageResponseMinutes: number | null;
+  responseRate: number | null;
+  averageRating: number | null;
+  verifiedReviewCount: number;
+}
+
 function mapServices(profile: ProfessionalProfile) {
   return (profile.services || [])
     .filter((professionalService) => Boolean(professionalService.service))
@@ -13,7 +22,11 @@ function mapServices(profile: ProfessionalProfile) {
     }));
 }
 
-export function toPublicProfessionalProfile(profile: ProfessionalProfile, distanceMeters?: number) {
+export function toPublicProfessionalProfile(
+  profile: ProfessionalProfile,
+  distanceMeters?: number,
+  metrics?: ProfessionalMetrics
+) {
   return {
     id: profile.userId,
     name: profile.user.name,
@@ -26,13 +39,14 @@ export function toPublicProfessionalProfile(profile: ProfessionalProfile, distan
     verificationStatus: profile.verificationStatus,
     memberSince: profile.createdAt,
     distanceKm: distanceMeters === undefined ? null : Math.round(distanceMeters / 100) / 10,
+    metrics: metrics || null,
     services: mapServices(profile)
   };
 }
 
-export function toPrivateProfessionalProfile(profile: ProfessionalProfile) {
+export function toPrivateProfessionalProfile(profile: ProfessionalProfile, metrics?: ProfessionalMetrics) {
   return {
-    ...toPublicProfessionalProfile(profile),
+    ...toPublicProfessionalProfile(profile, undefined, metrics),
     phone: profile.phone,
     latitude: profile.location.coordinates[1],
     longitude: profile.location.coordinates[0]
