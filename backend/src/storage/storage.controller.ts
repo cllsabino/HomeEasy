@@ -28,6 +28,7 @@ export class StorageController {
   @Get(':mediaId/public')
   async openPublicProfilePhoto(@Param('mediaId', ParseUUIDPipe) mediaId: string, @Res() response: Response) {
     const downloadUrl = await this.storageService.createPublicProfilePhotoUrl(mediaId);
+    response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     return response.redirect(downloadUrl);
   }
 

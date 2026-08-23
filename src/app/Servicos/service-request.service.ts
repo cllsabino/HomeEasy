@@ -117,7 +117,7 @@ export class ServiceRequestService {
       this.http.post(`${environment.apiUrl}/marketplace/requests/${requestId}/proposals`, {
         price: proposal.price,
         message: proposal.message,
-        estimatedDurationMinutes: this.parseDuration(proposal.estimatedDuration),
+        estimatedDurationMinutes: proposal.estimatedDurationMinutes || this.parseDuration(proposal.estimatedDuration),
         materialsIncluded: Boolean(proposal.materialsIncluded),
         travelFee: proposal.travelFee || 0,
         paymentMethods: proposal.paymentMethods || []
@@ -195,6 +195,7 @@ export class ServiceRequestService {
       professionalCompletedServices: proposal.professional.metrics?.completedServices,
       price: proposal.price,
       message: proposal.message,
+      estimatedDurationMinutes: proposal.estimatedDurationMinutes,
       estimatedDuration: `${proposal.estimatedDurationMinutes} minutos`,
       materialsIncluded: proposal.materialsIncluded,
       travelFee: proposal.travelFee,

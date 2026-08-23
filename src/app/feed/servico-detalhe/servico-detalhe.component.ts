@@ -33,17 +33,6 @@ export class ServicoDetalheComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.serveIDSubscription = this.active.params.subscribe(
-      (params: Params) => { this.serveID = params['id']; }
-    );
-
-    this.usuariosSubscription = this.servico.getUsuarios(this.serveID).pipe(
-      switchMap(users => this.usuarioService.resolveProfilePhotos(users))
-    ).subscribe(data => {
-      this.usuariosArray = data;
-      this.isLoading = false;
-    });
-
     const currentUser = getCurrentUser();
     if (currentUser != null) {
       this.entrarSair = true;
@@ -51,6 +40,17 @@ export class ServicoDetalheComponent implements OnInit, OnDestroy {
     } else {
       this.entrarSair = false;
     }
+
+    this.serveIDSubscription = this.active.params.subscribe(
+      (params: Params) => { this.serveID = params['id']; }
+    );
+
+    this.usuariosSubscription = this.servico.getUsuarios(this.serveID).pipe(
+      switchMap(users => this.usuarioService.resolveProfilePhotos(users))
+    ).subscribe(data => {
+      this.usuariosArray = data.filter(user => user.id !== this.userId);
+      this.isLoading = false;
+    });
   }
 
   ngOnDestroy() {

@@ -1,0 +1,5 @@
+<div class="request-attachments" *ngIf="visibleAttachments.length" aria-label="Fotos da solicitação">
+  <a *ngFor="let attachment of visibleAttachments" [href]="attachment.dataUrl" target="_blank" rel="noopener">
+    <img [src]="attachment.dataUrl" [alt]="attachment.name">
+  </a>
+</div>

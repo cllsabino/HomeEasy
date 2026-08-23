@@ -8,13 +8,14 @@ import { ActionFeedbackComponent } from './action-feedback/action-feedback.compo
 import { LoadingStateComponent } from './loading-state/loading-state.component';
 import { BackLinkComponent } from './back-link/back-link.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { RequestAttachmentGalleryComponent } from './request-attachment-gallery/request-attachment-gallery.component';
 
 @NgModule({
   imports: [
     CommonModule,
     RouterModule
   ],
-  declarations: [NavbarComponent, ServiceIconComponent, ActionFeedbackComponent, LoadingStateComponent, BackLinkComponent, DialogComponent],
-  exports: [NavbarComponent, ServiceIconComponent, ActionFeedbackComponent, LoadingStateComponent, BackLinkComponent, DialogComponent]
+  declarations: [NavbarComponent, ServiceIconComponent, ActionFeedbackComponent, LoadingStateComponent, BackLinkComponent, DialogComponent, RequestAttachmentGalleryComponent],
+  exports: [NavbarComponent, ServiceIconComponent, ActionFeedbackComponent, LoadingStateComponent, BackLinkComponent, DialogComponent, RequestAttachmentGalleryComponent]
 })
 export class SharedModule {}

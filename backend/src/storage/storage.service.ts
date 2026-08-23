@@ -140,6 +140,30 @@ export class StorageService implements OnModuleInit {
           request.preferred_professional_id = $2 OR EXISTS(
             SELECT 1 FROM proposals proposal
             WHERE proposal.request_id = request.id AND proposal.professional_id = $2
+          ) OR EXISTS(
+            SELECT 1
+            FROM professional_services professional_service
+            INNER JOIN professional_profiles professional_profile
+              ON professional_profile.user_id = professional_service.professional_id
+            WHERE professional_service.professional_id = $2
+              AND professional_service.service_id = request.service_id
+              AND professional_service.is_active = true
+              AND professional_profile.is_available = true
+              AND request.preferred_professional_id IS NULL
+              AND (
+                (
+                  request.location IS NOT NULL AND
+                  ST_DWithin(
+                    request.location,
+                    professional_profile.location,
+                    professional_profile.service_radius_km * 1000
+                  )
+                ) OR (
+                  request.location IS NULL AND
+                  request.state = professional_profile.state AND
+                  LOWER(request.city) = LOWER(professional_profile.city)
+                )
+              )
           )
         )
       ) AS allowed`,

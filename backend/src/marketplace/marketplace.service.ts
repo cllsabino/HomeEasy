@@ -136,7 +136,7 @@ export class MarketplaceService {
       throw new NotFoundException('Solicitação não encontrada.');
     }
     if (request.clientId === userId) {
-      return request;
+      return this.withProposalState(request, userId);
     }
     const professionalService = await this.dataSource.getRepository(ProfessionalService).findOne({
       where: { professionalId: userId, serviceId: request.serviceId, isActive: true },
@@ -149,7 +149,7 @@ export class MarketplaceService {
       if (request.preferredProfessionalId !== userId) {
         throw new ForbiddenException('Esta solicitação foi direcionada a outro profissional.');
       }
-      return request;
+      return this.withProposalState(request, userId);
     }
     const profile = professionalService.professional;
     const isSameRegion =
@@ -171,7 +171,7 @@ export class MarketplaceService {
         throw new ForbiddenException('Esta solicitação está fora do seu raio de atendimento.');
       }
     }
-    return request;
+    return this.withProposalState(request, userId);
   }
 
   async attachRequestMedia(requestId: string, mediaId: string, clientId: string) {
@@ -233,6 +233,13 @@ export class MarketplaceService {
       })
       .andWhere('request.expiresAt > now()')
       .andWhere('request.proposalCount < request.maximumProposals')
+      .andWhere(
+        `NOT EXISTS(
+          SELECT 1 FROM proposals submitted_proposal
+          WHERE submitted_proposal.request_id = request.id
+            AND submitted_proposal.professional_id = :professionalId
+        )`
+      )
       .andWhere(
         '(request.preferredProfessionalId IS NULL OR request.preferredProfessionalId = :professionalId)'
       )
@@ -549,6 +556,16 @@ export class MarketplaceService {
     if (!isOwner) {
       throw new ForbiddenException('Somente o cliente pode consultar as propostas desta solicitação.');
     }
+  }
+
+  private async withProposalState(request: ServiceRequest, userId: string) {
+    if (request.clientId === userId) {
+      return Object.assign(request, { hasSubmittedProposal: false });
+    }
+    const hasSubmittedProposal = await this.proposalsRepository.exists({
+      where: { requestId: request.id, professionalId: userId }
+    });
+    return Object.assign(request, { hasSubmittedProposal });
   }
 
   private assertOrderParticipant(order: Order, actorId: string) {

@@ -1,0 +1,4 @@
+.request-attachments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.request-attachments a { overflow: hidden; border: 1px solid var(--color-border); border-radius: 12px; aspect-ratio: 4 / 3; }
+.request-attachments img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .request-attachments { grid-template-columns: 1fr; } }

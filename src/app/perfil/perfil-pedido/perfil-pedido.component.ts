@@ -9,6 +9,7 @@ import { Usuario } from 'src/app/Usuarios/usuario';
 import { ServicoPedido } from './../../Usuarios/serico-pedido';
 import { UsuarioService } from './../../Servicos/usuario.service';
 import { getCurrentUser } from '../../shared/utils/session-user.utils';
+import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
   standalone: false,
@@ -34,7 +35,8 @@ export class PerfilPedidoComponent implements OnInit, OnDestroy {
     public servicoPedido: ServicoPedidoService,
     public usuarioService: UsuarioService,
     public router: Router,
-    public active: ActivatedRoute
+    public active: ActivatedRoute,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -52,6 +54,14 @@ export class PerfilPedidoComponent implements OnInit, OnDestroy {
     this.usuarioIDSubscription = this.active.params.subscribe(
       (params: Params) => { this.usuarioID = params['idd']; }
     );
+    if (this.userId && this.usuarioID === this.userId) {
+      this.notificationService.showInfo(
+        'Este é o seu perfil',
+        'Você não pode solicitar orçamento ou iniciar uma contratação com a própria conta.'
+      );
+      void this.router.navigate(['/usuario', this.userId]);
+      return;
+    }
     this.userSubscription = this.usuarioService.getPublicUsuario(this.usuarioID).subscribe(data => {
       this.usuario = data;
     });

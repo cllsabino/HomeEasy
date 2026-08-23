@@ -12,6 +12,7 @@ import { Servico } from '../../Usuarios/servico';
 import { Usuario } from '../../Usuarios/usuario';
 import { ServiceRequest, ServiceUrgency } from '../../shared/models/service-request';
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
+import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   standalone: false,
@@ -26,6 +27,7 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
   services = new Array<Servico>();
   requests = new Array<ServiceRequest>();
   isLoading = true;
+  loadError = '';
   private requestsSubscription: Subscription;
 
   constructor(
@@ -54,9 +56,18 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
         this.user.cidade,
         normalizeBrazilStateCode(this.user.estado)
       );
-    })).subscribe(requests => {
-      this.requests = requests;
-      this.isLoading = false;
+    })).subscribe({
+      next: requests => {
+        this.requests = requests;
+        this.isLoading = false;
+      },
+      error: error => {
+        this.loadError = resolveHttpErrorMessage(
+          error,
+          'Não foi possível carregar as oportunidades. Tente novamente.'
+        );
+        this.isLoading = false;
+      }
     });
   }
 

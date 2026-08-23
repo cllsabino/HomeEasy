@@ -36,6 +36,7 @@ export class ServiceRequest {
   status?: OrderStatus;
   proposalCount?: number;
   maximumProposals?: number;
+  hasSubmittedProposal?: boolean;
   selectedProposalId?: string;
   selectedProfessionalId?: string;
   agreedPrice?: number;
@@ -55,6 +56,7 @@ export class ServiceProposal {
   price?: number;
   message?: string;
   estimatedDuration?: string;
+  estimatedDurationMinutes?: number;
   materialsIncluded?: boolean;
   travelFee?: number;
   paymentMethods?: string[];

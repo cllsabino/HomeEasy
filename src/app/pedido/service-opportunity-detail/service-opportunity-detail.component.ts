@@ -9,6 +9,7 @@ import { UsuarioService } from '../../Servicos/usuario.service';
 import { Usuario } from '../../Usuarios/usuario';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
 import { ServiceProposal, ServiceRequest } from '../../shared/models/service-request';
+import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   standalone: false,
@@ -25,6 +26,9 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
   proposal: ServiceProposal = { materialsIncluded: false, paymentMethods: [] };
   isLoading = true;
   isSubmitting = false;
+  hasSubmittedProposal = false;
+  loadError = '';
+  proposalDurationHours = 1;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
   private routeSubscription: Subscription;
@@ -79,12 +83,14 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     this.feedbackMessage = '';
     try {
+      this.proposal.estimatedDurationMinutes = this.proposalDurationHours * 60;
       await this.requestService.submitProposal(this.requestId, this.proposal, this.userId);
+      this.hasSubmittedProposal = true;
       this.feedbackType = 'success';
       this.feedbackMessage = 'Proposta enviada. O cliente já pode comparar sua oferta.';
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível enviar sua proposta.';
+      this.feedbackMessage = resolveHttpErrorMessage(error, 'Não foi possível enviar sua proposta.');
     } finally {
       this.isSubmitting = false;
     }
@@ -97,9 +103,24 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
 
   private loadRequest() {
     this.unsubscribe(this.requestSubscription);
-    this.requestSubscription = this.requestService.getRequest(this.requestId).subscribe(request => {
-      this.request = request || {};
-      this.isLoading = false;
+    this.loadError = '';
+    this.requestSubscription = this.requestService.getRequest(this.requestId).subscribe({
+      next: request => {
+        this.request = request || {};
+        this.hasSubmittedProposal = Boolean(this.request.hasSubmittedProposal);
+        if (this.hasSubmittedProposal) {
+          this.feedbackType = 'info';
+          this.feedbackMessage = 'Você já enviou uma proposta para esta oportunidade.';
+        }
+        this.isLoading = false;
+      },
+      error: error => {
+        this.loadError = resolveHttpErrorMessage(
+          error,
+          'Não foi possível carregar esta oportunidade.'
+        );
+        this.isLoading = false;
+      }
     });
   }
 

@@ -97,6 +97,14 @@ export class FeedComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
+      this.entrarSair = true;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
+
     this.queryParamsSubscription = this.active.queryParams.subscribe(queryParams => {
       this.serviceSearch = queryParams['q'] || '';
       this.categoryFilter = this.resolveCategoryFilter(queryParams['category']);
@@ -122,12 +130,6 @@ export class FeedComponent implements OnInit, OnDestroy {
       this.initializeFilterMetadata();
     });
 
-    if (getCurrentUser() != null) {
-      this.entrarSair = true;
-      this.userId = getCurrentUser().uid;
-    } else {
-      this.entrarSair = false;
-    }
   }
 
   ngOnDestroy() {
@@ -247,7 +249,9 @@ export class FeedComponent implements OnInit, OnDestroy {
   private async loadServiceMetadata(service: Servico) {
     try {
       const users = await firstValueFrom(this.servico.getUsuarios(service.id));
-      const professionals: ProfessionalFilterMetadata[] = (users || []).map(professional => ({
+      const professionals: ProfessionalFilterMetadata[] = (users || [])
+        .filter(professional => professional.id !== this.userId)
+        .map(professional => ({
         professionalId: professional.id,
         professionalName: professional.nome || 'Profissional Home Easy',
         professionalPhoto: professional.foto || '',
@@ -259,7 +263,7 @@ export class FeedComponent implements OnInit, OnDestroy {
         averageRating: 0,
         ratingCount: 0,
         hasRating: false
-      }));
+        }));
       this.serviceMetadata[service.id] = { professionals };
     } catch {
       this.serviceMetadata[service.id] = { professionals: [] };

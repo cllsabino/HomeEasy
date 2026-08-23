@@ -16,6 +16,7 @@ import { RequestAttachment, ServiceRequestAnswer, ServiceRequestField } from '..
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
 import { createCompressedImageAttachment } from '../../shared/utils/image-attachment.utils';
 import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
+import { NotificationService } from '../../shared/notification/notification.service';
 
 @Component({
   standalone: false,
@@ -63,7 +64,8 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     private loginService: LoginServiceService,
     private requestService: ServiceRequestService,
     private servicesService: ServicosService,
-    private userService: UsuarioService
+    private userService: UsuarioService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
@@ -73,6 +75,14 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {
       this.serviceId = params['serviceId'];
       this.professionalId = params['professionalId'] || '';
+      if (this.professionalId && this.professionalId === this.userId) {
+        this.notificationService.showInfo(
+          'Contratação indisponível',
+          'Você não pode solicitar um orçamento para a própria conta.'
+        );
+        void this.router.navigate(['/usuario', this.userId]);
+        return;
+      }
       this.request.preferredProfessionalId = this.professionalId || undefined;
       this.loadService();
       this.loadDirectedProfessional();
