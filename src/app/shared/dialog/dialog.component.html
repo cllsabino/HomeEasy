@@ -5,6 +5,7 @@
       <h2 id="dialogTitle" *ngIf="title">{{ title }}</h2>
       <p id="dialogMessage">{{ message }}</p>
     </div>
+    <ng-content></ng-content>
     <div class="dialog-actions">
       <button #cancelButton class="button-secondary" type="button" *ngIf="confirmation" (click)="cancelDialog()" [disabled]="loading">{{ cancelLabel }}</button>
       <button #primaryButton type="button" [class.button-primary]="!dangerAction" [class.button-danger]="dangerAction" (click)="confirmDialog()" [disabled]="loading">{{ loading ? 'Processando...' : confirmLabel }}</button>

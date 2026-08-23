@@ -23,11 +23,12 @@ export interface ServiceRequestField {
 export interface ServiceRequestAnswer {
   key: string;
   label: string;
-  value: string | number;
+  value: string | number | boolean;
   unit?: string;
 }
 
 export interface RequestAttachment {
+  mediaId?: string;
   name: string;
   mimeType: string;
   dataUrl: string;

@@ -3,7 +3,7 @@ import { RequestAttachment, ServiceRequestAnswer } from './service-request-field
 
 export enum ServiceUrgency {
   Flexible = 'flexible',
-  ThisWeek = 'thisWeek',
+  ThisWeek = 'this_week',
   Urgent = 'urgent'
 }
 

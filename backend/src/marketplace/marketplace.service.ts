@@ -66,6 +66,7 @@ export class MarketplaceService {
       clientId,
       serviceId: dto.serviceId,
       description: dto.description.trim(),
+      urgency: dto.urgency,
       answers: dto.answers,
       attachments: [],
       address: dto.address.trim(),
@@ -94,6 +95,48 @@ export class MarketplaceService {
       relations: { service: true },
       order: { createdAt: 'DESC' }
     });
+  }
+
+  async findRequestById(requestId: string, userId: string) {
+    await this.expireOpenRecords();
+    const request = await this.requestsRepository.findOne({
+      where: { id: requestId },
+      relations: { service: true }
+    });
+    if (!request) {
+      throw new NotFoundException('Solicitação não encontrada.');
+    }
+    if (request.clientId === userId) {
+      return request;
+    }
+    const professionalService = await this.dataSource.getRepository(ProfessionalService).findOne({
+      where: { professionalId: userId, serviceId: request.serviceId, isActive: true },
+      relations: { professional: true }
+    });
+    if (!professionalService || !professionalService.professional.isAvailable) {
+      throw new ForbiddenException('Esta solicitação não pertence aos seus serviços ativos.');
+    }
+    const profile = professionalService.professional;
+    const isSameRegion =
+      profile.state === request.state && profile.city.toLowerCase() === request.city.toLowerCase();
+    if (!request.location && !isSameRegion) {
+      throw new ForbiddenException('Esta solicitação está fora da sua região de atendimento.');
+    }
+    if (request.location) {
+      const result = await this.dataSource.query<Array<{ allowed: boolean }>>(
+        `SELECT ST_DWithin(ST_GeomFromGeoJSON($1)::geography, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, $4) AS allowed`,
+        [
+          JSON.stringify(request.location),
+          profile.location.coordinates[0],
+          profile.location.coordinates[1],
+          profile.serviceRadiusKm * 1000
+        ]
+      );
+      if (!result[0]?.allowed) {
+        throw new ForbiddenException('Esta solicitação está fora do seu raio de atendimento.');
+      }
+    }
+    return request;
   }
 
   async attachRequestMedia(requestId: string, mediaId: string, clientId: string) {
@@ -217,7 +260,7 @@ export class MarketplaceService {
           type: NotificationType.NewProposal,
           title: 'Nova proposta recebida',
           body: 'Um profissional enviou uma proposta para sua solicitação.',
-          actionUrl: `/solicitacoes/${request.id}/propostas`
+          actionUrl: `/solicitacoes/${request.id}`
         });
         return proposal;
       });
@@ -310,7 +353,7 @@ export class MarketplaceService {
         cancelledBy: null
       });
       const savedOrder = await manager.save(order);
-      const conversation = await manager.save(
+      await manager.save(
         manager.create(Conversation, {
           orderId: savedOrder.id,
           clientId,
@@ -323,7 +366,7 @@ export class MarketplaceService {
         type: NotificationType.ProposalAccepted,
         title: 'Proposta aceita',
         body: 'O cliente aceitou sua proposta. Combine os detalhes pela conversa.',
-        actionUrl: `/conversas/${conversation.id}`
+        actionUrl: '/conversas'
       });
       return savedOrder;
     });
@@ -360,6 +403,7 @@ export class MarketplaceService {
       clientId,
       serviceId: previousRequest.serviceId,
       description: previousRequest.description,
+      urgency: previousRequest.urgency,
       answers: previousRequest.answers,
       attachments: [],
       address: previousRequest.address,
@@ -493,12 +537,16 @@ export class MarketplaceService {
 
   private async notifyOrderParticipant(manager: EntityManager, order: Order, actorId: string, body: string) {
     const recipientId = actorId === order.clientId ? order.professionalId : order.clientId;
+    const actionUrl =
+      recipientId === order.clientId
+        ? `/usuario/${recipientId}/pedidos-feitos/${order.id}`
+        : `/usuario/${recipientId}/pedidos-recebidos/${order.id}`;
     await createNotification(manager, {
       userId: recipientId,
       type: NotificationType.OrderUpdated,
       title: 'Pedido atualizado',
       body,
-      actionUrl: `/pedidos/${order.id}`
+      actionUrl
     });
   }
 

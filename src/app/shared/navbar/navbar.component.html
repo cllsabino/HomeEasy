@@ -47,7 +47,7 @@
       </div>
 
       <div class="notification-list" *ngIf="notificationCount > 0">
-        <a *ngFor="let notification of notificationItems" [routerLink]="notification.route" (click)="closeNotificationMenu()">
+        <a *ngFor="let notification of notificationItems" [routerLink]="notification.route" (click)="readNotification(notification)">
           <span class="notification-order-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"></rect><path d="M8 8h8M8 12h6M8 16h4"></path></svg>
           </span>
@@ -100,6 +100,9 @@
     </a>
     <a routerLink="/conversas" routerLinkActive="active" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg><span>Mensagens</span>
+    </a>
+    <a routerLink="/favoritos" routerLinkActive="active" (click)="closeSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z"></path></svg><span>Favoritos</span>
     </a>
     <a [routerLink]="['/usuario', userId]" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg><span>Meu perfil</span>

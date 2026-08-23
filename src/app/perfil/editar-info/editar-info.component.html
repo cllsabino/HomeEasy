@@ -24,9 +24,8 @@
           </div>
 
           <div class="field-group">
-            <label for="profileAge">Idade</label>
-            <input id="profileAge" type="number" [(ngModel)]="usuario.idade" name="age" min="18" max="99" #ageInput="ngModel">
-            <span class="field-error" *ngIf="ageInput.errors && ageInput.touched">A idade deve estar entre 18 e 99 anos.</span>
+            <label for="profileBirthDate">Data de nascimento</label>
+            <input id="profileBirthDate" type="date" [(ngModel)]="usuario.birthDate" name="birthDate" autocomplete="bday">
           </div>
 
           <div class="field-group">
@@ -61,7 +60,7 @@
             <label for="profileState">Estado</label>
             <select id="profileState" [ngModel]="usuario.estado" (ngModelChange)="selectState($event)" name="state" [disabled]="isStatesLoading">
               <option value="" disabled>{{ isStatesLoading ? 'Carregando estados...' : 'Selecione um estado' }}</option>
-              <option *ngFor="let state of states" [value]="state.nome">{{ state.nome }}</option>
+              <option *ngFor="let state of states" [value]="state.sigla">{{ state.nome }}</option>
             </select>
           </div>
 

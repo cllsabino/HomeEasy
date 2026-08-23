@@ -1,7 +1,22 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseGuards
+} from '@nestjs/common';
 
+import { AdminGuard } from '../auth/admin.guard';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
+import { Public } from '../auth/public.decorator';
 import { PublicUser } from '../shared/utils/public-user.utils';
+import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { UpdateTypingDto } from './dto/update-typing.dto';
 import { CommunicationsService } from './communications.service';
@@ -96,5 +111,17 @@ export class CommunicationsController {
     @AuthenticatedUser() authenticatedUser: PublicUser
   ) {
     return this.communicationsService.markNotificationRead(notificationId, authenticatedUser.id);
+  }
+
+  @Public()
+  @Post('contact')
+  createContactMessage(@Body() createContactMessageDto: CreateContactMessageDto) {
+    return this.communicationsService.createContactMessage(createContactMessageDto);
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('admin/contact-messages')
+  findContactMessages() {
+    return this.communicationsService.findContactMessages();
   }
 }

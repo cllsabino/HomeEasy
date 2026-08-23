@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 import { ServiceRequestFieldType } from '../services/service-request-field.types';
-import { OrderStatus, ServiceRequestStatus } from './marketplace.enums';
+import { OrderStatus, ServiceRequestStatus, ServiceUrgency } from './marketplace.enums';
 import {
   canServiceRequestReceiveProposal,
   canTransitionOrder,
@@ -17,6 +17,7 @@ describe('marketplace rules', () => {
       validateServiceRequest({
         serviceId: 'cleaning',
         description: 'Preciso de uma limpeza residencial completa.',
+        urgency: ServiceUrgency.Flexible,
         answers: {},
         address: 'Rua de exemplo, 10',
         city: 'Recife',
@@ -37,13 +38,13 @@ describe('marketplace rules', () => {
     expect(canServiceRequestReceiveProposal(request)).toBe(false);
   });
 
-  it('allows only the professional to complete an in-progress order', () => {
+  it('allows either participant to confirm an in-progress order as completed', () => {
     const order = {
       clientId: 'client-id',
       professionalId: 'professional-id',
       status: OrderStatus.InProgress
     } as Order;
-    expect(canTransitionOrder(order, 'client-id', OrderStatus.Completed)).toBe(false);
+    expect(canTransitionOrder(order, 'client-id', OrderStatus.Completed)).toBe(true);
     expect(canTransitionOrder(order, 'professional-id', OrderStatus.Completed)).toBe(true);
   });
 

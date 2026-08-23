@@ -1,34 +1,23 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
-import { UserRole, Usuario } from '../Usuarios/usuario';
+import { UserRole } from '../Usuarios/usuario';
+import { ApiSessionService } from '../Servicos/api-session.service';
 
 @Injectable({ providedIn: 'root' })
-@RunInFirebaseInjectionContext
 export class AdminGuard implements CanActivate {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  constructor(private afAuth: AngularFireAuth, private afs: AngularFirestore, private router: Router) { }
+  constructor(private sessionService: ApiSessionService, private router: Router) {}
 
-  canActivate(): Promise<boolean> {
-    const currentUser = getCurrentFirebaseUser();
+  canActivate() {
+    const currentUser = this.sessionService.currentUser;
     if (!currentUser) {
-      this.router.navigate(['/login']);
-      return Promise.resolve(false);
+      void this.router.navigate(['/login']);
+      return false;
     }
-
-    return this.afs.collection('Usuarios').doc<Usuario>(currentUser.uid).ref.get().then(snapshot => {
-      const user = snapshot.data() as Usuario;
-      const isAdmin = snapshot.exists && user.role === UserRole.Admin;
-
-      if (!isAdmin) {
-        this.router.navigate(['/feed']);
-      }
-
-      return isAdmin;
-    });
+    if (currentUser.role !== UserRole.Admin) {
+      void this.router.navigate(['/feed']);
+      return false;
+    }
+    return true;
   }
 }

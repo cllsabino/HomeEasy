@@ -1,14 +1,12 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { ContatoService } from '../Servicos/contato.service';
-import { Mensagem } from './../Usuarios/mensagem';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
-
+import { getCurrentUser } from '../shared/utils/session-user.utils';
+import { Mensagem } from './../Usuarios/mensagem';
 
 @Component({
   standalone: false,
@@ -17,27 +15,30 @@ import { FeedbackType } from '../shared/action-feedback/action-feedback.componen
   styleUrls: ['./contato.component.css']
 })
 export class ContatoComponent implements OnInit {
-  mensagem : Mensagem = {};
-  entrarSair : boolean;
-  userId : string;
+  mensagem: Mensagem = {};
+  entrarSair: boolean;
+  userId: string;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'info';
   isSubmitting = false;
 
   constructor(
-    public contatoServico : ContatoService, 
-    public afAuth : AngularFireAuth, 
-    public loginService : LoginServiceService,
-    public router : Router
-    ) { }
+    public contatoServico: ContatoService,
+    public loginService: LoginServiceService,
+    public router: Router
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
   }
-  async sendMessage(contactForm: NgForm){
+
+  async sendMessage(contactForm: NgForm) {
     if (this.isSubmitting) {
       return;
     }
@@ -58,12 +59,14 @@ export class ContatoComponent implements OnInit {
       this.isSubmitting = false;
     }
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
 }

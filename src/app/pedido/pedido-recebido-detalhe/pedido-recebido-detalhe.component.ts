@@ -1,9 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
@@ -11,11 +7,15 @@ import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
 import { UsuarioService } from './../../Servicos/usuario.service';
 import { OrderStatus, Pedido } from 'src/app/Usuarios/pedido';
 import { AvalicaoService } from './../../Servicos/avaliacao.service';
-import { Avaliacao } from './../../Usuarios/avaliacao';
 import { ServicosService } from './../../Servicos/servicos.service';
 import { Usuario } from './../../Usuarios/usuario';
 import { FeedbackType } from '../../shared/action-feedback/action-feedback.component';
 import { canTransitionOrder, getOrderStatusClass, getOrderStatusHistory, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
+import {
+  CancellationReason,
+  professionalCancellationReasons
+} from '../../shared/models/cancellation-reason';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -23,50 +23,53 @@ import { canTransitionOrder, getOrderStatusClass, getOrderStatusHistory, getOrde
   templateUrl: './pedido-recebido-detalhe.component.html',
   styleUrls: ['./pedido-recebido-detalhe.component.css']
 })
-export class PedidoRecebidoDetalheComponent implements OnInit {
-  userId : string; //id do usuario
-  entrarSair : boolean;
-  pedidoId : string; //id do pedido
-  pedidoIdSubscription : Subscription;
-  pedido : Pedido = {}; //o pedido
-  pedidoSubscription : Subscription;
-  clienteId : string; //id do cliente
-  clienteIdSubscription : Subscription;
-  cliente : Usuario = {}; //o cliente
-  clienteSubscription : Subscription;
-  usuario : Usuario = {} //usuario | servidor
-  usuarioSubscription : Subscription;
+export class PedidoRecebidoDetalheComponent implements OnInit, OnDestroy {
+  userId: string;
+  entrarSair: boolean;
+  pedidoId: string;
+  pedidoIdSubscription: Subscription;
+  pedido: Pedido = {};
+  pedidoSubscription: Subscription;
+  clienteId: string;
+  clienteIdSubscription: Subscription;
+  cliente: Usuario = {};
+  clienteSubscription: Subscription;
+  usuario: Usuario = {};
+  usuarioSubscription: Subscription;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
   isSubmitting = false;
   isConfirmingCancellation = false;
   proposalPrice: number;
   proposalMessage = '';
+  cancellationReason = CancellationReason.ProfessionalUnavailable;
+  cancellationDetails = '';
+  readonly cancellationReasons = professionalCancellationReasons;
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public storage : AngularFireStorage,
-    public loginService : LoginServiceService,
-    public servicoPedido : ServicoPedidoService,
-    public usuarioService : UsuarioService,
-    public avaliacaoService : AvalicaoService,
-    public servicosService : ServicosService,
-    public router : Router,
-    public active : ActivatedRoute
-  ) { }
+    public loginService: LoginServiceService,
+    public servicoPedido: ServicoPedidoService,
+    public usuarioService: UsuarioService,
+    public avaliacaoService: AvalicaoService,
+    public servicosService: ServicosService,
+    public router: Router,
+    public active: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.clienteIdSubscription = this.active.params.subscribe(
-      (params : Params) => { this.clienteId = params['id'] }
+      (params: Params) => { this.clienteId = params['id']; }
     );
     this.pedidoIdSubscription = this.active.params.subscribe(
-      (params : Params) => { this.pedidoId = params['idd'] }
+      (params: Params) => { this.pedidoId = params['idd']; }
     );
     this.clienteSubscription = this.usuarioService.getPublicUsuario(this.clienteId).subscribe(data => {
       this.cliente = data;
@@ -79,23 +82,27 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     this.usuarioSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data;
     });
-  } 
-  ngOnDestroy(){
+  }
+
+  ngOnDestroy() {
     this.clienteIdSubscription?.unsubscribe();
     this.pedidoIdSubscription?.unsubscribe();
     this.clienteSubscription?.unsubscribe();
     this.pedidoSubscription?.unsubscribe();
     this.usuarioSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-  async submitProposal(){
+
+  async submitProposal() {
     if (this.isSubmitting) {
       return;
     }
@@ -114,7 +121,7 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     }
   }
 
-  async startService(){
+  async startService() {
     if (this.isSubmitting) {
       return;
     }
@@ -133,23 +140,29 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
     }
   }
 
-  requestCancellation(){
+  requestCancellation() {
     this.isConfirmingCancellation = true;
     this.feedbackMessage = '';
   }
 
-  dismissCancellation(){
+  dismissCancellation() {
     this.isConfirmingCancellation = false;
   }
 
-  async cancelarPedido(){
+  async cancelarPedido() {
     if (this.isSubmitting) {
       return;
     }
 
     this.isSubmitting = true;
     try {
-      await this.servicoPedido.updateOrderStatus(this.pedido, OrderStatus.DeclinedByProfessional, this.userId);
+      await this.servicoPedido.updateOrderStatus(
+        this.pedido,
+        OrderStatus.DeclinedByProfessional,
+        this.userId,
+        this.cancellationReason,
+        this.cancellationDetails
+      );
       this.router.navigate(['/usuario', this.userId, 'pedidos-recebidos']);
     } catch (error) {
       this.feedbackType = 'error';
@@ -183,5 +196,4 @@ export class PedidoRecebidoDetalheComponent implements OnInit {
   get orderHistory() {
     return getOrderStatusHistory(this.pedido);
   }
-
 }

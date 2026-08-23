@@ -1,12 +1,9 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { EnvironmentInjector, inject, Component, OnInit } from '@angular/core';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
-import { UsuarioService } from '../Servicos/usuario.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 import { resolveAuthErrorMessage } from '../shared/utils/auth-error.utils';
 
@@ -18,9 +15,7 @@ type AuthMode = 'login' | 'register';
   templateUrl: './login-cadastro.component.html',
   styleUrls: ['./login-cadastro.component.css']
 })
-@RunInFirebaseInjectionContext
 export class LoginCadastroComponent implements OnInit {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   loginUser: Usuario = {};
   registrationUser: Usuario = {};
   feedbackMessage = '';
@@ -34,10 +29,8 @@ export class LoginCadastroComponent implements OnInit {
 
   constructor(
     private loginService: LoginServiceService,
-    private usuarioService: UsuarioService,
     private router: Router,
-    private route: ActivatedRoute,
-    private afAuth: AngularFireAuth
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
@@ -46,7 +39,7 @@ export class LoginCadastroComponent implements OnInit {
       this.returnUrl = requestedReturnUrl;
     }
 
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
 
     if (currentUser) {
       this.authenticated = true;
@@ -87,16 +80,7 @@ export class LoginCadastroComponent implements OnInit {
     this.isRegistrationSubmitting = true;
 
     try {
-      const newUser = await this.afAuth.createUserWithEmailAndPassword(
-        this.registrationUser.email,
-        this.registrationUser.senha
-      );
-      const userProfile = Object.assign({}, this.registrationUser);
-      userProfile.id = newUser.user.uid;
-      delete userProfile.email;
-      delete userProfile.senha;
-
-      await this.usuarioService.saveUserProfile(userProfile);
+      await this.loginService.register(this.registrationUser);
       this.router.navigateByUrl(this.returnUrl);
     } catch (error) {
       this.feedbackType = 'error';

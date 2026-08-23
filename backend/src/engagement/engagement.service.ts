@@ -91,7 +91,7 @@ export class EngagementService {
         type: NotificationType.ReviewReceived,
         title: 'Nova avaliação recebida',
         body: `Você recebeu uma avaliação de ${dto.rating} estrela(s).`,
-        actionUrl: `/avaliacoes/${review.id}`,
+        actionUrl: `/usuario/${order.professionalId}`,
         readAt: null
       })
     );

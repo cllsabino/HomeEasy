@@ -1,19 +1,15 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { Usuario } from './../Usuarios/usuario';
-import { Pedido } from './../Usuarios/pedido';
-import { Servico } from './../Usuarios/servico';
-import { UsuarioService } from '../Servicos/usuario.service';
-import { ServicosService } from './../Servicos/servicos.service';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { ServicoPedidoService } from './../Servicos/servico-pedido.service';
+import { ServicosService } from './../Servicos/servicos.service';
+import { UsuarioService } from '../Servicos/usuario.service';
+import { Servico } from './../Usuarios/servico';
+import { Usuario } from './../Usuarios/usuario';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -21,14 +17,13 @@ import { FeedbackType } from '../shared/action-feedback/action-feedback.componen
   templateUrl: './servico.component.html',
   styleUrls: ['./servico.component.css']
 })
-export class ServicoComponent implements OnInit {
-  userId : string;
-  usuario : Usuario = {};
-  userSubscription : Subscription;
-  imgSubscription : Subscription;
-  entrarSair : boolean;
+export class ServicoComponent implements OnInit, OnDestroy {
+  userId: string;
+  usuario: Usuario = {};
+  userSubscription: Subscription;
+  entrarSair: boolean;
   servicosArray = new Array<Servico>();
-  servicosSubscription : Subscription;
+  servicosSubscription: Subscription;
   servicePendingDeletion: Servico;
   isDeletingService = false;
   serviceAvailabilityInProgressId = '';
@@ -36,40 +31,42 @@ export class ServicoComponent implements OnInit {
   feedbackType: FeedbackType = 'success';
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public storage : AngularFireStorage,
-    public router : Router,
-    public loginService : LoginServiceService,
-    public usuarioService : UsuarioService,
-    public servicoPedido : ServicoPedidoService,
-    public servico : ServicosService, 
-    public active : ActivatedRoute
-    ) { }
+    public router: Router,
+    public loginService: LoginServiceService,
+    public usuarioService: UsuarioService,
+    public servicoPedido: ServicoPedidoService,
+    public servico: ServicosService,
+    public active: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
-      this.usuario = data; 
+      this.usuario = data;
     });
     this.servicosSubscription = this.servico.getUserServico(this.userId).subscribe(data => {
       this.servicosArray = data;
     });
   }
-  ngOnDestroy(){ 
+
+  ngOnDestroy() {
     this.userSubscription?.unsubscribe();
     this.servicosSubscription?.unsubscribe();
   }
-  requestServiceDeletion(service: Servico){
+
+  requestServiceDeletion(service: Servico) {
     this.servicePendingDeletion = service;
     this.feedbackMessage = '';
   }
 
-  dismissServiceDeletion(){
+  dismissServiceDeletion() {
     this.servicePendingDeletion = null;
   }
 
@@ -81,7 +78,7 @@ export class ServicoComponent implements OnInit {
     return 'Remover ' + this.servicePendingDeletion.nome + '?';
   }
 
-  async confirmServiceDeletion(){
+  async confirmServiceDeletion() {
     if (!this.servicePendingDeletion || this.isDeletingService) {
       return;
     }
@@ -101,7 +98,8 @@ export class ServicoComponent implements OnInit {
       this.isDeletingService = false;
     }
   }
-  async toggleServiceAvailability(service: Servico){
+
+  async toggleServiceAvailability(service: Servico) {
     if (!service || this.serviceAvailabilityInProgressId) {
       return;
     }
@@ -113,23 +111,24 @@ export class ServicoComponent implements OnInit {
     try {
       await this.servico.setServiceAvailability(this.usuario, service, nextAvailability);
       this.feedbackType = 'success';
-      this.feedbackMessage = nextAvailability ?
-        'O serviÃ§o voltou a receber novas oportunidades.' :
-        'O serviÃ§o foi pausado e nÃ£o receberÃ¡ novas oportunidades.';
+      this.feedbackMessage = nextAvailability
+        ? 'O serviço voltou a receber novas oportunidades.'
+        : 'O serviço foi pausado e não receberá novas oportunidades.';
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = 'NÃ£o foi possÃ­vel alterar a disponibilidade deste serviÃ§o.';
+      this.feedbackMessage = 'Não foi possível alterar a disponibilidade deste serviço.';
     } finally {
       this.serviceAvailabilityInProgressId = '';
     }
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-
 }

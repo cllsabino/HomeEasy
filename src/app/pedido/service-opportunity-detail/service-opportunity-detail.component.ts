@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -33,7 +32,6 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
   private userSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private activeRoute: ActivatedRoute,
     private loginService: LoginServiceService,
     private requestService: ServiceRequestService,
@@ -42,7 +40,7 @@ export class ServiceOpportunityDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {

@@ -8,6 +8,7 @@ import { EditarInfoComponent } from './editar-info/editar-info.component';
 import { PerfilPedidoComponent } from './perfil-pedido/perfil-pedido.component';
 import { AvaliacoesComponent } from './avaliacoes/avaliacoes.component';
 import { SharedModule } from '../shared/shared.module';
+import { FavoritosComponent } from './favoritos/favoritos.component';
 
 @NgModule({
     imports:[
@@ -20,7 +21,8 @@ import { SharedModule } from '../shared/shared.module';
         PerfilComponent,
         EditarInfoComponent,
         PerfilPedidoComponent,
-        AvaliacoesComponent
+        AvaliacoesComponent,
+        FavoritosComponent
     ], 
     exports:[
 

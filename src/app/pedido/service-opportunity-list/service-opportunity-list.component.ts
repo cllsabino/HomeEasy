@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { combineLatest, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -30,7 +29,6 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
   private requestsSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private loginService: LoginServiceService,
     private requestService: ServiceRequestService,
     private router: Router,
@@ -39,7 +37,7 @@ export class ServiceOpportunityListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.requestsSubscription = combineLatest(

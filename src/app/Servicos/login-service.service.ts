@@ -1,38 +1,40 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { map } from 'rxjs/operators';
 import { Usuario } from '../Usuarios/usuario';
+import { ApiSessionService } from './api-session.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-
-@RunInFirebaseInjectionContext
+@Injectable({ providedIn: 'root' })
 export class LoginServiceService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
+  constructor(private sessionService: ApiSessionService) {}
 
-  constructor(public afAuth : AngularFireAuth) { }
-
-  login(user : Usuario){
-     return this.afAuth.signInWithEmailAndPassword(user.email, user.senha);
+  login(user: Usuario) {
+    return firstValueFrom(this.sessionService.login(user.email || '', user.senha || ''));
   }
 
-  recuperarsenha(user : Usuario){
-     return this.afAuth.sendPasswordResetEmail(user.email);
+  register(user: Usuario) {
+    return firstValueFrom(
+      this.sessionService.register(user.nome || '', user.email || '', user.senha || '')
+    );
   }
 
-  getAuthState(){
-     return this.afAuth.authState;
+  recuperarsenha(user: Usuario) {
+    return firstValueFrom(this.sessionService.requestPasswordReset(user.email || ''));
   }
 
-  sair(){
-     return this.afAuth.signOut();
+  redefinirSenha(token: string, password: string) {
+    return firstValueFrom(this.sessionService.resetPassword(token, password));
+  }
+
+  getAuthState() {
+    return this.sessionService.user$.asObservable();
+  }
+
+  sair() {
+    return firstValueFrom(this.sessionService.logout());
   }
 
   isAuth() {
-   return this.afAuth.authState.pipe(map(auth => auth));
- }
-
+    return this.getAuthState();
+  }
 }

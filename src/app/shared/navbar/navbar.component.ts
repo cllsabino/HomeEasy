@@ -1,17 +1,14 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, HostListener, Inject, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { combineLatest, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
-import { ServicoPedidoService } from '../../Servicos/servico-pedido.service';
-import { ServiceRequestService } from '../../Servicos/service-request.service';
+import { NotificationService } from '../../Servicos/notification.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
-import { OrderStatus, Pedido } from '../../Usuarios/pedido';
 import { UserRole, Usuario } from '../../Usuarios/usuario';
-import { ServiceRequest } from '../models/service-request';
-import { getOrderStatus, isPendingOrder } from '../utils/order-status.utils';
 
 interface OrderNotification {
-  route: any[];
+  id?: string;
+  route: any[] | string;
   title: string;
   date: string;
   city: string;
@@ -39,8 +36,7 @@ export class NavbarComponent implements OnChanges, OnDestroy {
   private userSubscription: Subscription;
 
   constructor(
-    private servicoPedidoService: ServicoPedidoService,
-    private serviceRequestService: ServiceRequestService,
+    private notificationService: NotificationService,
     private usuarioService: UsuarioService,
     @Inject(DOCUMENT) private document: Document
   ) { }
@@ -105,6 +101,13 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   closeNotificationMenu() {
     this.notificationMenuOpen = false;
+  }
+
+  readNotification(notification: OrderNotification) {
+    if (notification.id) {
+      this.notificationService.markRead(notification.id).subscribe(() => this.loadReceivedOrders());
+    }
+    this.closeNotificationMenu();
   }
 
   @HostListener('document:click')
@@ -180,52 +183,23 @@ export class NavbarComponent implements OnChanges, OnDestroy {
 
   private loadReceivedOrders() {
     this.clearOrderSubscription();
-    this.orderSubscription = combineLatest(
-      this.servicoPedidoService.getPedidosRecebidos(this.userId),
-      this.servicoPedidoService.getPedidosFeitos(this.userId),
-      this.serviceRequestService.getClientRequests(this.userId)
-    ).subscribe(([receivedOrders, placedOrders, serviceRequests]) => {
-      const receivedOrderNotifications = receivedOrders
-        .filter(order => isPendingOrder(order))
-        .map(order => this.createOrderNotification(order, 'newOrder'));
-      const proposalNotifications = placedOrders
-        .filter(order => getOrderStatus(order) === OrderStatus.ProposalReceived)
-        .map(order => this.createOrderNotification(order, 'proposal'));
-      const marketplaceProposalNotifications = serviceRequests
-        .filter(request => request.status === OrderStatus.ProposalReceived)
-        .map(request => this.createServiceRequestNotification(request));
-      const notifications = receivedOrderNotifications.concat(proposalNotifications, marketplaceProposalNotifications);
-
+    this.orderSubscription = this.notificationService.findNotifications().subscribe(apiNotifications => {
+      const unreadNotifications = apiNotifications.filter(notification => !notification.readAt);
+      const notifications = unreadNotifications.map(notification => ({
+        id: notification.id,
+        route: notification.actionUrl,
+        title: notification.title,
+        date: new Date(notification.createdAt).toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        city: ''
+      }));
       this.notificationCount = notifications.length;
       this.notificationItems = notifications.slice(0, 4);
     });
-  }
-
-  private createOrderNotification(order: Pedido, type: 'newOrder' | 'proposal'): OrderNotification {
-    if (type === 'proposal') {
-      return {
-        route: ['/usuario', order.idServidor, 'pedidos-feitos', order.id],
-        title: `Nova proposta para ${order.nome || 'seu pedido'}`,
-        date: order.data,
-        city: order.cidade
-      };
-    }
-
-    return {
-      route: ['/usuario', order.idContratante, 'pedidos-recebidos', order.id],
-      title: `Novo pedido de ${order.nome || 'serviço'}`,
-      date: order.data,
-      city: order.cidade
-    };
-  }
-
-  private createServiceRequestNotification(request: ServiceRequest): OrderNotification {
-    return {
-      route: ['/solicitacoes', request.id],
-      title: `Propostas disponíveis para ${request.serviceName || 'sua solicitação'}`,
-      date: request.preferredDate || 'Data a combinar',
-      city: request.city
-    };
   }
 
   private clearOrderSubscription() {

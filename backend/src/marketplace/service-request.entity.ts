@@ -11,7 +11,7 @@ import {
 import { Service } from '../services/service.entity';
 import { User } from '../users/user.entity';
 import { GeographicPoint } from '../professionals/professional-profile.entity';
-import { ServiceRequestStatus } from './marketplace.enums';
+import { ServiceRequestStatus, ServiceUrgency } from './marketplace.enums';
 
 export interface RequestAttachmentMetadata {
   mediaId: string;
@@ -41,6 +41,9 @@ export class ServiceRequest {
 
   @Column({ type: 'text' })
   description: string;
+
+  @Column({ type: 'enum', enum: ServiceUrgency, default: ServiceUrgency.Flexible })
+  urgency: ServiceUrgency;
 
   @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
   answers: Record<string, string | number | boolean>;

@@ -1,105 +1,70 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ProfessionalVerificationStatus, UserRole, Usuario } from '../Usuarios/usuario';
-import { createPublicProfile } from '../shared/utils/public-profile.utils';
+import { environment } from '../../environments/environment';
+import { ProfessionalVerificationStatus, Usuario } from '../Usuarios/usuario';
+import { MediaPurpose, MediaUploadService } from './media-upload.service';
+
+interface VerificationQueue {
+  documents: Array<{
+    id: string;
+    professionalId: string;
+    type: string;
+    professional: { name: string; email: string };
+    media: { id: string; fileName: string };
+  }>;
+}
 
 @Injectable({ providedIn: 'root' })
-@RunInFirebaseInjectionContext
 export class ProfessionalVerificationService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  constructor(private afs: AngularFirestore) { }
+  constructor(private http: HttpClient, private mediaUploadService: MediaUploadService) {}
 
-  requestVerification(userId: string) {
-    const professionalReference = this.afs.collection('Usuarios').doc(userId).ref;
-    const publicProfileReference = this.afs.collection('PublicProfiles').doc(userId).ref;
-
-    return this.afs.firestore.runTransaction(transaction => transaction.get(professionalReference).then(snapshot => {
-      if (!snapshot.exists) {
-        throw new Error('Seu perfil não foi encontrado.');
-      }
-
-      const professional = snapshot.data() as Usuario;
-      const validationError = this.getVerificationValidationError(professional);
-      if (validationError) {
-        throw new Error(validationError);
-      }
-
-      if (professional.verificationStatus === ProfessionalVerificationStatus.Pending) {
-        throw new Error('Sua verificação já está em análise.');
-      }
-
-      transaction.update(professionalReference, {
-        verificationStatus: ProfessionalVerificationStatus.Pending,
-        verificationRequestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        verificationReviewNote: ''
-      });
-      transaction.set(publicProfileReference, createPublicProfile(Object.assign({}, professional, {
-        id: userId,
-        verificationStatus: ProfessionalVerificationStatus.Pending
-      })));
-    }));
+  async requestVerification(userId: string, document: File) {
+    if (!document) {
+      throw new Error('Selecione um documento de identidade em PDF, PNG, JPG ou WebP.');
+    }
+    const mediaId = await this.mediaUploadService.uploadFile(
+      document,
+      MediaPurpose.VerificationDocument
+    );
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/verification/documents`, {
+        mediaId,
+        type: 'identity'
+      })
+    );
   }
 
   getPendingProfessionals() {
-    return this.afs.collection<Usuario>('Usuarios', reference =>
-      reference.where('verificationStatus', '==', ProfessionalVerificationStatus.Pending))
-      .snapshotChanges()
-      .pipe(map(actions => actions.map(action => {
-        const professional = action.payload.doc.data() as Usuario;
-        professional.id = action.payload.doc.id;
-
-        return professional;
-      })));
+    return this.http.get<VerificationQueue>(`${environment.apiUrl}/admin/moderation`).pipe(
+      map(queue =>
+        queue.documents.map(document => ({
+          id: document.professionalId,
+          nome: document.professional.name,
+          email: document.professional.email,
+          verificationStatus: ProfessionalVerificationStatus.Pending,
+          verificationDocumentId: document.id,
+          verificationMediaId: document.media.id,
+          verificationDocumentType: document.type
+        } as Usuario))
+      )
+    );
   }
 
-  reviewVerification(adminId: string, professionalId: string, approved: boolean, reviewNote: string) {
-    const adminReference = this.afs.collection('Usuarios').doc(adminId).ref;
-    const professionalReference = this.afs.collection('Usuarios').doc(professionalId).ref;
-    const publicProfileReference = this.afs.collection('PublicProfiles').doc(professionalId).ref;
-
-    return this.afs.firestore.runTransaction(transaction => Promise.all([
-      transaction.get(adminReference),
-      transaction.get(professionalReference)
-    ]).then(snapshots => {
-      const admin = snapshots[0].data() as Usuario;
-      const professional = snapshots[1].data() as Usuario;
-
-      if (!snapshots[0].exists || !admin || admin.role !== UserRole.Admin) {
-        throw new Error('Somente administradores podem revisar verificações.');
-      }
-
-      if (!snapshots[1].exists || professional.verificationStatus !== ProfessionalVerificationStatus.Pending) {
-        throw new Error('Esta solicitação não está mais pendente.');
-      }
-
-      const verificationStatus = approved ? ProfessionalVerificationStatus.Verified : ProfessionalVerificationStatus.Rejected;
-      transaction.update(professionalReference, {
-        verificationStatus,
-        verificationReviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        verificationReviewedBy: adminId,
-        verificationReviewNote: reviewNote ? reviewNote.trim() : ''
-      });
-      transaction.set(publicProfileReference, createPublicProfile(Object.assign({}, professional, {
-        id: professionalId,
-        verificationStatus
-      })));
-    }));
+  getDocumentDownloadUrl(mediaId: string) {
+    return firstValueFrom(
+      this.http.get<{ downloadUrl: string }>(`${environment.apiUrl}/media/${mediaId}/download`)
+    ).then(response => response.downloadUrl);
   }
 
-  private getVerificationValidationError(professional: Usuario) {
-    if (!professional.nome || !professional.telefone || !professional.endereco || !professional.cidade || !professional.estado) {
-      return 'Complete nome, telefone e endereço antes de solicitar a verificação.';
-    }
-
-    if (!professional.cpf && !professional.cnpj) {
-      return 'Informe CPF ou CNPJ no perfil antes de solicitar a verificação.';
-    }
-
-    return '';
+  reviewVerification(adminId: string, documentId: string, approved: boolean, reviewNote: string) {
+    return firstValueFrom(
+      this.http.patch(`${environment.apiUrl}/admin/verification/documents/${documentId}`, {
+        status: approved ? 'approved' : 'rejected',
+        notes: reviewNote || undefined
+      })
+    );
   }
 }

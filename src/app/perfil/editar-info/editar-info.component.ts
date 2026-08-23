@@ -1,7 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -41,8 +39,6 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   isSavingProfile = false;
 
   constructor(
-    public afAuth: AngularFireAuth,
-    public afs: AngularFirestore,
     public router: Router,
     public usuarioService: UsuarioService,
     public servico: ServicosService,
@@ -52,8 +48,8 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    if (getCurrentFirebaseUser() != null) {
-      this.userId = getCurrentFirebaseUser().uid;
+    if (getCurrentUser() != null) {
+      this.userId = getCurrentUser().uid;
       this.entrarSair = true;
     } else {
       this.entrarSair = false;
@@ -93,13 +89,13 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     this.usuario.cnpj = removeInputMask(value, 14);
   }
 
-  selectState(stateName: string) {
-    this.usuario.estado = stateName;
+  selectState(stateCode: string) {
+    this.usuario.estado = stateCode;
     this.usuario.cidade = '';
     this.cities = new Array<BrazilCity>();
     this.locationFeedback = '';
 
-    const selectedState = this.findState(stateName);
+    const selectedState = this.findState(stateCode);
     if (selectedState) {
       this.loadCities(selectedState.sigla);
     }
@@ -113,7 +109,10 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     this.isSavingProfile = true;
     this.usuario.id = this.userId;
     try {
-      await this.servico.updateProfessionalProfile(this.usuario, this.servicosArray);
+      await this.usuarioService.saveUserProfile(this.usuario);
+      if (this.servicosArray.length) {
+        await this.servico.updateProfessionalProfile(this.usuario, this.servicosArray);
+      }
       this.notificationService.showSuccess('Perfil atualizado', 'Suas informações foram salvas com sucesso.');
     } catch (error) {
       this.notificationService.showError('Não foi possível salvar', 'Verifique sua conexão e tente atualizar o perfil novamente.');
@@ -154,7 +153,7 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     }
 
     const selectedCity = this.usuario.cidade;
-    this.usuario.estado = selectedState.nome;
+    this.usuario.estado = selectedState.sigla;
     this.loadCities(selectedState.sigla, selectedCity);
   }
 

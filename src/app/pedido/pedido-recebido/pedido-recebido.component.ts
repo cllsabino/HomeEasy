@@ -1,19 +1,15 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { Usuario } from './../../Usuarios/usuario';
-import { Pedido } from './../../Usuarios/pedido';
-import { Servico } from './../../Usuarios/servico';
-import { UsuarioService } from './../../Servicos/usuario.service';
-import { ServicosService } from './../../Servicos/servicos.service';
 import { LoginServiceService } from './../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
+import { ServicosService } from './../../Servicos/servicos.service';
+import { UsuarioService } from './../../Servicos/usuario.service';
+import { Pedido } from './../../Usuarios/pedido';
+import { Usuario } from './../../Usuarios/usuario';
 import { getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/order-status.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -21,60 +17,65 @@ import { getOrderStatusClass, getOrderStatusLabel } from '../../shared/utils/ord
   templateUrl: './pedido-recebido.component.html',
   styleUrls: ['./pedido-recebido.component.css']
 })
-export class PedidoRecebidoComponent implements OnInit {
- usuario : Usuario = {};
- userSubscription : Subscription;
- userId : string;
- entrarSair : boolean;
- pedidosRecebidosArray = new Array<Pedido>();
- pedidosRecebidosSubscription : Subscription;
- pedidoEstado : boolean = false;
- pedidoDetalhe : Pedido = {};
- isLoading = true;
+export class PedidoRecebidoComponent implements OnInit, OnDestroy {
+  usuario: Usuario = {};
+  userSubscription: Subscription;
+  userId: string;
+  entrarSair: boolean;
+  pedidosRecebidosArray = new Array<Pedido>();
+  pedidosRecebidosSubscription: Subscription;
+  pedidoEstado = false;
+  pedidoDetalhe: Pedido = {};
+  isLoading = true;
 
- constructor(
-  public afs : AngularFirestore, 
-  public afAuth : AngularFireAuth,
-  public storage : AngularFireStorage,
-  public router : Router,
-  public loginService : LoginServiceService,
-  public usuarioService : UsuarioService,
-  public servicoPedido : ServicoPedidoService,
-  public servico : ServicosService, 
-  public active : ActivatedRoute
-  ) { }
+  constructor(
+    public router: Router,
+    public loginService: LoginServiceService,
+    public usuarioService: UsuarioService,
+    public servicoPedido: ServicoPedidoService,
+    public servico: ServicosService,
+    public active: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
-      this.usuario = data; 
+      this.usuario = data;
     });
     this.pedidosRecebidosSubscription = this.servicoPedido.getPedidosRecebidos(this.userId).subscribe(data => {
       this.pedidosRecebidosArray = data;
       this.isLoading = false;
     });
   }
-  ngOnDestroy(){ 
+
+  ngOnDestroy() {
     this.userSubscription?.unsubscribe();
     this.pedidosRecebidosSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-  mostrarBotaoDetalhe(event, serve){
+
+  mostrarBotaoDetalhe(event, serve) {
     this.pedidoEstado = true;
     this.pedidoDetalhe = serve;
   }
-  limparBotao(){
+
+  limparBotao() {
     this.pedidoEstado = false;
   }
 

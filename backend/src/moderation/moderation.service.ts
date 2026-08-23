@@ -140,12 +140,16 @@ export class ModerationService {
       order.status = OrderStatus.Disputed;
       await manager.save(order);
       const recipientId = userId === order.clientId ? order.professionalId : order.clientId;
+      const actionUrl =
+        recipientId === order.clientId
+          ? `/usuario/${recipientId}/pedidos-feitos/${order.id}`
+          : `/usuario/${recipientId}/pedidos-recebidos/${order.id}`;
       await createNotification(manager, {
         userId: recipientId,
         type: NotificationType.DisputeUpdated,
         title: 'Disputa aberta',
         body: 'Uma disputa foi aberta para o pedido.',
-        actionUrl: `/pedidos/${order.id}`
+        actionUrl
       });
       return dispute;
     });
@@ -155,7 +159,7 @@ export class ModerationService {
     return Promise.all([
       this.documentsRepository.find({
         where: { status: ModerationStatus.Pending },
-        relations: { professional: true },
+        relations: { professional: true, media: true },
         order: { createdAt: 'ASC' }
       }),
       this.reportsRepository.find({
@@ -167,6 +171,34 @@ export class ModerationService {
         order: { createdAt: 'ASC' }
       })
     ]).then(([documents, reports, disputes]) => ({ documents, reports, disputes }));
+  }
+
+  async findAdminMetrics() {
+    const rows = await this.dataSource.query<
+      Array<{
+        total_requests: string;
+        open_requests: string;
+        hired_requests: string;
+        pending_verifications: string;
+        proposal_total: string;
+      }>
+    >(`SELECT
+      (SELECT COUNT(*) FROM service_requests) AS total_requests,
+      (SELECT COUNT(*) FROM service_requests WHERE status IN ('requested', 'proposal_received')) AS open_requests,
+      (SELECT COUNT(*) FROM service_requests WHERE status = 'accepted') AS hired_requests,
+      (SELECT COUNT(*) FROM verification_documents WHERE status = 'pending') AS pending_verifications,
+      (SELECT COALESCE(SUM(proposal_count), 0) FROM service_requests) AS proposal_total`);
+    const row = rows[0];
+    const totalRequests = Number(row.total_requests);
+    const hiredRequests = Number(row.hired_requests);
+    return {
+      totalRequests,
+      openRequests: Number(row.open_requests),
+      hiredRequests,
+      pendingVerifications: Number(row.pending_verifications),
+      conversionRate: totalRequests ? Math.round((hiredRequests / totalRequests) * 100) : 0,
+      averageProposals: totalRequests ? Math.round((Number(row.proposal_total) / totalRequests) * 10) / 10 : 0
+    };
   }
 
   async reviewDocument(documentId: string, adminId: string, status: ModerationStatus, notes?: string) {
@@ -222,12 +254,16 @@ export class ModerationService {
       dispute.reviewedBy = adminId;
       const savedDispute = await manager.save(dispute);
       for (const userId of [dispute.order.clientId, dispute.order.professionalId]) {
+        const actionUrl =
+          userId === dispute.order.clientId
+            ? `/usuario/${userId}/pedidos-feitos/${dispute.orderId}`
+            : `/usuario/${userId}/pedidos-recebidos/${dispute.orderId}`;
         await createNotification(manager, {
           userId,
           type: NotificationType.DisputeUpdated,
           title: 'Disputa atualizada',
           body: 'A moderação atualizou sua disputa.',
-          actionUrl: `/pedidos/${dispute.orderId}`
+          actionUrl
         });
       }
       return savedDispute;

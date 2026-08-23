@@ -1,9 +1,6 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Subscription } from 'rxjs';
 
 import { ServicosService } from '../../Servicos/servicos.service';
@@ -14,6 +11,7 @@ import { Servico } from './../../Usuarios/servico';
 import { ServicoPedido } from './../../Usuarios/serico-pedido';
 import { UsuarioService } from './../../Servicos/usuario.service';
 import { NotificationService } from '../../shared/notification/notification.service';
+import { ScheduleService } from '../../Servicos/schedule.service';
 
 @Component({
   standalone: false,
@@ -41,22 +39,20 @@ export class EditarInfoComponent implements OnInit {
   ];
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public storage : AngularFireStorage,
     public loginService : LoginServiceService,
     public servicoService : ServicosService, 
     public servicoPedido : ServicoPedidoService,
     public usuarioService : UsuarioService,
     public router : Router,
     public active : ActivatedRoute,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private scheduleService: ScheduleService
   ) { }
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    if(getCurrentUser() != null){
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
+      this.userId = getCurrentUser().uid;
     }else this.entrarSair = false;
 
     this.serveIdSubscription = this.active.params.subscribe(
@@ -67,6 +63,7 @@ export class EditarInfoComponent implements OnInit {
     );
     this.serviceDetailsSubscription = this.servicoPedido.getDetalheServico(this.userId, this.serveId).subscribe(serviceDetails => {
       this.servicoped = serviceDetails || {};
+      this.loadSchedule();
     });
     this.usuarioSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.usuario = data;
@@ -83,8 +80,8 @@ export class EditarInfoComponent implements OnInit {
     try{
       await this.loginService.sair().then(
         (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+     } catch (error) {
+       return;
     }
   }
   async editarInfo(){
@@ -119,6 +116,17 @@ export class EditarInfoComponent implements OnInit {
       availableWeekdays.splice(weekdayIndex, 1);
     }
     this.servicoped.availableWeekdays = availableWeekdays;
+  }
+
+  private loadSchedule() {
+    this.scheduleService.getOwnSchedule().subscribe(schedule => {
+      this.servicoped.availableWeekdays = this.scheduleService.toWeekdayNames(schedule.periods);
+      const firstPeriod = schedule.periods[0];
+      if (firstPeriod) {
+        this.servicoped.availableStartTime = firstPeriod.startTime.slice(0, 5);
+        this.servicoped.availableEndTime = firstPeriod.endTime.slice(0, 5);
+      }
+    });
   }
 
 }

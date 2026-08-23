@@ -1,93 +1,124 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
-import { Usuario } from '../Usuarios/usuario';
-import { createPublicProfile } from '../shared/utils/public-profile.utils';
+import { environment } from '../../environments/environment';
+import { ProfessionalVerificationStatus, Usuario, UserRole } from '../Usuarios/usuario';
+import { ApiSessionService } from './api-session.service';
 
+interface ApiUserProfile {
+  id: string;
+  name: string;
+  email?: string;
+  role?: UserRole;
+  phone?: string;
+  birthDate?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  verificationStatus?: ProfessionalVerificationStatus;
+  cpf?: string;
+  cnpj?: string;
+  instagram?: string;
+  facebook?: string;
+  twitter?: string;
+  website?: string;
+  linkedin?: string;
+}
 
-@Injectable({
-  providedIn: 'root'
-})
-@RunInFirebaseInjectionContext
+interface ApiProfessionalList {
+  professionals: ApiUserProfile[];
+}
+
+@Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  usuarioCollection : AngularFirestoreCollection<Usuario>;
-  usuarioDocument : AngularFirestoreDocument<Usuario>;
-  
-  constructor(
-    public afAuth : AngularFireAuth,
-    private afs : AngularFirestore,
-    private storage : AngularFireStorage
-  ) {
-    this.usuarioCollection = this.afs.collection<Usuario>('Usuarios');
-    
+  constructor(private http: HttpClient, private sessionService: ApiSessionService) {}
+
+  getUsuarios() {
+    return this.http
+      .get<ApiProfessionalList>(`${environment.apiUrl}/professionals?limit=50`)
+      .pipe(map(response => response.professionals.map(profile => this.toUsuario(profile))));
   }
 
-  getUsuarios(){
-   return this.usuarioCollection.snapshotChanges().pipe(map(
-      actions => {
-        return actions.map(a => {
-          const data = a.payload.doc.data() as Usuario
-          const id = a.payload.doc.id
-
-          return {id, ...data}
-        })
-      }
-    ));
-  }
-
-  getUsuario(id : string){
-    return this.usuarioCollection.doc<Usuario>(id).valueChanges();
-  }
-
-  getPublicUsuario(id : string){
-    return this.afs.collection('PublicProfiles').doc<Usuario>(id).valueChanges().pipe(
-      switchMap(user => user ? of(user) : this.getUsuario(id).pipe(map(createPublicProfile)))
-    );
-  }
-
-  saveUserProfile(user : Usuario){
-    const batch = this.afs.firestore.batch();
-    const userReference = this.afs.collection('Usuarios').doc(user.id).ref;
-    const publicProfileReference = this.afs.collection('PublicProfiles').doc(user.id).ref;
-
-    batch.set(userReference, user);
-    batch.set(publicProfileReference, createPublicProfile(user));
-
-    return batch.commit();
-  }
-
-  getUserWithProfilePhoto(userId : string): Observable<Usuario> {
-    return this.getUsuario(userId).pipe(
-      switchMap(user => this.resolveProfilePhoto(Object.assign({ id: userId }, user || {})))
-    );
-  }
-
-  resolveProfilePhotos(users : Usuario[]): Observable<Usuario[]> {
-    if (!users || users.length === 0) {
-      return of(new Array<Usuario>());
+  getUsuario(userId: string) {
+    if (userId !== this.sessionService.currentUser?.id) {
+      return this.getPublicUsuario(userId);
     }
-
-    return forkJoin(users.map(user => this.resolveProfilePhoto(user)));
+    return this.http.get<ApiUserProfile>(`${environment.apiUrl}/users/me`).pipe(map(profile => this.toUsuario(profile)));
   }
 
-  private resolveProfilePhoto(user : Usuario): Observable<Usuario> {
-    if (!user || !user.id) {
-      return of(user);
+  getPublicUsuario(userId: string) {
+    return this.http
+      .get<ApiUserProfile>(`${environment.apiUrl}/professionals/${userId}`)
+      .pipe(
+        catchError(() =>
+          this.http.get<ApiUserProfile>(`${environment.apiUrl}/users/${userId}/public`)
+        ),
+        map(profile => this.toUsuario(profile))
+      );
+  }
+
+  saveUserProfile(user: Usuario) {
+    return firstValueFrom(this.http
+      .put<ApiUserProfile>(`${environment.apiUrl}/users/me`, {
+        name: user.nome,
+        phone: user.telefone,
+        birthDate: user.birthDate,
+        address: user.endereco,
+        city: user.cidade,
+        state: user.estado,
+        cpf: user.cpf || undefined,
+        cnpj: user.cnpj || undefined,
+        instagram: user.instagram || '',
+        facebook: user.facebook || '',
+        twitter: user.twitter || '',
+        website: user.site || '',
+        linkedin: user.linkedIn || ''
+      }));
+  }
+
+  getUserWithProfilePhoto(userId: string): Observable<Usuario> {
+    return this.getUsuario(userId);
+  }
+
+  resolveProfilePhotos(users: Usuario[]): Observable<Usuario[]> {
+    return of(users || []);
+  }
+
+  private toUsuario(profile: ApiUserProfile): Usuario {
+    return {
+      id: profile.id,
+      nome: profile.name,
+      email: profile.email,
+      role: profile.role,
+      telefone: profile.phone,
+      birthDate: profile.birthDate,
+      idade: profile.birthDate ? this.calculateAge(profile.birthDate) : undefined,
+      endereco: profile.address,
+      cidade: profile.city,
+      estado: profile.state,
+      verificationStatus: profile.verificationStatus,
+      cpf: profile.cpf,
+      cnpj: profile.cnpj,
+      instagram: profile.instagram,
+      facebook: profile.facebook,
+      twitter: profile.twitter,
+      site: profile.website,
+      linkedIn: profile.linkedin
+    };
+  }
+
+  private calculateAge(birthDate: string) {
+    const today = new Date();
+    const birth = new Date(`${birthDate}T00:00:00`);
+    let age = today.getFullYear() - birth.getFullYear();
+    if (
+      today.getMonth() < birth.getMonth() ||
+      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+    ) {
+      age -= 1;
     }
-
-    return this.storage.ref('Usuarios/' + user.id + '/fotoPerfil.jpg').getDownloadURL().pipe(
-      map(photoUrl => Object.assign({}, user, { foto: photoUrl })),
-      catchError(() => of(user))
-    );
+    return age;
   }
-
-
-  
-
 }

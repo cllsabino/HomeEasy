@@ -1,17 +1,13 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { ServicosService } from '../../Servicos/servicos.service';
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
-import { Usuario } from 'src/app/Usuarios/usuario';
+import { ServicosService } from '../../Servicos/servicos.service';
 import { Servico } from './../../Usuarios/servico';
 import { ServicoPedido } from './../../Usuarios/serico-pedido';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -19,55 +15,57 @@ import { ServicoPedido } from './../../Usuarios/serico-pedido';
   templateUrl: './servico-detalhe.component.html',
   styleUrls: ['./servico-detalhe.component.css']
 })
-export class ServicoDetalheComponent implements OnInit {
-  userId : string; //id do usuario
-  entrarSair : boolean;
-  servicoped : ServicoPedido = {}; //detalhe do serviço
-  servicopedSubscription : Subscription;
-  serveId : string; //id do serviço
-  serveIdSubscription : Subscription;
-  servico : Servico = {}; //o serviço
-  servicoSubscription : Subscription;
+export class ServicoDetalheComponent implements OnInit, OnDestroy {
+  userId: string;
+  entrarSair: boolean;
+  servicoped: ServicoPedido = {};
+  servicopedSubscription: Subscription;
+  serveId: string;
+  serveIdSubscription: Subscription;
+  servico: Servico = {};
+  servicoSubscription: Subscription;
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public storage : AngularFireStorage,
-    public loginService : LoginServiceService,
-    public servicoService : ServicosService, 
-    public servicoPedido : ServicoPedidoService,
-    public router : Router,
-    public active : ActivatedRoute
-  ) { }
+    public loginService: LoginServiceService,
+    public servicoService: ServicosService,
+    public servicoPedido: ServicoPedidoService,
+    public router: Router,
+    public active: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.serveIdSubscription = this.active.params.subscribe(
-      (params : Params) => { this.serveId = params['idd'] }
+      (params: Params) => { this.serveId = params['idd']; }
     );
     this.servicopedSubscription = this.servicoPedido.getDetalheServico(this.userId, this.serveId).subscribe(data => {
-      this.servicoped = data}
-    );
+      this.servicoped = data;
+    });
     this.servicoSubscription = this.servicoService.getUserServicoPorId(this.userId, this.serveId).subscribe(data => {
-      this.servico = data}
-    );
+      this.servico = data;
+    });
   }
-  ngOnDestroy(){
+
+  ngOnDestroy() {
     this.serveIdSubscription?.unsubscribe();
     this.servicopedSubscription?.unsubscribe();
     this.servicoSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-
 }

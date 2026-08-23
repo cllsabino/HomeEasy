@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsDateString,
+  IsEnum,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -11,6 +12,7 @@ import {
   Max,
   Min
 } from 'class-validator';
+import { ServiceUrgency } from '../marketplace.enums';
 
 export class CreateServiceRequestDto {
   @IsString()
@@ -20,6 +22,9 @@ export class CreateServiceRequestDto {
   @IsString()
   @Length(20, 3000)
   description: string;
+
+  @IsEnum(ServiceUrgency)
+  urgency: ServiceUrgency;
 
   @IsObject()
   answers: Record<string, string | number | boolean>;

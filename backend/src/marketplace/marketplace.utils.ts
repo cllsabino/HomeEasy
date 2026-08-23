@@ -72,11 +72,14 @@ export function canTransitionOrder(order: Order, actorId: string, nextStatus: Or
   if (nextStatus === OrderStatus.Disputed) {
     return [OrderStatus.Scheduled, OrderStatus.InProgress].includes(order.status);
   }
+  if (order.status === OrderStatus.InProgress && nextStatus === OrderStatus.Completed) {
+    return actorId === order.clientId || actorId === order.professionalId;
+  }
   if (actorId !== order.professionalId) {
     return false;
   }
   if ([OrderStatus.Accepted, OrderStatus.Scheduled].includes(order.status)) {
     return nextStatus === OrderStatus.InProgress;
   }
-  return order.status === OrderStatus.InProgress && nextStatus === OrderStatus.Completed;
+  return false;
 }

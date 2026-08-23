@@ -17,7 +17,7 @@ describe('validateEnvironment', () => {
   it('applies safe development defaults', () => {
     const environment = validateEnvironment(validEnvironment);
     expect(environment.PORT).toBe(3000);
-    expect(environment.DATABASE_PORT).toBe(5433);
+    expect(environment.DATABASE_PORT).toBe(5435);
     expect(environment.REFRESH_TOKEN_DAYS).toBe(30);
     expect(environment.MINIO_USE_SSL).toBe(false);
   });

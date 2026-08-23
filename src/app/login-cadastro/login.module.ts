@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { LoginCadastroComponent } from "./login-cadastro.component";
 import { RecuperarSenhaComponent } from './recuperar-senha/recuperar-senha.component';
+import { RedefinirSenhaComponent } from './redefinir-senha/redefinir-senha.component';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { LoginRoutingModule } from './login.routing.module';
 import { SharedModule } from '../shared/shared.module';
@@ -17,7 +18,8 @@ import { SharedModule } from '../shared/shared.module';
     ],
     declarations:[
         LoginCadastroComponent,
-        RecuperarSenhaComponent
+        RecuperarSenhaComponent,
+        RedefinirSenhaComponent
     ], 
     exports:[
 

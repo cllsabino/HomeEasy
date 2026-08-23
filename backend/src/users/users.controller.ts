@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Put } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, ParseUUIDPipe, Put } from '@nestjs/common';
 
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { PublicUser } from '../shared/utils/public-user.utils';
@@ -25,5 +25,14 @@ export class UsersController {
     @Body() updateUserProfileDto: UpdateUserProfileDto
   ) {
     return this.usersService.updateOwnProfile(authenticatedUser.id, updateUserProfileDto);
+  }
+
+  @Get(':userId/public')
+  async getPublicIdentity(@Param('userId', ParseUUIDPipe) userId: string) {
+    const user = await this.usersService.findPublicIdentity(userId);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+    return user;
   }
 }

@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${DATABASE_USER:-homeeasy}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-homeeasy-local}
     ports:
-      - "${DATABASE_PORT:-5433}:5432"
+      - "${DATABASE_PORT:-5435}:5432"
     volumes:
       - homeeasyPostgresData:/var/lib/postgresql/data
     healthcheck:

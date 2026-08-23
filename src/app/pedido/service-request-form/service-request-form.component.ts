@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -16,7 +15,6 @@ import { ServiceRequest, ServiceUrgency } from '../../shared/models/service-requ
 import { RequestAttachment, ServiceRequestAnswer, ServiceRequestField } from '../../shared/models/service-request-field';
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
 import { createCompressedImageAttachment } from '../../shared/utils/image-attachment.utils';
-import { getServiceRequestFields } from '../../shared/utils/service-request-fields.utils';
 
 @Component({
   standalone: false,
@@ -55,7 +53,6 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   private citiesSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private activeRoute: ActivatedRoute,
     private router: Router,
     private locationService: BrazilLocationService,
@@ -66,7 +63,7 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {
@@ -178,7 +175,7 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     this.unsubscribe(this.serviceSubscription);
     this.serviceSubscription = this.servicesService.getServico(this.serviceId).subscribe(service => {
       this.service = service || {};
-      this.specificFields = getServiceRequestFields(this.service.nome);
+      this.specificFields = this.service.requestForm || [];
       this.isLoading = false;
     });
   }

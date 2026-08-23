@@ -13,3 +13,9 @@ export enum NotificationType {
   ReviewReceived = 'review_received',
   DisputeUpdated = 'dispute_updated'
 }
+
+export enum ContactMessageStatus {
+  Pending = 'pending',
+  Answered = 'answered',
+  Archived = 'archived'
+}

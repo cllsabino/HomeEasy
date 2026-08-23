@@ -26,6 +26,27 @@ export class UserProfile {
   @Column({ type: 'varchar', length: 2, nullable: true })
   state: string | null;
 
+  @Column({ type: 'varchar', length: 11, nullable: true, unique: true })
+  cpf: string | null;
+
+  @Column({ type: 'varchar', length: 14, nullable: true, unique: true })
+  cnpj: string | null;
+
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  instagram: string | null;
+
+  @Column({ type: 'varchar', length: 300, nullable: true })
+  facebook: string | null;
+
+  @Column({ type: 'varchar', length: 120, nullable: true })
+  twitter: string | null;
+
+  @Column({ type: 'varchar', length: 300, nullable: true })
+  website: string | null;
+
+  @Column({ type: 'varchar', length: 300, nullable: true })
+  linkedin: string | null;
+
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 }

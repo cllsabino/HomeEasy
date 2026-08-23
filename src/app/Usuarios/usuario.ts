@@ -1,6 +1,9 @@
 export enum ProfessionalVerificationStatus {
-    NotSubmitted = 'notSubmitted',
+    NotSubmitted = 'not_submitted',
     Pending = 'pending',
+    IdentityVerified = 'identity_verified',
+    ProfessionalVerified = 'professional_verified',
+    Featured = 'featured',
     Verified = 'verified',
     Rejected = 'rejected'
 }
@@ -15,6 +18,7 @@ export class Usuario {
     senha? : string;
     nome? : string;
     idade? : number;
+    birthDate? : string;
     telefone? : string;
     id? : string;
     foto? : string;
@@ -35,4 +39,9 @@ export class Usuario {
     verificationReviewedBy? : string;
     verificationReviewNote? : string;
     role? : UserRole;
+    conversationId? : string;
+    unreadMessageCount? : number;
+    verificationDocumentId? : string;
+    verificationMediaId? : string;
+    verificationDocumentType? : string;
 }

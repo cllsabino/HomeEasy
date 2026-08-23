@@ -48,6 +48,12 @@ export class ModerationController {
   }
 
   @UseGuards(AdminGuard)
+  @Get('admin/metrics')
+  findAdminMetrics() {
+    return this.moderationService.findAdminMetrics();
+  }
+
+  @UseGuards(AdminGuard)
   @Patch('admin/verification/documents/:documentId')
   reviewDocument(
     @Param('documentId', ParseUUIDPipe) documentId: string,

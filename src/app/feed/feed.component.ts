@@ -1,11 +1,8 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { EnvironmentInjector, inject, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { ServicosService } from '../Servicos/servicos.service';
@@ -61,9 +58,7 @@ interface ServiceRegionAccumulator {
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css']
 })
-@RunInFirebaseInjectionContext
 export class FeedComponent implements OnInit, OnDestroy {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
   domesticServices = new Array<Servico>();
   filteredDomesticServices = new Array<Servico>();
   domesticServicesSubscription: Subscription;
@@ -97,8 +92,6 @@ export class FeedComponent implements OnInit, OnDestroy {
     public servico: ServicosService,
     public loginService: LoginServiceService,
     public router: Router,
-    public afs: AngularFirestore,
-    public afAuth: AngularFireAuth,
     public active: ActivatedRoute,
     @Inject(DOCUMENT) private document: Document
   ) { }
@@ -129,9 +122,9 @@ export class FeedComponent implements OnInit, OnDestroy {
       this.initializeFilterMetadata();
     });
 
-    if (getCurrentFirebaseUser() != null) {
+    if (getCurrentUser() != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
+      this.userId = getCurrentUser().uid;
     } else {
       this.entrarSair = false;
     }
@@ -252,52 +245,25 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   private async loadServiceMetadata(service: Servico) {
-    const professionalSnapshot = await this.afs.collection('Serviços').doc(service.id).collection('Usuarios').ref.get();
-    const professionals = new Array<ProfessionalFilterMetadata>();
-    const professionalRequests = new Array<Promise<void>>();
-
-    professionalSnapshot.forEach(professionalDocument => {
-      const professional = professionalDocument.data() as Usuario;
-      professional.id = professionalDocument.id;
-      professionalRequests.push(this.loadProfessionalMetadata(service, professional, professionals));
-    });
-
-    await Promise.all(professionalRequests);
-    this.serviceMetadata[service.id] = { professionals };
-  }
-
-  private async loadProfessionalMetadata(service: Servico, professional: Usuario, professionals: ProfessionalFilterMetadata[]) {
-    const serviceDetailsReference = this.afs.collection('ServicoPedido').doc(professional.id).collection('Serviços').doc(service.id).ref;
-    const ratingsReference = this.afs.collection('Usuarios').doc(professional.id).collection('Serviços').doc(service.id).collection('Avaliações').ref;
-    const metadataSnapshots: any[] = await Promise.all([serviceDetailsReference.get(), ratingsReference.get()]);
-    const serviceDetails = metadataSnapshots[0].data() as ServicoPedido;
-    const ratingsSnapshot = metadataSnapshots[1];
-    let ratingTotal = 0;
-    let ratingCount = 0;
-
-    ratingsSnapshot.forEach(ratingDocument => {
-      const rating = ratingDocument.data() as Avaliacao;
-      const ratingValue = Number(rating.avaliacaoNota);
-
-      if (!isNaN(ratingValue)) {
-        ratingTotal += ratingValue;
-        ratingCount++;
-      }
-    });
-
-    professionals.push({
-      professionalId: professional.id,
-      professionalName: professional.nome || 'Profissional Home Easy',
-      professionalPhoto: professional.foto || '',
-      serviceId: service.id,
-      serviceName: service.nome,
-      city: professional.cidade || '',
-      state: professional.estado || '',
-      price: serviceDetails ? Number(serviceDetails.preco) : NaN,
-      averageRating: ratingCount ? ratingTotal / ratingCount : 0,
-      ratingCount,
-      hasRating: ratingCount > 0
-    });
+    try {
+      const users = await firstValueFrom(this.servico.getUsuarios(service.id));
+      const professionals: ProfessionalFilterMetadata[] = (users || []).map(professional => ({
+        professionalId: professional.id,
+        professionalName: professional.nome || 'Profissional Home Easy',
+        professionalPhoto: professional.foto || '',
+        serviceId: service.id,
+        serviceName: service.nome,
+        city: professional.cidade || '',
+        state: professional.estado || '',
+        price: NaN,
+        averageRating: 0,
+        ratingCount: 0,
+        hasRating: false
+      }));
+      this.serviceMetadata[service.id] = { professionals };
+    } catch {
+      this.serviceMetadata[service.id] = { professionals: [] };
+    }
   }
 
   private applyFilters() {

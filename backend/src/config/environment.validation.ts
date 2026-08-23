@@ -54,7 +54,7 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
     PORT: Number(environment.PORT || 3000),
     FRONTEND_ORIGINS: readString(environment.FRONTEND_ORIGINS),
     DATABASE_HOST: readString(environment.DATABASE_HOST),
-    DATABASE_PORT: Number(environment.DATABASE_PORT || 5433),
+    DATABASE_PORT: Number(environment.DATABASE_PORT || 5435),
     DATABASE_NAME: readString(environment.DATABASE_NAME),
     DATABASE_USER: readString(environment.DATABASE_USER),
     DATABASE_PASSWORD: readString(environment.DATABASE_PASSWORD),

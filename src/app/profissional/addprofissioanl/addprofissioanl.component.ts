@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -41,15 +40,14 @@ export class AddprofissioanlComponent implements OnInit {
     public loginService : LoginServiceService,
     public usuarioService : UsuarioService,
     public servicoPedido : ServicoPedidoService,
-    public afAuth : AngularFireAuth,
     public router : Router,
     private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    if(getCurrentUser() != null){
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
+      this.userId = getCurrentUser().uid;
     } else this.entrarSair = false;
 
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
@@ -61,7 +59,7 @@ export class AddprofissioanlComponent implements OnInit {
     });
   }
   ngOnDestroy(){
-    if(getCurrentFirebaseUser() != null){
+    if(getCurrentUser() != null){
       this.userSubscription?.unsubscribe();
       this.servicosSubscription?.unsubscribe();
     }
@@ -70,8 +68,8 @@ export class AddprofissioanlComponent implements OnInit {
     try{
       await this.loginService.sair().then(
         (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+     } catch (error) {
+       return;
     }
   }
   async inscreverServico(){
@@ -82,10 +80,8 @@ export class AddprofissioanlComponent implements OnInit {
     this.isSubmitting = true;
     this.servePedido.id = this.servicoSelecionado.id;
     try {
-      await Promise.all([
-        this.servicoPedido.addServicoPedido(this.usuario, this.servicoSelecionado, this.servePedido),
-        this.servico.addUsuario(this.usuario, this.servicoSelecionado)
-      ]);
+      await this.servico.addUsuario(this.usuario, this.servicoSelecionado);
+      await this.servicoPedido.addServicoPedido(this.usuario, this.servicoSelecionado, this.servePedido);
       this.notificationService.showSuccess('Serviço cadastrado', 'Sua especialidade já está disponível para novos clientes.');
       this.router.navigate(['/feed']);
     } catch (error) {

@@ -29,4 +29,39 @@ export class UpdateUserProfileDto {
   @IsString()
   @Length(2, 2)
   state?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{11}$/)
+  cpf?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{14}$/)
+  cnpj?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  instagram?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  facebook?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  twitter?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  website?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  linkedin?: string;
 }

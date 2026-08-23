@@ -1,34 +1,25 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
-import { map } from "rxjs/operators"
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
+import { environment } from '../../environments/environment';
 import { Mensagem } from '../Usuarios/mensagem';
 
 @Injectable({
-    providedIn: 'root'
-  })
-
-@RunInFirebaseInjectionContext
+  providedIn: 'root'
+})
 export class ContatoService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  mensagemInfo: Observable<Mensagem[]>;
-  mensagemCollection: AngularFirestoreCollection<Mensagem>;
+  constructor(private http: HttpClient) {}
 
-  constructor(public afs : AngularFirestore) {
-    this.mensagemCollection = this.afs.collection('Mensagem');
-
-    this.mensagemInfo = this.mensagemCollection.snapshotChanges().pipe(
-      map(actions => actions.map(a => {
-        const data = a.payload.doc.data() as Mensagem;
-        return data;
-      }))
+  salvarmensagem(mensagem: Mensagem) {
+    return firstValueFrom(
+      this.http.post(`${environment.apiUrl}/contact`, {
+        name: mensagem.nome,
+        email: mensagem.email,
+        phone: mensagem.telefone,
+        subject: mensagem.assunto,
+        message: mensagem.mensagem
+      })
     );
   }
-
-  salvarmensagem(mensagem : Mensagem){
-    return this.mensagemCollection.add(mensagem);
-  }
-
 }

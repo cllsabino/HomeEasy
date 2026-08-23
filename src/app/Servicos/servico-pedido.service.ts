@@ -1,194 +1,167 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
-import { map } from "rxjs/operators"
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { ServicoPedido } from './../Usuarios/serico-pedido';
+import { environment } from '../../environments/environment';
+import { OrderStatus, Pedido } from '../Usuarios/pedido';
 import { Servico } from '../Usuarios/servico';
-import { Usuario } from 'src/app/Usuarios/usuario';
-import { OrderStatus, Pedido } from 'src/app/Usuarios/pedido';
-import { canTransitionOrder, getLegacyOrderFlags, getOrderStatus } from '../shared/utils/order-status.utils';
+import { Usuario } from '../Usuarios/usuario';
+import { ServicoPedido } from '../Usuarios/serico-pedido';
+import { ScheduleService } from './schedule.service';
+import { ServicosService } from './servicos.service';
+import { CancellationReason } from '../shared/models/cancellation-reason';
 
-@Injectable({
-    providedIn: 'root'
-  })
-
-@RunInFirebaseInjectionContext
-export class ServicoPedidoService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  servicoPedidoCollection: AngularFirestoreCollection;
-  servicoCollection : AngularFirestoreCollection;
-  usuariosCollection : AngularFirestoreCollection;
-
-  constructor(public afs : AngularFirestore) {
-    this.servicoPedidoCollection = this.afs.collection('ServicoPedido');
-    this.servicoCollection = this.afs.collection('Serviços');
-    this.usuariosCollection = this.afs.collection('Usuarios');
-  }
- //adiciona os detalhes de um servico 
- addServicoPedido(usuario : Usuario, servico : Servico, servicopedido : ServicoPedido){
-    return this.servicoPedidoCollection.doc(usuario.id).collection('Serviços').doc(servico.id)
-      .set(servicopedido);
- }
- //pega os detalhes de um servico de um usuario
- getDetalheServico(id : string, idd : string){
-    return this.servicoPedidoCollection.doc(id).collection('Serviços').
-      doc<ServicoPedido>(idd).valueChanges();
- }
- //adiciona um pedido
- addPedido(cliente : Usuario, servidor : Usuario, pedido : Pedido){
-   const batch = this.afs.firestore.batch();
-   const orderStatus = getOrderStatus(pedido);
-   const clientOrderReference = this.usuariosCollection.doc(cliente.id).collection('PedidosFeitos').doc(pedido.id).ref;
-   const professionalOrderReference = this.usuariosCollection.doc(servidor.id).collection('PedidosRecebidos').doc(pedido.id).ref;
-   const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-   const orderData: any = Object.assign({}, pedido, getLegacyOrderFlags(orderStatus), {
-     status: orderStatus,
-     updatedAt: serverTimestamp,
-     statusHistory: pedido.statusHistory || [{
-       status: orderStatus,
-       actorId: cliente.id,
-       changedAt: firebase.firestore.Timestamp.now()
-     }]
-   });
-
-   if (!pedido.createdAt) {
-     orderData.createdAt = serverTimestamp;
-   }
-
-   batch.set(clientOrderReference, orderData);
-   batch.set(professionalOrderReference, orderData);
-
-   return batch.commit();
- }
-
- updateOrderStatus(order: Pedido, nextStatus: OrderStatus, actorId: string){
-   return this.transitionOrder(order, nextStatus, actorId, {});
- }
-
- submitProposal(order: Pedido, proposalPrice: number, proposalMessage: string, actorId: string){
-   if (!proposalPrice || proposalPrice <= 0) {
-     return Promise.reject(new Error('Informe um valor de proposta maior que zero.'));
-   }
-
-   return this.transitionOrder(order, OrderStatus.ProposalReceived, actorId, {
-     proposalPrice,
-     proposalMessage: proposalMessage ? proposalMessage.trim() : '',
-     proposalSentAt: firebase.firestore.FieldValue.serverTimestamp()
-   });
- }
-
- private transitionOrder(order: Pedido, nextStatus: OrderStatus, actorId: string, additionalChanges: Partial<Pedido>){
-   const clientOrderReference = this.usuariosCollection.doc(order.idContratante).collection('PedidosFeitos').doc(order.id).ref;
-   const professionalOrderReference = this.usuariosCollection.doc(order.idServidor).collection('PedidosRecebidos').doc(order.id).ref;
-   const centralOrderReference = this.afs.collection('Orders').doc(order.id).ref;
-
-   return this.afs.firestore.runTransaction(transaction => {
-     return Promise.all([
-       transaction.get(clientOrderReference),
-       transaction.get(centralOrderReference)
-     ]).then(snapshots => {
-       const orderSnapshot = snapshots[0];
-       const centralOrderSnapshot = snapshots[1];
-
-       if (!orderSnapshot.exists) {
-         throw new Error('O pedido não foi encontrado no histórico do cliente.');
-       }
-
-       const currentOrder = orderSnapshot.data() as Pedido;
-       currentOrder.id = order.id;
-
-       if (!canTransitionOrder(currentOrder, nextStatus, actorId)) {
-         throw new Error('O status do pedido foi alterado. Atualize a página e tente novamente.');
-       }
-
-       const statusHistory = this.createStatusHistory(currentOrder);
-       statusHistory.push({
-         status: nextStatus,
-         actorId,
-         changedAt: firebase.firestore.Timestamp.now()
-       });
-
-       const updatedOrder: any = Object.assign({}, currentOrder, getLegacyOrderFlags(nextStatus), additionalChanges, {
-         status: nextStatus,
-         statusUpdatedBy: actorId,
-         statusHistory,
-         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-       });
-
-       if (nextStatus === OrderStatus.Accepted && currentOrder.proposalPrice) {
-         updatedOrder.preco = currentOrder.proposalPrice;
-       }
-
-       transaction.set(clientOrderReference, updatedOrder);
-       transaction.set(professionalOrderReference, updatedOrder);
-
-       if (centralOrderSnapshot.exists) {
-         transaction.update(centralOrderReference, {
-           status: nextStatus,
-           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-         });
-       }
-     });
-   });
- }
-
- private createStatusHistory(order: Pedido){
-   if (order.statusHistory && order.statusHistory.length) {
-     return order.statusHistory.slice();
-   }
-
-   return [{
-     status: getOrderStatus(order),
-     actorId: order.statusUpdatedBy || order.idContratante,
-     changedAt: order.updatedAt || order.createdAt || firebase.firestore.Timestamp.now()
-   }];
- }
- //pega os pedidos feitos de um cliente 
- getPedidosFeitos(id : string){
-   return this.usuariosCollection.doc(id).collection('PedidosFeitos', ref => ref.orderBy('data', 'desc')).snapshotChanges().
-    pipe(map (actions => {
-      return actions.map(a => {
-        const data = a.payload.doc.data() as Pedido;
-        const id = a.payload.doc.id;
-
-        return { id, ...data};
-      })
-    })
-  );
- }
- //pega um pedido feito de um cliente 
- getPedidoFeito(idCliente : string, idPedido : string){
-  return this.afs.collection('Usuarios').doc(idCliente).collection('PedidosFeitos').doc<Pedido>(idPedido).valueChanges();
- }
- //pega os pedidos recebidos de um servidor 
- getPedidosRecebidos(id : string){
-  return this.usuariosCollection.doc(id).collection('PedidosRecebidos', ref => ref.orderBy('data', 'desc')).snapshotChanges().
-   pipe(map (actions => {
-     return actions.map(a => {
-       const data = a.payload.doc.data() as Pedido;
-       const id = a.payload.doc.id;
-
-       return { id, ...data};
-     })
-   }));
-  }
- //pega um pedido recebido por um servidor 
- getPedidoRecebido(idServidor : string, idPedido : string){
-  return this.afs.collection('Usuarios').doc(idServidor).collection('PedidosRecebidos').doc<Pedido>(idPedido).valueChanges();
- }
- //apagar o pedido recebido de um profissional
- deletePedidoRecebido(idServidor : string, Idpedido : string){
-  return this.afs.collection('Usuarios').doc(idServidor).collection('PedidosRecebidos').doc<Pedido>(Idpedido).delete();
- }
- //apagar o pedido feito de um cliente
- deletePedidoFeito(idCliente : string, Idpedido : string){
-  return this.afs.collection('Usuarios').doc(idCliente).collection('PedidosFeitos').doc<Pedido>(Idpedido).delete();
- }
-
+interface ApiOrder {
+  id: string;
+  clientId: string;
+  professionalId: string;
+  agreedPrice: string;
+  scheduledAt?: string;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+  request: {
+    serviceId: string;
+    service: { name: string };
+    address: string;
+    city: string;
+    state: string;
+    preferredAt?: string;
+  };
+  proposal: { message: string; price: string };
 }
 
+@Injectable({ providedIn: 'root' })
+export class ServicoPedidoService {
+  constructor(
+    private http: HttpClient,
+    private scheduleService: ScheduleService,
+    private servicosService: ServicosService
+  ) {}
 
+  async addServicoPedido(usuario: Usuario, servico: Servico, serviceDetails: ServicoPedido) {
+    if (!servico.id) {
+      throw new Error('Selecione um serviço válido.');
+    }
+    await this.servicosService.updateProfessionalServiceDetails(
+      usuario,
+      servico.id,
+      Number(serviceDetails.preco || 0),
+      serviceDetails.detalhe || '',
+      Number(serviceDetails.serviceRadiusKm || 25)
+    );
+    await this.scheduleService.replaceWeeklySchedule(
+      serviceDetails.availableWeekdays || [],
+      serviceDetails.availableStartTime || '08:00',
+      serviceDetails.availableEndTime || '18:00'
+    );
+    return serviceDetails;
+  }
+
+  getDetalheServico(userId: string, serviceId: string) {
+    return this.http.get<unknown>(`${environment.apiUrl}/professionals/${userId}`).pipe(
+      map(profile => {
+        const professional = profile as {
+          serviceRadiusKm?: number;
+          services?: Array<{ id: string; description?: string; basePrice?: number }>;
+        };
+        const service = professional.services?.find(currentService => currentService.id === serviceId);
+        return {
+          detalhe: service?.description || '',
+          preco: service?.basePrice || 0,
+          serviceRadiusKm: professional.serviceRadiusKm || 25
+        } as ServicoPedido;
+      })
+    );
+  }
+
+  addPedido(cliente: Usuario, servidor: Usuario, pedido: Pedido) {
+    return Promise.reject(
+      new Error('Crie uma solicitação e escolha uma proposta para contratar com segurança.')
+    );
+  }
+
+  updateOrderStatus(
+    order: Pedido,
+    nextStatus: OrderStatus,
+    actorId: string,
+    cancellationReason?: CancellationReason,
+    cancellationDetails?: string
+  ) {
+    if (nextStatus === OrderStatus.CancelledByClient || nextStatus === OrderStatus.DeclinedByProfessional) {
+      return firstValueFrom(
+        this.http.post(`${environment.apiUrl}/marketplace/orders/${order.id}/cancel`, {
+          reason: cancellationReason || (
+            actorId === order.idContratante
+              ? CancellationReason.ServiceNoLongerNeeded
+              : CancellationReason.ProfessionalUnavailable
+          ),
+          details: cancellationDetails || undefined
+        })
+      );
+    }
+    return firstValueFrom(
+      this.http.patch(`${environment.apiUrl}/marketplace/orders/${order.id}/status`, { status: nextStatus })
+    );
+  }
+
+  submitProposal(order: Pedido, proposalPrice: number, proposalMessage: string, actorId: string) {
+    return Promise.reject(new Error('Envie propostas pela lista de oportunidades do marketplace.'));
+  }
+
+  getPedidosFeitos(userId: string) {
+    return this.getOrders().pipe(map(orders => orders.filter(order => order.idContratante === userId)));
+  }
+
+  getPedidoFeito(clientId: string, orderId: string) {
+    return this.getPedidosFeitos(clientId).pipe(map(orders => orders.find(order => order.id === orderId)));
+  }
+
+  getPedidosRecebidos(userId: string) {
+    return this.getOrders().pipe(map(orders => orders.filter(order => order.idServidor === userId)));
+  }
+
+  getPedidoRecebido(professionalId: string, orderId: string) {
+    return this.getPedidosRecebidos(professionalId).pipe(
+      map(orders => orders.find(order => order.id === orderId))
+    );
+  }
+
+  deletePedidoRecebido() {
+    return Promise.reject(new Error('Pedidos não podem ser apagados; cancele o atendimento informando o motivo.'));
+  }
+
+  deletePedidoFeito() {
+    return Promise.reject(new Error('Pedidos não podem ser apagados; cancele o atendimento informando o motivo.'));
+  }
+
+  private getOrders() {
+    return this.http
+      .get<ApiOrder[]>(`${environment.apiUrl}/marketplace/orders/me`)
+      .pipe(map(orders => orders.map(order => this.toPedido(order))));
+  }
+
+  private toPedido(order: ApiOrder): Pedido {
+    const scheduledAt = order.scheduledAt || order.request.preferredAt;
+    const scheduledDate = scheduledAt ? new Date(scheduledAt) : null;
+    return {
+      id: order.id,
+      nome: order.request.service?.name,
+      idServico: order.request.serviceId,
+      idContratante: order.clientId,
+      idServidor: order.professionalId,
+      data: scheduledDate ? scheduledDate.toISOString().slice(0, 10) : '',
+      hora: scheduledDate ? scheduledDate.toTimeString().slice(0, 5) : '',
+      local: order.request.address,
+      cidade: order.request.city,
+      estado: order.request.state,
+      preco: Number(order.agreedPrice),
+      status: order.status,
+      proposalPrice: Number(order.proposal.price),
+      proposalMessage: order.proposal.message,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt
+    };
+  }
+}

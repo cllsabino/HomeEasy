@@ -1,9 +1,8 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -16,17 +15,16 @@ export class HomeComponent implements OnInit {
   userId: string;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private loginService: LoginServiceService,
     private router: Router
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
 
     if (currentUser) {
       this.authenticated = true;
-      this.userId = currentUser.uid;
+      this.userId = currentUser.uid || currentUser.id;
     }
   }
 

@@ -25,6 +25,14 @@ export class MarketplaceController {
     return this.marketplaceService.findOwnRequests(authenticatedUser.id);
   }
 
+  @Get('requests/:requestId')
+  findRequestById(
+    @Param('requestId', ParseUUIDPipe) requestId: string,
+    @AuthenticatedUser() authenticatedUser: PublicUser
+  ) {
+    return this.marketplaceService.findRequestById(requestId, authenticatedUser.id);
+  }
+
   @Post('requests/:requestId/attachments/:mediaId')
   attachRequestMedia(
     @Param('requestId', ParseUUIDPipe) requestId: string,

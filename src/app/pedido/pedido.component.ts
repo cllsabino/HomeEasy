@@ -1,21 +1,17 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { EnvironmentInjector, inject, Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { AngularFireStorage } from '@angular/fire/compat/storage';
-import { ActivatedRoute, Router, Params} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { Usuario } from './../Usuarios/usuario';
-import { Servico } from './../Usuarios/servico';
-import { OrderStatus, Pedido } from './../Usuarios/pedido';
-import { ServicoPedido } from './../Usuarios/serico-pedido';
-import { UsuarioService } from '../Servicos/usuario.service';
-import { ServicosService } from './../Servicos/servicos.service';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { ServicoPedidoService } from './../Servicos/servico-pedido.service';
+import { ServicosService } from './../Servicos/servicos.service';
+import { UsuarioService } from '../Servicos/usuario.service';
+import { OrderStatus, Pedido } from './../Usuarios/pedido';
+import { ServicoPedido } from './../Usuarios/serico-pedido';
+import { Servico } from './../Usuarios/servico';
+import { Usuario } from './../Usuarios/usuario';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -23,68 +19,66 @@ import { FeedbackType } from '../shared/action-feedback/action-feedback.componen
   templateUrl: './pedido.component.html',
   styleUrls: ['./pedido.component.css']
 })
-@RunInFirebaseInjectionContext
-export class PedidoComponent implements OnInit {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  pedido : Pedido = {} //dados do pedido
-  entrarSair : boolean;
-  userId : string; //id do cliente
-  serveID : string; //id do servico
-  serveIDSubscription : Subscription;
-  serve : Servico = {}; //servico que sera pedido
-  serveSubscription : Subscription;
-  usuarioID : string; //id do servidor
-  usuarioIDSubscription : Subscription;
-  servidor : Usuario = {}; //dados do servidor
-  servidorSubscription : Subscription;
-  cliente : Usuario = {}; //dados do cliente
-  clienteSubscription : Subscription;
-  servePedidoSubscription : Subscription;
-  servePedido : ServicoPedido = {}; //detalhes do serviço
+export class PedidoComponent implements OnInit, OnDestroy {
+  pedido: Pedido = {};
+  entrarSair: boolean;
+  userId: string;
+  serveID: string;
+  serveIDSubscription: Subscription;
+  serve: Servico = {};
+  serveSubscription: Subscription;
+  usuarioID: string;
+  usuarioIDSubscription: Subscription;
+  servidor: Usuario = {};
+  servidorSubscription: Subscription;
+  cliente: Usuario = {};
+  clienteSubscription: Subscription;
+  servePedidoSubscription: Subscription;
+  servePedido: ServicoPedido = {};
   today = new Date().toJSON().split('T')[0];
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
   isSubmitting = false;
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public storage : AngularFireStorage,
-    public router : Router,
-    public loginService : LoginServiceService,
-    public usuarioService : UsuarioService,
-    public servico : ServicosService, 
-    public servicoPedido : ServicoPedidoService,
-    public active : ActivatedRoute
-  ) { }
- 
+    public router: Router,
+    public loginService: LoginServiceService,
+    public usuarioService: UsuarioService,
+    public servico: ServicosService,
+    public servicoPedido: ServicoPedidoService,
+    public active: ActivatedRoute
+  ) {}
+
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.serveIDSubscription = this.active.params.subscribe(
-      (params : Params) => { this.serveID = params['id'] }
+      (params: Params) => { this.serveID = params['id']; }
     );
     this.usuarioIDSubscription = this.active.params.subscribe(
-      (params : Params) => { this.usuarioID = params['idd'] }
+      (params: Params) => { this.usuarioID = params['idd']; }
     );
     this.clienteSubscription = this.usuarioService.getUsuario(this.userId).subscribe(data => {
       this.cliente = data;
     });
     this.serveSubscription = this.servico.getUserServicoPorId(this.usuarioID, this.serveID).subscribe(data => {
-    this.serve = data;
+      this.serve = data;
     });
     this.servePedidoSubscription = this.servicoPedido.getDetalheServico(this.usuarioID, this.serveID).subscribe(data => {
-      this.servePedido = data;}
-    );
+      this.servePedido = data;
+    });
     this.servidorSubscription = this.servico.getServicoUsuario(this.serveID, this.usuarioID).subscribe(data => {
       this.servidor = data;
     });
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.serveIDSubscription?.unsubscribe();
     this.usuarioIDSubscription?.unsubscribe();
     this.clienteSubscription?.unsubscribe();
@@ -92,24 +86,27 @@ export class PedidoComponent implements OnInit {
     this.serveSubscription?.unsubscribe();
     this.servePedidoSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-  async addpedido(){
+
+  async addpedido() {
     if (this.isSubmitting) {
       return;
     }
 
-    if(this.userId != this.servidor.id){
+    if (this.userId !== this.servidor.id) {
       this.feedbackMessage = '';
       this.isSubmitting = true;
       this.pedido.nome = this.serve.nome;
-      this.pedido.id = this.afs.createId();
+      this.pedido.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
       this.pedido.idServidor = this.servidor.id;
       this.pedido.idContratante = this.cliente.id;
       this.pedido.preco = this.servePedido.preco;
@@ -127,11 +124,9 @@ export class PedidoComponent implements OnInit {
       } finally {
         this.isSubmitting = false;
       }
-    }else{
+    } else {
       this.feedbackType = 'error';
       this.feedbackMessage = 'Você não pode solicitar o próprio serviço.';
     }
   }
-
-
 }

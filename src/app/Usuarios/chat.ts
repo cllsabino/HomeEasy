@@ -1,6 +1,8 @@
 export class Chat {
-    mensagem? : String;
+    mensagem? : string;
     data? : number;
     id? : string;
     hora? : string;
+    senderId? : string;
+    readAt? : string;
 }

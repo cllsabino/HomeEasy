@@ -16,6 +16,7 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
     "seed:services": "ts-node src/database/seeds/service-catalog.seed.ts",
+    "db:seed:dev": "ts-node src/database/seeds/development.seed.ts",
     "seed:admin": "ts-node src/database/seeds/admin.seed.ts"
   },
   "dependencies": {

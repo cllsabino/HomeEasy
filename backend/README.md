@@ -1,6 +1,6 @@
 # Home Easy API
 
-Backend próprio do Home Easy. Esta API convive com o Firebase durante a migração gradual do produto.
+Backend próprio e fonte oficial de dados do Home Easy. Autenticação, marketplace, chat, arquivos e moderação não dependem do Firebase.
 
 ## Subir localmente
 
@@ -20,6 +20,14 @@ npm run migration:run
 npm run seed:services
 npm run start:dev
 ```
+
+Para preencher somente o ambiente local com um cliente, profissionais, pedidos concluídos e avaliações verificadas:
+
+```bash
+npm run db:seed:dev
+```
+
+O seed é idempotente e bloqueia execução quando `NODE_ENV=production`.
 
 A API fica disponível em `http://localhost:3000/api`.
 

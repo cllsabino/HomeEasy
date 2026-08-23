@@ -6,6 +6,12 @@ export enum ServiceRequestStatus {
   Expired = 'expired'
 }
 
+export enum ServiceUrgency {
+  Flexible = 'flexible',
+  ThisWeek = 'this_week',
+  Urgent = 'urgent'
+}
+
 export enum ProposalStatus {
   Sent = 'sent',
   Accepted = 'accepted',

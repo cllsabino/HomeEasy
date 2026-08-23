@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -10,6 +9,10 @@ import { FeedbackType } from '../../shared/action-feedback/action-feedback.compo
 import { ServiceProposal, ServiceProposalStatus, ServiceRequest } from '../../shared/models/service-request';
 import { OrderStatus } from '../../Usuarios/pedido';
 import { getStatusClass, getStatusLabel } from '../../shared/utils/order-status.utils';
+import {
+  CancellationReason,
+  clientCancellationReasons
+} from '../../shared/models/cancellation-reason';
 
 @Component({
   standalone: false,
@@ -30,6 +33,9 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
   isConfirmingCancellation = false;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
+  cancellationReason = CancellationReason.ServiceNoLongerNeeded;
+  cancellationDetails = '';
+  readonly cancellationReasons = clientCancellationReasons;
   readonly sentProposalStatus = ServiceProposalStatus.Sent;
   readonly acceptedProposalStatus = ServiceProposalStatus.Accepted;
   private routeSubscription: Subscription;
@@ -37,7 +43,6 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
   private proposalsSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private activeRoute: ActivatedRoute,
     private loginService: LoginServiceService,
     private requestService: ServiceRequestService,
@@ -45,7 +50,7 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {
@@ -97,7 +102,12 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
     try {
-      await this.requestService.cancelRequest(this.request, this.userId);
+      await this.requestService.cancelRequest(
+        this.request,
+        this.userId,
+        this.cancellationReason,
+        this.cancellationDetails
+      );
       this.feedbackType = 'success';
       this.feedbackMessage = 'Solicitação cancelada e mantida no seu histórico.';
     } catch (error) {

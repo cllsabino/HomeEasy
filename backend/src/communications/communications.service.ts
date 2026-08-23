@@ -6,8 +6,10 @@ import { Order } from '../marketplace/order.entity';
 import { MediaPurpose } from '../storage/media-purpose.enum';
 import { StorageService } from '../storage/storage.service';
 import { SendMessageDto } from './dto/send-message.dto';
+import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { MessageType, NotificationType } from './communication.enums';
 import { validateMessage } from './communication.utils';
+import { ContactMessage } from './contact-message.entity';
 import { Conversation } from './conversation.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
@@ -34,6 +36,8 @@ export class CommunicationsService {
     private readonly presenceRepository: Repository<UserPresence>,
     @InjectRepository(Order)
     private readonly ordersRepository: Repository<Order>,
+    @InjectRepository(ContactMessage)
+    private readonly contactMessagesRepository: Repository<ContactMessage>,
     private readonly storageService: StorageService
   ) {}
 
@@ -167,7 +171,7 @@ export class CommunicationsService {
           dto.type === MessageType.Budget
             ? 'Você recebeu um novo orçamento.'
             : 'Você recebeu uma nova mensagem.',
-        actionUrl: `/conversas/${conversationId}`
+        actionUrl: '/conversas'
       });
       return savedMessage;
     });
@@ -251,6 +255,24 @@ export class CommunicationsService {
     }
     notification.readAt = notification.readAt || new Date();
     return this.notificationsRepository.save(notification);
+  }
+
+  async createContactMessage(dto: CreateContactMessageDto) {
+    const contactMessage = this.contactMessagesRepository.create({
+      name: dto.name.trim(),
+      email: dto.email.trim().toLowerCase(),
+      phone: dto.phone.trim(),
+      subject: dto.subject.trim(),
+      message: dto.message.trim()
+    });
+    return this.contactMessagesRepository.save(contactMessage);
+  }
+
+  findContactMessages() {
+    return this.contactMessagesRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 100
+    });
   }
 
   private async findAccessibleConversation(conversationId: string, userId: string) {

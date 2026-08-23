@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -39,7 +38,6 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
   private metricsSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private loginService: LoginServiceService,
     private metricsService: MarketplaceMetricsService,
     private router: Router,
@@ -47,7 +45,7 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.userId = currentUser ? currentUser.uid : '';
     this.professionalsSubscription = this.verificationService.getPendingProfessionals().subscribe(professionals => {
       this.professionals = professionals;
@@ -71,6 +69,23 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
     this.reviewNote = '';
   }
 
+  async openDocument(professional: Usuario) {
+    if (!professional.verificationMediaId) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'O documento privado não foi encontrado.';
+      return;
+    }
+    try {
+      const downloadUrl = await this.verificationService.getDocumentDownloadUrl(
+        professional.verificationMediaId
+      );
+      window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'Não foi possível abrir o documento privado.';
+    }
+  }
+
   dismissReview() {
     this.selectedProfessional = null;
     this.reviewNote = '';
@@ -85,7 +100,7 @@ export class AdminVerificationComponent implements OnInit, OnDestroy {
     try {
       await this.verificationService.reviewVerification(
         this.userId,
-        this.selectedProfessional.id,
+        this.selectedProfessional.verificationDocumentId,
         this.reviewApproved,
         this.reviewNote
       );

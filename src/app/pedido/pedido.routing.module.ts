@@ -15,7 +15,7 @@ import { ServiceRequestFormComponent } from './service-request-form/service-requ
 import { ServiceRequestListComponent } from './service-request-list/service-request-list.component';
 
 const pedidoRoutes : Routes = [
-    {path : 'serviço/:id/usuario/:idd/pedido', component : PedidoComponent, canActivate : [AuthGuardGuard] },
+    {path : 'serviço/:id/usuario/:idd/pedido', redirectTo : 'solicitar/:id', pathMatch : 'full' },
     {path : 'pedido-info', component : PedidoInfoComponent },
     {path : 'usuario/:id/pedidos-feitos', component : PedidoFeitoComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-feitos/:idd', component : PedidoFeitoDetalheComponent, canActivate : [AuthGuardGuard] },

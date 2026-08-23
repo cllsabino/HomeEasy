@@ -1,13 +1,11 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { ServicosService } from '../../Servicos/servicos.service';
 import { LoginServiceService } from '../../Servicos/login-service.service';
+import { ServicosService } from '../../Servicos/servicos.service';
 import { Servico } from './../../Usuarios/servico';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -15,33 +13,34 @@ import { Servico } from './../../Usuarios/servico';
   templateUrl: './procurar-servico.component.html',
   styleUrls: ['./procurar-servico.component.css']
 })
-export class ProcurarServicoComponent implements OnInit {
-  entrarSair : boolean;
-  userId : string;
-  nomeDoServico : string;
-  nomeDoServicoSubscription : Subscription;
+export class ProcurarServicoComponent implements OnInit, OnDestroy {
+  entrarSair: boolean;
+  userId: string;
+  nomeDoServico: string;
+  nomeDoServicoSubscription: Subscription;
   servicosArray = new Array<Servico>();
-  servicosArraySubscription : Subscription; 
+  servicosArraySubscription: Subscription;
   servicosDisponiveis = new Array<Servico>();
-  servicosDisponiveisSubscription : Subscription; 
+  servicosDisponiveisSubscription: Subscription;
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public loginService : LoginServiceService,
-    public servicoService : ServicosService, 
-    public router : Router,
-    public active : ActivatedRoute
+    public loginService: LoginServiceService,
+    public servicoService: ServicosService,
+    public router: Router,
+    public active: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    } else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.nomeDoServicoSubscription = this.active.params.subscribe(
-      (params : Params) => { this.nomeDoServico = params['nome'] }
+      (params: Params) => { this.nomeDoServico = params['nome']; }
     );
     if (this.nomeDoServico) {
       this.servicosArraySubscription = this.servicoService.getServicoPorNome(this.nomeDoServico).subscribe(data => {
@@ -52,18 +51,20 @@ export class ProcurarServicoComponent implements OnInit {
       this.servicosDisponiveis = data;
     });
   }
-  ngOnDestroy(){
+
+  ngOnDestroy() {
     this.nomeDoServicoSubscription?.unsubscribe();
     this.servicosArraySubscription?.unsubscribe();
     this.servicosDisponiveisSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-
 }

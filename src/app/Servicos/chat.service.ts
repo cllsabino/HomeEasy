@@ -1,98 +1,111 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
-import { map } from "rxjs/operators"
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
-import { ServicoPedido } from './../Usuarios/serico-pedido';
-import { Servico } from '../Usuarios/servico';
-import { Usuario } from 'src/app/Usuarios/usuario';
-import { Pedido } from 'src/app/Usuarios/pedido';
-import { Chat } from 'src/app/Usuarios/chat';
+import { environment } from '../../environments/environment';
+import { Chat } from '../Usuarios/chat';
+import { Usuario } from '../Usuarios/usuario';
+import { ApiSessionService } from './api-session.service';
 
-@Injectable({
-    providedIn: 'root'
-  })
+interface ApiConversation {
+  id: string;
+  otherUser: { id: string; name: string };
+  unreadCount: number;
+  lastMessageAt?: string;
+}
 
-@RunInFirebaseInjectionContext
+interface ApiMessage {
+  id: string;
+  senderId: string;
+  content?: string;
+  budgetAmount?: string;
+  createdAt: string;
+  readAt?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ChatService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  chatCollection: AngularFirestoreCollection;
-  contatosCollection : AngularFirestoreCollection;
+  constructor(private http: HttpClient, private sessionService: ApiSessionService) {}
 
-  constructor(public afs : AngularFirestore) {
-    this.chatCollection = this.afs.collection('Chat');
-    this.contatosCollection = this.afs.collection('Contatos');
+  addMensagem(clientId: string, professionalId: string, message: Chat) {
+    return this.sendMessageByParticipant(professionalId, message);
   }
- //adiciona uma mensagem ao chat de um usuario
- addMensagem(cliente : string, servidor : string, mensagem : Chat){
-    const batch = this.afs.firestore.batch();
-    const messageId = this.afs.createId();
-    const clientMessageReference = this.chatCollection.doc(cliente).collection('Contato').doc(servidor).collection('Mensagens').doc(messageId).ref;
-    const professionalMessageReference = this.chatCollection.doc(servidor).collection('Contato').doc(cliente).collection('Mensagens').doc(messageId).ref;
 
-    batch.set(clientMessageReference, mensagem);
-    batch.set(professionalMessageReference, mensagem);
+  getMensagens(clientId: string, professionalId: string) {
+    return this.findConversation(professionalId).pipe(
+      switchMap(conversation =>
+        this.http.get<ApiMessage[]>(
+          `${environment.apiUrl}/conversations/${conversation.id}/messages`
+        )
+      ),
+      map(messages => messages.map(message => this.toChat(message)))
+    );
+  }
 
-    return batch.commit();
- } 
- //pega as mensagens de uma conversa
- getMensagens(cliente : string, servidor : string){
-    return this.chatCollection.doc(cliente).collection('Contato').doc(servidor).collection('Mensagens', ref => ref.orderBy('data', 'asc')).snapshotChanges().
-      pipe(map (actions => {
-        return actions.map(a => {
-          const data = a.payload.doc.data() as Chat;
-          const id = a.payload.doc.id;
+  addCliente(client: Usuario, professional: Usuario) {
+    return Promise.resolve({ clientId: client.id, professionalId: professional.id });
+  }
 
-          return { id, ...data};
-        })
+  sendMessage(client: Usuario, professional: Usuario, message: Chat) {
+    const otherUserId = this.getOtherUserId(client, professional);
+    return this.sendMessageByParticipant(otherUserId, message);
+  }
+
+  async deleteContato(client: Usuario, professional: Usuario) {
+    const blockedUserId = this.getOtherUserId(client, professional);
+    await firstValueFrom(this.http.put(`${environment.apiUrl}/blocks/${blockedUserId}`, {}));
+  }
+
+  getContatos(userId: string) {
+    return this.http.get<ApiConversation[]>(`${environment.apiUrl}/conversations`).pipe(
+      map(conversations =>
+        conversations.map(conversation => ({
+          id: conversation.otherUser.id,
+          nome: conversation.otherUser.name,
+          conversationId: conversation.id,
+          unreadMessageCount: conversation.unreadCount
+        } as Usuario))
+      )
+    );
+  }
+
+  private async sendMessageByParticipant(otherUserId: string, message: Chat) {
+    const conversation = await firstValueFrom(this.findConversation(otherUserId));
+    return firstValueFrom(
+      this.http.post(`${environment.apiUrl}/conversations/${conversation.id}/messages`, {
+        type: 'text',
+        content: message.mensagem
       })
     );
- }
- //add a conversa na lista de contatos 
- addCliente(cliente : Usuario, servidor : Usuario){
-   const batch = this.afs.firestore.batch();
-   const professionalContactReference = this.contatosCollection.doc(servidor.id).collection('Lista').doc(cliente.id).ref;
-   const clientContactReference = this.contatosCollection.doc(cliente.id).collection('Lista').doc(servidor.id).ref;
+  }
 
-   batch.set(professionalContactReference, cliente);
-   batch.set(clientContactReference, servidor);
-
-   return batch.commit();
- }
-
- sendMessage(cliente : Usuario, servidor : Usuario, mensagem : Chat){
-   const batch = this.afs.firestore.batch();
-   const messageId = this.afs.createId();
-   const clientMessageReference = this.chatCollection.doc(cliente.id).collection('Contato').doc(servidor.id).collection('Mensagens').doc(messageId).ref;
-   const professionalMessageReference = this.chatCollection.doc(servidor.id).collection('Contato').doc(cliente.id).collection('Mensagens').doc(messageId).ref;
-   const professionalContactReference = this.contatosCollection.doc(servidor.id).collection('Lista').doc(cliente.id).ref;
-   const clientContactReference = this.contatosCollection.doc(cliente.id).collection('Lista').doc(servidor.id).ref;
-
-   batch.set(clientMessageReference, mensagem);
-   batch.set(professionalMessageReference, mensagem);
-   batch.set(professionalContactReference, cliente);
-   batch.set(clientContactReference, servidor);
-
-   return batch.commit();
- }
- //exclui um contato da lista
- deleteContato(cliente : Usuario, servidor : Usuario){
-  this.contatosCollection.doc(servidor.id).collection('Lista').doc(cliente.id).delete;
-  this.contatosCollection.doc(cliente.id).collection('Lista').doc(servidor.id).delete;
- }
- //retorna usuarios da lista de conversa 
- getContatos(id : string){
-  return this.contatosCollection.doc(id).collection('Lista').snapshotChanges(). 
-    pipe(map (actions => {
-      return actions.map(a => {
-        const data = a.payload.doc.data() as Usuario;
-        const id = a.payload.doc.id;
-
-        return { id, ...data};
+  private findConversation(otherUserId: string) {
+    return this.http.get<ApiConversation[]>(`${environment.apiUrl}/conversations`).pipe(
+      map(conversations => {
+        const conversation = conversations.find(current => current.otherUser.id === otherUserId);
+        if (!conversation) {
+          throw new Error('Nenhuma conversa ativa foi encontrada com este usuário.');
+        }
+        return conversation;
       })
-    })
-  );
- }
- 
+    );
+  }
+
+  private toChat(message: ApiMessage): Chat {
+    const createdAt = new Date(message.createdAt);
+    return {
+      id: message.id,
+      mensagem: message.content || (message.budgetAmount ? `Orçamento: R$ ${message.budgetAmount}` : ''),
+      data: createdAt.getTime(),
+      hora: createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      senderId: message.senderId,
+      readAt: message.readAt
+    };
+  }
+
+  private getOtherUserId(client: Usuario, professional: Usuario) {
+    const currentUserId = this.sessionService.currentUser?.id;
+    return client.id === currentUserId ? professional.id : client.id;
+  }
 }

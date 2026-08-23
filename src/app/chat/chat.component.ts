@@ -1,18 +1,16 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
-import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { ActivatedRoute, Router, Params} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { Usuario } from './../Usuarios/usuario';
-import { Chat } from './../Usuarios/chat';
-import { UsuarioService } from '../Servicos/usuario.service';
-import { ServicosService } from './../Servicos/servicos.service';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { ServicoPedidoService } from './../Servicos/servico-pedido.service';
+import { ServicosService } from './../Servicos/servicos.service';
+import { UsuarioService } from '../Servicos/usuario.service';
 import { ChatService } from './../Servicos/chat.service';
+import { Chat } from './../Usuarios/chat';
+import { Usuario } from './../Usuarios/usuario';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -20,59 +18,61 @@ import { FeedbackType } from '../shared/action-feedback/action-feedback.componen
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit {
-  servidor : Usuario = {}; //info do servidor
-  servidorSubscription : Subscription;
-  servidorId : string; //id do servidor
-  servidorIdSubscription : Subscription;
-  entrarSair : boolean;
-  mensagensArray = new Array<Chat>(); //array com as mensagens
-  mensagensArraySubscription : Subscription;
-  mensagem : Chat = {}; //mensagem que vai ser enviada
-  userId : string; //id do cliente
-  usuario : Usuario = {}; //info do cliente
-  userSubscription : Subscription;
+export class ChatComponent implements OnInit, OnDestroy {
+  servidor: Usuario = {};
+  servidorSubscription: Subscription;
+  servidorId: string;
+  servidorIdSubscription: Subscription;
+  entrarSair: boolean;
+  mensagensArray = new Array<Chat>();
+  mensagensArraySubscription: Subscription;
+  mensagem: Chat = {};
+  userId: string;
+  usuario: Usuario = {};
+  userSubscription: Subscription;
   feedbackMessage = '';
   feedbackType: FeedbackType = 'error';
   isSending = false;
 
   constructor(
-    public afs : AngularFirestore, 
-    public afAuth : AngularFireAuth,
-    public loginService : LoginServiceService,
-    public servico : ServicosService, 
-    public servicoPedido : ServicoPedidoService,
-    public usuarioService : UsuarioService,
-    public chatService : ChatService,
-    public router : Router,
-    public active : ActivatedRoute
-  ) { }
+    public loginService: LoginServiceService,
+    public servico: ServicosService,
+    public servicoPedido: ServicoPedidoService,
+    public usuarioService: UsuarioService,
+    public chatService: ChatService,
+    public router: Router,
+    public active: ActivatedRoute
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
 
     this.servidorIdSubscription = this.active.params.subscribe(
-      (params : Params) => { this.servidorId = params['id'] }
+      (params: Params) => { this.servidorId = params['id']; }
     );
     this.servidorSubscription = this.usuarioService.getUserWithProfilePhoto(this.servidorId).subscribe(data => {
-      this.servidor = data; 
+      this.servidor = data;
     });
     this.userSubscription = this.usuarioService.getUserWithProfilePhoto(this.userId).subscribe(data => {
-      this.usuario = data; 
+      this.usuario = data;
     });
     this.mensagensArraySubscription = this.chatService.getMensagens(this.userId, this.servidorId).subscribe(data => {
       this.mensagensArray = data;
     });
   }
-  async enviarMensagem(){
+
+  async enviarMensagem() {
     if (this.isSending) {
       return;
     }
 
-    if(this.usuario.id === this.servidor.id){
+    if (this.usuario.id === this.servidor.id) {
       this.feedbackType = 'error';
       this.feedbackMessage = 'Você não pode enviar uma mensagem para si mesmo.';
       return;
@@ -99,19 +99,21 @@ export class ChatComponent implements OnInit {
       this.isSending = false;
     }
   }
-  ngOnDestroy(){
+
+  ngOnDestroy() {
     this.servidorIdSubscription?.unsubscribe();
     this.servidorSubscription?.unsubscribe();
     this.mensagensArraySubscription?.unsubscribe();
     this.userSubscription?.unsubscribe();
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
-
 }

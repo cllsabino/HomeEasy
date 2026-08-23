@@ -1,6 +1,5 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -23,14 +22,13 @@ export class ServiceRequestListComponent implements OnInit, OnDestroy {
   private requestsSubscription: Subscription;
 
   constructor(
-    private afAuth: AngularFireAuth,
     private loginService: LoginServiceService,
     private requestService: ServiceRequestService,
     private router: Router
   ) { }
 
   ngOnInit() {
-    const currentUser = getCurrentFirebaseUser();
+    const currentUser = getCurrentUser();
     this.authenticated = currentUser != null;
     this.userId = currentUser ? currentUser.uid : '';
     this.requestsSubscription = this.requestService.getClientRequests(this.userId).subscribe(requests => {

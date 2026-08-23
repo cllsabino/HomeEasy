@@ -1,9 +1,8 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -12,28 +11,31 @@ import { LoginServiceService } from '../Servicos/login-service.service';
   styleUrls: ['./sobre-nos.component.css']
 })
 export class SobreNosComponent implements OnInit {
-  entrarSair : boolean;
-  userId : string;
+  entrarSair: boolean;
+  userId: string;
 
   constructor(
-    public afAuth : AngularFireAuth, 
-    public loginService : LoginServiceService,
-    public router : Router
-  ) { }
+    public loginService: LoginServiceService,
+    public router: Router
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    }else this.entrarSair = false;
-  }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
     }
   }
 
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
+    }
+  }
 }

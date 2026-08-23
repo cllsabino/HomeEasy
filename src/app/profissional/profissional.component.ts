@@ -1,14 +1,10 @@
-import { getCurrentFirebaseUser } from '../shared/utils/firebase-auth.utils';
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../Servicos/login-service.service';
-import { UsuarioService } from '../Servicos/usuario.service';
 import { ServicosService } from '../Servicos/servicos.service';
-import { Usuario } from './../Usuarios/usuario';
-import { Servico } from './../Usuarios/servico';
+import { UsuarioService } from '../Servicos/usuario.service';
+import { getCurrentUser } from '../shared/utils/session-user.utils';
 
 @Component({
   standalone: false,
@@ -17,29 +13,33 @@ import { Servico } from './../Usuarios/servico';
   styleUrls: ['./profissional.component.css']
 })
 export class ProfissionalComponent implements OnInit {
- entrarSair : boolean;
- userId : string; 
+  entrarSair: boolean;
+  userId: string;
 
-  constructor( 
-    public servico : ServicosService, 
-    public loginService : LoginServiceService,
-    public usuarioService : UsuarioService,
-    public afAuth : AngularFireAuth,
-    public router : Router,
-  ) { }
+  constructor(
+    public servico: ServicosService,
+    public loginService: LoginServiceService,
+    public usuarioService: UsuarioService,
+    public router: Router
+  ) {}
 
   ngOnInit() {
-    if(getCurrentFirebaseUser() != null){
+    const currentUser = getCurrentUser();
+    if (currentUser != null) {
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
-    } else this.entrarSair = false;
+      this.userId = currentUser.uid || currentUser.id;
+    } else {
+      this.entrarSair = false;
+    }
   }
-  async sair(){
-    try{
-      await this.loginService.sair().then(
-        (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+
+  async sair() {
+    try {
+      await this.loginService.sair().then(() => {
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      return;
     }
   }
 }

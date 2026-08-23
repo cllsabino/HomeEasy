@@ -9,7 +9,8 @@
 
   [![Angular](https://img.shields.io/badge/Angular-20.3-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![Firebase](https://img.shields.io/badge/Firebase-Hosting%20%2B%20Firestore-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+  [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL%20%2B%20PostGIS-17-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
   [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
   [![Status](https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-164E63)](#roadmap)
 
@@ -82,10 +83,10 @@ A atualização não se limitou a trocar cores ou aplicar CSS. A interface foi r
 | Camada | Tecnologias |
 | --- | --- |
 | Interface | Angular 20, TypeScript 5.9, HTML5 e CSS3 |
-| Autenticação | Firebase Authentication |
-| Dados | Cloud Firestore e Firebase Realtime Database |
-| Backend próprio | NestJS 11, PostgreSQL/PostGIS e MinIO |
-| Hospedagem | Firebase Hosting |
+| Autenticação | JWT com access token, refresh token e recuperação por e-mail |
+| Dados e geolocalização | PostgreSQL 17 e PostGIS |
+| Backend próprio | NestJS 11, TypeORM, MinIO e Mailpit local |
+| Arquivos privados | MinIO com URLs assinadas e controle de acesso |
 | Mapas | Leaflet, OpenStreetMap e Nominatim |
 | Testes | Jasmine, Karma e Jest |
 
@@ -108,8 +109,8 @@ src/app/
 
 ### Pré-requisitos
 
-- [Node.js 22](https://nodejs.org/) e npm instalados.
-- Um projeto Firebase configurado para usar os recursos de autenticação e dados.
+- Node.js 20.20.2 ou superior, npm e Docker instalados.
+- Portas locais 3000, 4200, 5435, 9000, 9001, 1025 e 8025 disponíveis.
 
 ### Instalação
 
@@ -132,50 +133,27 @@ Com o servidor iniciado, acesse **http://localhost:4200**. O Angular recompila a
 | `npm run backend:start` | Inicia a API NestJS em modo de desenvolvimento |
 | `npm run backend:test` | Executa os testes da API com Jest |
 
-## 🔥 Firebase
+## 🧱 Backend próprio
 
-Os ambientes ficam em `src/environments/`. Para usar outro projeto Firebase, substitua a configuração nos arquivos de ambiente e habilite os serviços necessários no console do Firebase.
-
-O deploy utiliza o diretório `dist/HomeEasy` e mantém o roteamento da SPA por meio das regras definidas em `firebase.json`.
+O redesign usa uma API NestJS e não possui dependências do Firebase. PostgreSQL/PostGIS mantém contas, perfis, serviços, solicitações, propostas, pedidos, avaliações, favoritos, conversas, notificações e moderação. O MinIO guarda anexos e documentos privados; em desenvolvimento, o Mailpit recebe os e-mails de recuperação de senha.
 
 ```bash
-npm run build:prod
-firebase deploy --only hosting
+docker compose -f docker-compose.backend.yml --env-file backend/.env up -d
+cd backend
+npm run migration:run
+npm run seed:services
+npm run start:dev
 ```
 
-As regras em `firestore.rules` separam dados privados em `Usuarios` dos dados públicos em `PublicProfiles`, restringem alterações de pedidos aos participantes e protegem a revisão de profissionais com papel administrativo. Solicitações e propostas vencidas são tratadas pela própria aplicação e pelas transações, sem Cloud Functions ou Cloud Scheduler.
-
-### Backend independente do legado
-
-O redesign usa o projeto `homeeasy-bd496`, enquanto a versão original continua no `homeeasy-52792`. Essa separação mantém autenticação, dados, regras e funções do produto novo sem alterar o sistema legado.
-
-O projeto novo começa com seu próprio catálogo. As contas antigas só podem ser transferidas com acesso administrativo ao projeto de origem e com a exportação oficial do Firebase Authentication; sem essa permissão, cada usuário deve criar uma conta nova no redesign.
-
-1. Habilite autenticação por e-mail e senha no projeto novo.
-2. Mantenha o projeto no plano Spark; o Home Easy não depende de Cloud Functions nem Cloud Storage.
-3. Gere uma credencial administrativa do projeto novo e mantenha o JSON fora do repositório.
-4. Use Node.js 22 e execute os utilitários locais no PowerShell:
-
-```powershell
-$env:GOOGLE_APPLICATION_CREDENTIALS="C:\caminho\seguro\service-account.json"
-cd functions
-npm ci
-npm run seed:services -- --project homeeasy-bd496
-npm run bootstrap -- --project homeeasy-bd496 --admin-email seu-email@exemplo.com
-cd ..
-```
-
-O administrador precisa criar sua conta no redesign antes do comando `bootstrap`. O script gera `PublicProfiles` para as contas já cadastradas no projeto novo, atribui o papel administrativo e registra a conclusão em `SystemMigrations/publicProfilesV1`.
-
-5. Confirme os documentos `SystemMigrations/serviceCatalogV1` e `SystemMigrations/publicProfilesV1`.
-6. Publique na ordem abaixo:
+Em outro terminal:
 
 ```bash
-firebase deploy --only firestore:indexes
-firebase deploy --only firestore:rules
+npm start
 ```
 
-> Nunca versione a credencial administrativa. O `.gitignore` bloqueia nomes comuns de arquivos de service account, mas a chave deve permanecer em uma pasta segura fora do projeto. O papel `admin` nunca é atribuído pelo cliente Angular. Para preservar senhas antigas, use `firebase auth:export` e `firebase auth:import` somente após receber acesso formal ao projeto legado e obter seus parâmetros de hash.
+O frontend usa `http://localhost:3000/api` no desenvolvimento e `/api` no build de produção. Em produção, configure um proxy reverso para servir a SPA e encaminhar `/api` à aplicação NestJS. Os segredos de JWT, PostgreSQL, MinIO e SMTP devem ficar apenas no ambiente do servidor.
+
+O sistema legado continua independente em `homeeasy-52792.web.app`; nenhuma tabela ou conta do backend novo altera essa versão. Uma migração futura de contas legadas precisa ser planejada separadamente, pois senhas não devem ser copiadas em texto puro.
 
 ## 🛣️ Roadmap
 
@@ -188,13 +166,13 @@ firebase deploy --only firestore:rules
 - [x] Disponibilidade profissional e validade de oportunidades
 - [x] Fluxo de verificação e painel de indicadores administrativos
 - [x] Separação entre perfil privado e perfil público
-- [x] Separar o backend do redesign do projeto Firebase legado
-- [x] Criar a primeira conta no backend novo e concluir o bootstrap administrativo
-- [ ] Persistir coordenadas no Firebase para reduzir geocodificação externa
+- [x] Separar completamente o redesign do Firebase legado
+- [x] Implementar autenticação JWT e perfil privado no backend próprio
+- [x] Persistir coordenadas e busca por raio com PostgreSQL/PostGIS
 - [x] Atualizar o projeto para Angular 20, TypeScript 5.9 e RxJS 7
 - [ ] Ampliar a cobertura de testes automatizados
-- [x] Remover dependências de infraestrutura paga e manter compatibilidade com o plano Spark
-- [ ] Migrar gradualmente para uma API própria com banco relacional
+- [x] Remover dependências de infraestrutura paga do fluxo local
+- [x] Migrar os fluxos principais para uma API própria com banco relacional
 
 ## 🤝 Contribuindo
 

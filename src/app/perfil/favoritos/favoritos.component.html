@@ -1,0 +1,27 @@
+<app-navbar [authenticated]="authenticated" [userId]="userId" (logout)="logout()"></app-navbar>
+<main class="app-page">
+  <div class="page-shell">
+    <header class="page-heading">
+      <div class="page-heading-copy"><span class="page-kicker">Sua seleção</span><h1>Profissionais favoritos</h1><p>Encontre novamente quem você salvou para comparar ou contratar depois.</p></div>
+      <a class="button-primary" routerLink="/feed">Encontrar profissionais</a>
+    </header>
+    <app-action-feedback [message]="feedbackMessage" [type]="feedbackType"></app-action-feedback>
+    <app-loading-state *ngIf="isLoading" message="Carregando favoritos..."></app-loading-state>
+    <section class="entity-grid" *ngIf="!isLoading && favorites.length">
+      <article class="entity-card" *ngFor="let favorite of favorites">
+        <span class="icon-badge" aria-hidden="true">♡</span>
+        <h2>{{ favorite.professional.name }}</h2>
+        <p>{{ favorite.professional.bio }}</p>
+        <p><strong>{{ favorite.professional.city }}, {{ favorite.professional.state }}</strong></p>
+        <p *ngIf="favorite.professional.metrics">{{ favorite.professional.metrics.averageRating || 'Novo' }} de avaliação · {{ favorite.professional.metrics.completedServices }} serviço(s) concluído(s)</p>
+        <div class="card-actions">
+          <a class="button-primary" [routerLink]="['/usuario', favorite.professional.id]">Ver perfil</a>
+          <button class="button-secondary" type="button" [disabled]="!!removingProfessionalId" (click)="removeFavorite(favorite.professional.id)">{{ removingProfessionalId === favorite.professional.id ? 'Removendo...' : 'Remover' }}</button>
+        </div>
+      </article>
+    </section>
+    <section class="empty-state" *ngIf="!isLoading && !favorites.length">
+      <div class="empty-state-content"><span class="icon-badge">♡</span><h2>Nenhum favorito ainda</h2><p>Salve bons profissionais para encontrá-los rapidamente depois.</p><a class="button-primary" routerLink="/feed">Explorar serviços</a></div>
+    </section>
+  </div>
+</main>

@@ -1,43 +1,50 @@
-import { RunInFirebaseInjectionContext } from '../shared/utils/firebase-injection-context.utils';
-import { EnvironmentInjector, inject, Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
-import { Usuario } from '../Usuarios/usuario';
-import { Pedido } from 'src/app/Usuarios/pedido';
-import { Avaliacao } from './../Usuarios/avaliacao';
+import { environment } from '../../environments/environment';
+import { Avaliacao } from '../Usuarios/avaliacao';
 
-@Injectable({
-  providedIn: 'root'
-})
-@RunInFirebaseInjectionContext
+interface ApiReviewsResponse {
+  reviews: Array<{
+    id: string;
+    orderId: string;
+    clientName: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+  }>;
+}
+
+@Injectable({ providedIn: 'root' })
 export class AvalicaoService {
-  readonly firebaseEnvironmentInjector = inject(EnvironmentInjector);
-  usuarioCollection : AngularFirestoreCollection<Usuario>;
-  
-  constructor(private afs : AngularFirestore) {  
-    this.usuarioCollection = this.afs.collection('Usuarios');
-    }
- //pega as avaliações de um serviço de um profissional
-  getAvaliacoes(idServidor : string, idServico : string){
-   return this.usuarioCollection.doc(idServidor).collection('Serviços').doc(idServico)
-    .collection('Avaliações').snapshotChanges().pipe(map(
-      actions => {
-        return actions.map(a => {
-          const data = a.payload.doc.data() as Avaliacao
-          const id = a.payload.doc.id;
+  constructor(private http: HttpClient) {}
 
-          return {id, ...data}
-        })
-    })
+  getAvaliacoes(professionalId: string, serviceId: string) {
+    return this.http
+      .get<ApiReviewsResponse>(`${environment.apiUrl}/professionals/${professionalId}/reviews`)
+      .pipe(
+        map(response =>
+          response.reviews.map(review => ({
+            idPedido: review.orderId,
+            nomeContratante: review.clientName,
+            idServidor: professionalId,
+            avaliacao: review.comment,
+            avaliacaoNota: review.rating,
+            idServico: serviceId,
+            data: review.createdAt
+          } as Avaliacao))
+        )
+      );
+  }
+
+  addAvaliacao(review: Avaliacao, professionalId: string, serviceId: string) {
+    return firstValueFrom(
+      this.http.post(`${environment.apiUrl}/orders/${review.idPedido}/reviews`, {
+        rating: Number(review.avaliacaoNota),
+        comment: review.avaliacao
+      })
     );
   }
-  //add uma avaliação ao serviço de um profissional
- addAvaliacao(avaliacao :Avaliacao, idServidor : string, idServico : string){
-    return this.usuarioCollection.doc(idServidor).collection('Serviços').doc(idServico)
-        .collection('Avaliações').doc(avaliacao.idPedido).set(avaliacao);
- }
-
 }

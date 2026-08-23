@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, QueryFailedError, Repository } from 'typeorm';
 
 import { normalizeEmail } from '../shared/utils/email.utils';
 import { normalizePhone } from '../shared/utils/phone.utils';
+import { normalizeDocument } from '../shared/utils/document.utils';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { UserProfile } from './user-profile.entity';
 import { User } from './user.entity';
@@ -55,34 +56,79 @@ export class UsersService {
       birthDate: profile?.birthDate || null,
       address: profile?.address || null,
       city: profile?.city || null,
-      state: profile?.state || null
+      state: profile?.state || null,
+      cpf: profile?.cpf || null,
+      cnpj: profile?.cnpj || null,
+      instagram: profile?.instagram || null,
+      facebook: profile?.facebook || null,
+      twitter: profile?.twitter || null,
+      website: profile?.website || null,
+      linkedin: profile?.linkedin || null
     };
   }
 
   async updateOwnProfile(userId: string, dto: UpdateUserProfileDto) {
-    await this.dataSource.transaction(async (manager) => {
-      if (dto.name) {
-        await manager.update(User, { id: userId }, { name: dto.name.trim() });
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        if (dto.name) {
+          await manager.update(User, { id: userId }, { name: dto.name.trim() });
+        }
+        const existingProfile = await manager.findOne(UserProfile, { where: { userId } });
+        const profile = existingProfile || manager.create(UserProfile, { userId });
+        if (dto.phone !== undefined) {
+          profile.phone = normalizePhone(dto.phone);
+        }
+        if (dto.birthDate !== undefined) {
+          profile.birthDate = dto.birthDate;
+        }
+        if (dto.address !== undefined) {
+          profile.address = dto.address.trim() || null;
+        }
+        if (dto.city !== undefined) {
+          profile.city = dto.city.trim() || null;
+        }
+        if (dto.state !== undefined) {
+          profile.state = dto.state.toUpperCase();
+        }
+        if (dto.cpf !== undefined) {
+          profile.cpf = dto.cpf ? normalizeDocument(dto.cpf) : null;
+          profile.cnpj = null;
+        }
+        if (dto.cnpj !== undefined) {
+          profile.cnpj = dto.cnpj ? normalizeDocument(dto.cnpj) : null;
+          profile.cpf = null;
+        }
+        if (dto.instagram !== undefined) {
+          profile.instagram = dto.instagram.trim() || null;
+        }
+        if (dto.facebook !== undefined) {
+          profile.facebook = dto.facebook.trim() || null;
+        }
+        if (dto.twitter !== undefined) {
+          profile.twitter = dto.twitter.trim() || null;
+        }
+        if (dto.website !== undefined) {
+          profile.website = dto.website.trim() || null;
+        }
+        if (dto.linkedin !== undefined) {
+          profile.linkedin = dto.linkedin.trim() || null;
+        }
+        await manager.save(profile);
+      });
+    } catch (error) {
+      if (error instanceof QueryFailedError && (error.driverError as { code?: string }).code === '23505') {
+        throw new ConflictException('O CPF ou CNPJ informado já pertence a outra conta.');
       }
-      const existingProfile = await manager.findOne(UserProfile, { where: { userId } });
-      const profile = existingProfile || manager.create(UserProfile, { userId });
-      if (dto.phone !== undefined) {
-        profile.phone = normalizePhone(dto.phone);
-      }
-      if (dto.birthDate !== undefined) {
-        profile.birthDate = dto.birthDate;
-      }
-      if (dto.address !== undefined) {
-        profile.address = dto.address.trim() || null;
-      }
-      if (dto.city !== undefined) {
-        profile.city = dto.city.trim() || null;
-      }
-      if (dto.state !== undefined) {
-        profile.state = dto.state.toUpperCase();
-      }
-      await manager.save(profile);
-    });
+      throw error;
+    }
     return this.findOwnProfile(userId);
+  }
+
+  async findPublicIdentity(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
+    if (!user) {
+      return null;
+    }
+    return { id: user.id, name: user.name, memberSince: user.createdAt };
   }
 }

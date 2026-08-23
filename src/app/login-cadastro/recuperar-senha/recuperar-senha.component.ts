@@ -1,7 +1,6 @@
-import { getCurrentFirebaseUser } from '../../shared/utils/firebase-auth.utils';
+import { getCurrentUser } from '../../shared/utils/session-user.utils';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { Usuario } from './../../Usuarios/usuario';
@@ -25,13 +24,12 @@ export class RecuperarSenhaComponent implements OnInit {
   constructor(
     public loginservico : LoginServiceService,
     public router : Router,
-    public afAuth : AngularFireAuth,
   ) { }
 
   ngOnInit() {    
-    if(getCurrentFirebaseUser() != null){
+    if(getCurrentUser() != null){
       this.entrarSair = true;
-      this.userId = getCurrentFirebaseUser().uid;
+      this.userId = getCurrentUser().uid;
     }else this.entrarSair = false
   }
 
@@ -59,8 +57,9 @@ export class RecuperarSenhaComponent implements OnInit {
     try{
       await this.loginservico.sair().then(
         (success) => {this.router.navigate(["/home"])});
-     }catch(error){
-       console.error(error);
+     } catch {
+       this.feedbackType = 'error';
+       this.feedbackMessage = 'Não foi possível encerrar a sessão. Tente novamente.';
     }
   }
 
