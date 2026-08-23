@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
+import { Public } from '../auth/public.decorator';
 import { PublicUser } from '../shared/utils/public-user.utils';
 import { CreateUploadDto } from './dto/create-upload.dto';
 import { StorageService } from './storage.service';
@@ -20,6 +22,13 @@ export class StorageController {
     @AuthenticatedUser() authenticatedUser: PublicUser
   ) {
     return this.storageService.completeUpload(mediaId, authenticatedUser.id);
+  }
+
+  @Public()
+  @Get(':mediaId/public')
+  async openPublicProfilePhoto(@Param('mediaId', ParseUUIDPipe) mediaId: string, @Res() response: Response) {
+    const downloadUrl = await this.storageService.createPublicProfilePhotoUrl(mediaId);
+    return response.redirect(downloadUrl);
   }
 
   @Get(':mediaId/download')

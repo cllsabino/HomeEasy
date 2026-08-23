@@ -38,8 +38,13 @@ export class ApiSessionService {
     );
   }
 
-  register(name: string, email: string, password: string) {
-    return this.http.post<ApiAuthResponse>(`${environment.apiUrl}/auth/register`, { name, email, password }).pipe(
+  register(name: string, email: string, password: string, birthDate: string) {
+    return this.http.post<ApiAuthResponse>(`${environment.apiUrl}/auth/register`, {
+      name,
+      email,
+      password,
+      birthDate
+    }).pipe(
       tap(response => this.updateSession(response)),
       map(() => this.currentUser)
     );

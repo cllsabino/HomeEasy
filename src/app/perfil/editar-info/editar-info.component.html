@@ -25,7 +25,7 @@
 
           <div class="field-group">
             <label for="profileBirthDate">Data de nascimento</label>
-            <input id="profileBirthDate" type="date" [(ngModel)]="usuario.birthDate" name="birthDate" autocomplete="bday">
+            <input id="profileBirthDate" type="date" [(ngModel)]="usuario.birthDate" name="birthDate" required [max]="maximumBirthDate" autocomplete="bday">
           </div>
 
           <div class="field-group">
@@ -80,14 +80,18 @@
         </div>
       </form>
 
-      <aside class="surface-card form-stack profile-photo-warning" aria-labelledby="profilePhotoTitle">
+      <aside class="surface-card form-stack profile-photo-card" aria-labelledby="profilePhotoTitle">
         <div>
           <span class="page-kicker">Imagem</span>
           <h2 id="profilePhotoTitle">Foto de perfil</h2>
         </div>
-        <div class="status-banner status-danger" role="status">
-          A alteração da foto de perfil está temporariamente indisponível. As demais informações do seu perfil continuam editáveis normalmente.
+        <div class="profile-photo-preview">
+          <img *ngIf="profilePhotoPreview" [src]="profilePhotoPreview" alt="Prévia da foto de perfil">
+          <span *ngIf="!profilePhotoPreview">{{ usuario.nome ? usuario.nome.charAt(0) : 'HE' }}</span>
         </div>
+        <label class="button-secondary profile-photo-picker" for="profilePhoto">Escolher foto</label>
+        <input class="visually-hidden" id="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp" (change)="onProfilePhotoSelection($event)">
+        <p class="field-help">JPG, PNG ou WEBP de até 5 MB. A nova foto será enviada ao salvar os dados.</p>
       </aside>
 
       <form class="surface-card form-stack profile-social-card" #socialForm="ngForm" (ngSubmit)="editarInfo()">

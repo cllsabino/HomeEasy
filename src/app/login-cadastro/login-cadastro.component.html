@@ -42,9 +42,9 @@
           <input id="registerName" type="text" [(ngModel)]="registrationUser.nome" name="registerName" required autocomplete="name">
         </div>
         <div class="field-group">
-          <label for="registerAge">Idade</label>
-          <input id="registerAge" type="number" [(ngModel)]="registrationUser.idade" name="age" required min="18" max="99" #registrationAge="ngModel">
-          <span class="field-error" *ngIf="registrationAge.invalid && registrationAge.touched">A idade deve estar entre 18 e 99 anos.</span>
+          <label for="registerBirthDate">Data de nascimento</label>
+          <input id="registerBirthDate" type="date" [(ngModel)]="registrationUser.birthDate" name="birthDate" required [max]="maximumBirthDate" autocomplete="bday" #registrationBirthDate="ngModel">
+          <span class="field-error" *ngIf="registrationBirthDate.invalid && registrationBirthDate.touched">É necessário informar uma data válida e ter pelo menos 18 anos.</span>
         </div>
         <div class="field-group">
           <label for="registerEmail">E-mail</label>

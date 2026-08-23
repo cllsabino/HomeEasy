@@ -5,12 +5,17 @@ import { Subscription } from 'rxjs';
 
 import { BrazilCity, BrazilLocationService, BrazilState } from '../../Servicos/brazil-location.service';
 import { LoginServiceService } from '../../Servicos/login-service.service';
+import { MediaPurpose, MediaUploadService } from '../../Servicos/media-upload.service';
 import { ServicosService } from '../../Servicos/servicos.service';
 import { UsuarioService } from '../../Servicos/usuario.service';
 import { Servico } from '../../Usuarios/servico';
 import { Usuario } from '../../Usuarios/usuario';
 import { formatCnpj, formatCpf, formatPhone, removeInputMask } from '../../shared/utils/input-mask.utils';
 import { NotificationService } from '../../shared/notification/notification.service';
+import { getLatestAdultBirthDate } from '../../shared/utils/birth-date.utils';
+
+const maximumProfilePhotoSize = 5 * 1024 * 1024;
+const allowedProfilePhotoTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 @Component({
   standalone: false,
@@ -37,6 +42,10 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   isCitiesLoading = false;
   locationFeedback = '';
   isSavingProfile = false;
+  maximumBirthDate = getLatestAdultBirthDate();
+  selectedProfilePhoto: File;
+  profilePhotoPreview = '';
+  private localProfilePhotoUrl = '';
 
   constructor(
     public router: Router,
@@ -44,6 +53,7 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     public servico: ServicosService,
     public loginService: LoginServiceService,
     private brazilLocationService: BrazilLocationService,
+    private mediaUploadService: MediaUploadService,
     private notificationService: NotificationService
   ) { }
 
@@ -58,6 +68,9 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     this.loadStates();
     this.userSubscription = this.usuarioService.getUsuario(this.userId).subscribe(user => {
       this.usuario = user || {};
+      if (!this.selectedProfilePhoto) {
+        this.profilePhotoPreview = this.usuario.foto || '';
+      }
       this.usesCpf = !this.usuario.cnpj;
       this.syncMaskedInputs();
       this.restoreLocationSelection();
@@ -72,6 +85,7 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     this.unsubscribe(this.servicosSubscription);
     this.unsubscribe(this.statesSubscription);
     this.unsubscribe(this.citiesSubscription);
+    this.releaseLocalProfilePhotoUrl();
   }
 
   updatePhone(value: string) {
@@ -87,6 +101,28 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   updateCnpj(value: string) {
     this.cnpjInput = formatCnpj(value);
     this.usuario.cnpj = removeInputMask(value, 14);
+  }
+
+  onProfilePhotoSelection(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const selectedFile = input.files?.[0];
+    if (!selectedFile) {
+      return;
+    }
+    if (!allowedProfilePhotoTypes.has(selectedFile.type)) {
+      input.value = '';
+      this.notificationService.showError('Formato não permitido', 'Escolha uma imagem JPG, PNG ou WEBP.');
+      return;
+    }
+    if (selectedFile.size > maximumProfilePhotoSize) {
+      input.value = '';
+      this.notificationService.showError('Imagem muito grande', 'A foto deve ter no máximo 5 MB.');
+      return;
+    }
+    this.releaseLocalProfilePhotoUrl();
+    this.selectedProfilePhoto = selectedFile;
+    this.localProfilePhotoUrl = URL.createObjectURL(selectedFile);
+    this.profilePhotoPreview = this.localProfilePhotoUrl;
   }
 
   selectState(stateCode: string) {
@@ -109,10 +145,22 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
     this.isSavingProfile = true;
     this.usuario.id = this.userId;
     try {
+      if (this.selectedProfilePhoto) {
+        this.usuario.profilePhotoMediaId = await this.mediaUploadService.uploadFile(
+          this.selectedProfilePhoto,
+          MediaPurpose.ProfilePhoto
+        );
+      }
       await this.usuarioService.saveUserProfile(this.usuario);
       if (this.servicosArray.length) {
         await this.servico.updateProfessionalProfile(this.usuario, this.servicosArray);
       }
+      if (this.usuario.profilePhotoMediaId) {
+        this.usuario.foto = this.usuarioService.getProfilePhotoUrl(this.usuario.profilePhotoMediaId);
+      }
+      this.selectedProfilePhoto = null;
+      this.releaseLocalProfilePhotoUrl();
+      this.profilePhotoPreview = this.usuario.foto || '';
       this.notificationService.showSuccess('Perfil atualizado', 'Suas informações foram salvas com sucesso.');
     } catch (error) {
       this.notificationService.showError('Não foi possível salvar', 'Verifique sua conexão e tente atualizar o perfil novamente.');
@@ -186,6 +234,13 @@ export class EditarInfoComponent implements OnInit, OnDestroy {
   private unsubscribe(subscription: Subscription) {
     if (subscription) {
       subscription.unsubscribe();
+    }
+  }
+
+  private releaseLocalProfilePhotoUrl() {
+    if (this.localProfilePhotoUrl) {
+      URL.revokeObjectURL(this.localProfilePhotoUrl);
+      this.localProfilePhotoUrl = '';
     }
   }
 }

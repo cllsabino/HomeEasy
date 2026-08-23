@@ -14,7 +14,12 @@ export class LoginServiceService {
 
   register(user: Usuario) {
     return firstValueFrom(
-      this.sessionService.register(user.nome || '', user.email || '', user.senha || '')
+      this.sessionService.register(
+        user.nome || '',
+        user.email || '',
+        user.senha || '',
+        user.birthDate || ''
+      )
     );
   }
 

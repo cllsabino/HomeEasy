@@ -30,6 +30,7 @@ export function toPublicProfessionalProfile(
   return {
     id: profile.userId,
     name: profile.user.name,
+    profilePhotoMediaId: profile.user.profile?.profilePhotoMediaId || null,
     bio: profile.bio,
     city: profile.city,
     state: profile.state,

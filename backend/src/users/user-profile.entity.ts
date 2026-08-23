@@ -7,7 +7,7 @@ export class UserProfile {
   @PrimaryColumn({ name: 'user_id', type: 'uuid' })
   userId: string;
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -16,6 +16,9 @@ export class UserProfile {
 
   @Column({ name: 'birth_date', type: 'date', nullable: true })
   birthDate: string | null;
+
+  @Column({ name: 'profile_photo_media_id', type: 'uuid', nullable: true })
+  profilePhotoMediaId: string | null;
 
   @Column({ type: 'varchar', length: 200, nullable: true })
   address: string | null;

@@ -41,6 +41,7 @@ p { color: var(--color-textMuted); }
 
 a {
   color: var(--color-primary);
+  text-decoration: none;
   transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
 }
 
@@ -48,6 +49,23 @@ a:hover { color: var(--color-primaryDark); text-decoration: none; }
 button, input, select, textarea { font: inherit; }
 input:not([type='checkbox']):not([type='radio']), select, textarea { width: 100%; min-width: 0; max-width: 100%; }
 img, svg { max-width: 100%; }
+
+.leaflet-container img,
+.leaflet-container .leaflet-tile {
+  max-width: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 
 header.navbar {
   position: sticky;

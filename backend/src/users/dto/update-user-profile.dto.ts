@@ -1,4 +1,4 @@
-import { IsDateString, IsOptional, IsString, Length, Matches, MaxLength } from 'class-validator';
+import { IsDateString, IsOptional, IsString, IsUUID, Length, Matches, MaxLength } from 'class-validator';
 
 export class UpdateUserProfileDto {
   @IsOptional()
@@ -14,6 +14,10 @@ export class UpdateUserProfileDto {
   @IsOptional()
   @IsDateString({ strict: true })
   birthDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  profilePhotoMediaId?: string;
 
   @IsOptional()
   @IsString()

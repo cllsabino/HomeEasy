@@ -1,6 +1,14 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 
 import { UserRole } from './user-role.enum';
+import { UserProfile } from './user-profile.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -21,6 +29,9 @@ export class User {
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
+
+  @OneToOne(() => UserProfile, (profile) => profile.user)
+  profile?: UserProfile;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

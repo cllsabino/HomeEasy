@@ -3,8 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 
 import { normalizeEmail } from '../shared/utils/email.utils';
+import { assertAdultBirthDate } from '../shared/utils/birth-date.utils';
 import { normalizePhone } from '../shared/utils/phone.utils';
 import { normalizeDocument } from '../shared/utils/document.utils';
+import { MediaPurpose } from '../storage/media-purpose.enum';
+import { StorageService } from '../storage/storage.service';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { UserProfile } from './user-profile.entity';
 import { User } from './user.entity';
@@ -13,6 +16,7 @@ import { User } from './user.entity';
 export class UsersService {
   constructor(
     private readonly dataSource: DataSource,
+    private readonly storageService: StorageService,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>
   ) {}
@@ -30,14 +34,19 @@ export class UsersService {
       .getOne();
   }
 
-  create(name: string, email: string, passwordHash: string) {
-    return this.usersRepository.save(
-      this.usersRepository.create({
-        name: name.trim(),
-        email: normalizeEmail(email),
-        passwordHash
-      })
-    );
+  create(name: string, email: string, passwordHash: string, birthDate: string) {
+    assertAdultBirthDate(birthDate);
+    return this.dataSource.transaction(async (manager) => {
+      const user = await manager.save(
+        manager.create(User, {
+          name: name.trim(),
+          email: normalizeEmail(email),
+          passwordHash
+        })
+      );
+      await manager.save(manager.create(UserProfile, { userId: user.id, birthDate }));
+      return user;
+    });
   }
 
   async findOwnProfile(userId: string) {
@@ -54,6 +63,7 @@ export class UsersService {
       memberSince: user.createdAt,
       phone: profile?.phone || null,
       birthDate: profile?.birthDate || null,
+      profilePhotoMediaId: profile?.profilePhotoMediaId || null,
       address: profile?.address || null,
       city: profile?.city || null,
       state: profile?.state || null,
@@ -70,6 +80,15 @@ export class UsersService {
   async updateOwnProfile(userId: string, dto: UpdateUserProfileDto) {
     try {
       await this.dataSource.transaction(async (manager) => {
+        if (dto.profilePhotoMediaId !== undefined) {
+          await this.storageService.attachToContext(
+            dto.profilePhotoMediaId,
+            userId,
+            MediaPurpose.ProfilePhoto,
+            userId,
+            manager
+          );
+        }
         if (dto.name) {
           await manager.update(User, { id: userId }, { name: dto.name.trim() });
         }
@@ -79,7 +98,11 @@ export class UsersService {
           profile.phone = normalizePhone(dto.phone);
         }
         if (dto.birthDate !== undefined) {
+          assertAdultBirthDate(dto.birthDate);
           profile.birthDate = dto.birthDate;
+        }
+        if (dto.profilePhotoMediaId !== undefined) {
+          profile.profilePhotoMediaId = dto.profilePhotoMediaId;
         }
         if (dto.address !== undefined) {
           profile.address = dto.address.trim() || null;
@@ -129,6 +152,12 @@ export class UsersService {
     if (!user) {
       return null;
     }
-    return { id: user.id, name: user.name, memberSince: user.createdAt };
+    const profile = await this.dataSource.getRepository(UserProfile).findOne({ where: { userId } });
+    return {
+      id: user.id,
+      name: user.name,
+      memberSince: user.createdAt,
+      profilePhotoMediaId: profile?.profilePhotoMediaId || null
+    };
   }
 }

@@ -43,7 +43,12 @@ export class AuthService {
 
     const passwordHash = await hash(registerDto.password, 12);
     try {
-      const user = await this.usersService.create(registerDto.name, registerDto.email, passwordHash);
+      const user = await this.usersService.create(
+        registerDto.name,
+        registerDto.email,
+        passwordHash,
+        registerDto.birthDate
+      );
       return this.createSession(user);
     } catch (error) {
       if (this.isUniqueConstraintViolation(error)) {

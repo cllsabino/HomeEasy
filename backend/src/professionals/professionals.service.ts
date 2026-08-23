@@ -228,6 +228,7 @@ export class ProfessionalsService {
     return this.profilesRepository
       .createQueryBuilder('profile')
       .innerJoinAndSelect('profile.user', 'user', 'user.isActive = true')
+      .leftJoinAndSelect('user.profile', 'userProfile')
       .leftJoinAndSelect('profile.services', 'professionalService', professionalServiceCondition)
       .leftJoinAndSelect('professionalService.service', 'service', serviceCondition);
   }

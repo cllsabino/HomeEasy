@@ -25,6 +25,7 @@ interface ApiUserProfile {
   twitter?: string;
   website?: string;
   linkedin?: string;
+  profilePhotoMediaId?: string;
 }
 
 interface ApiProfessionalList {
@@ -65,6 +66,7 @@ export class UsuarioService {
         name: user.nome,
         phone: user.telefone,
         birthDate: user.birthDate,
+        profilePhotoMediaId: user.profilePhotoMediaId,
         address: user.endereco,
         city: user.cidade,
         state: user.estado,
@@ -86,6 +88,10 @@ export class UsuarioService {
     return of(users || []);
   }
 
+  getProfilePhotoUrl(profilePhotoMediaId: string) {
+    return `${environment.apiUrl}/media/${profilePhotoMediaId}/public`;
+  }
+
   private toUsuario(profile: ApiUserProfile): Usuario {
     return {
       id: profile.id,
@@ -94,6 +100,8 @@ export class UsuarioService {
       role: profile.role,
       telefone: profile.phone,
       birthDate: profile.birthDate,
+      profilePhotoMediaId: profile.profilePhotoMediaId,
+      foto: profile.profilePhotoMediaId ? this.getProfilePhotoUrl(profile.profilePhotoMediaId) : undefined,
       idade: profile.birthDate ? this.calculateAge(profile.birthDate) : undefined,
       endereco: profile.address,
       cidade: profile.city,

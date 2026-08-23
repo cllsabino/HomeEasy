@@ -83,6 +83,19 @@ export class StorageService implements OnModuleInit {
     return { downloadUrl, expiresInSeconds: 300 };
   }
 
+  async createPublicProfilePhotoUrl(mediaId: string) {
+    const media = await this.mediaRepository.findOne({ where: { id: mediaId } });
+    if (
+      !media ||
+      !media.uploadedAt ||
+      media.purpose !== MediaPurpose.ProfilePhoto ||
+      media.contextId !== media.ownerId
+    ) {
+      throw new NotFoundException('Foto de perfil não encontrada.');
+    }
+    return this.client.presignedGetObject(this.bucket, media.objectKey, 5 * 60);
+  }
+
   async attachToContext(
     mediaId: string,
     ownerId: string,

@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { RequestAttachment } from '../shared/models/service-request-field';
 
 export enum MediaPurpose {
+  ProfilePhoto = 'profile_photo',
   RequestAttachment = 'request_attachment',
   ChatAttachment = 'chat_attachment',
   VerificationDocument = 'verification_document'

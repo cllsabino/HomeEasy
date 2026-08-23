@@ -22,6 +22,7 @@ export class Usuario {
     telefone? : string;
     id? : string;
     foto? : string;
+    profilePhotoMediaId? : string;
     endereco? : string;
     estado? : string;
     cidade? : string;

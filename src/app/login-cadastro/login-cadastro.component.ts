@@ -6,6 +6,7 @@ import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 import { resolveAuthErrorMessage } from '../shared/utils/auth-error.utils';
+import { getLatestAdultBirthDate } from '../shared/utils/birth-date.utils';
 
 type AuthMode = 'login' | 'register';
 
@@ -26,6 +27,7 @@ export class LoginCadastroComponent implements OnInit {
   authenticated = false;
   userId: string;
   returnUrl = '/feed';
+  maximumBirthDate = getLatestAdultBirthDate();
 
   constructor(
     private loginService: LoginServiceService,
