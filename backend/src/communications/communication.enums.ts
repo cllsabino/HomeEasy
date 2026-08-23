@@ -6,6 +6,7 @@ export enum MessageType {
 }
 
 export enum NotificationType {
+  NewServiceRequest = 'new_service_request',
   NewProposal = 'new_proposal',
   ProposalAccepted = 'proposal_accepted',
   OrderUpdated = 'order_updated',

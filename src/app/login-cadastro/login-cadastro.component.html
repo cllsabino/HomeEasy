@@ -43,8 +43,8 @@
         </div>
         <div class="field-group">
           <label for="registerBirthDate">Data de nascimento</label>
-          <input id="registerBirthDate" type="date" [(ngModel)]="registrationUser.birthDate" name="birthDate" required [max]="maximumBirthDate" autocomplete="bday" #registrationBirthDate="ngModel">
-          <span class="field-error" *ngIf="registrationBirthDate.invalid && registrationBirthDate.touched">É necessário informar uma data válida e ter pelo menos 18 anos.</span>
+          <input id="registerBirthDate" type="text" inputmode="numeric" [ngModel]="registrationBirthDateInput" (ngModelChange)="updateRegistrationBirthDate($event)" name="birthDate" required pattern="^[0-9]{2}/[0-9]{2}/[0-9]{4}$" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="bday" #registrationBirthDate="ngModel">
+          <span class="field-error" *ngIf="registrationBirthDate.touched && (registrationBirthDate.invalid || !isRegistrationBirthDateValid)">Informe uma data válida no formato dd/mm/aaaa. É necessário ter pelo menos 18 anos.</span>
         </div>
         <div class="field-group">
           <label for="registerEmail">E-mail</label>
@@ -57,7 +57,7 @@
           <p id="passwordRequirements" class="field-help">Use 8 ou mais caracteres, com maiúscula, minúscula e número.</p>
           <span class="field-error" *ngIf="registerPassword.invalid && registerPassword.touched">A senha ainda não atende aos requisitos.</span>
         </div>
-        <button type="submit" class="button-primary auth-submit" [disabled]="!registerForm.valid || isRegistrationSubmitting">
+        <button type="submit" class="button-primary auth-submit" [disabled]="!registerForm.valid || !isRegistrationBirthDateValid || isRegistrationSubmitting">
           {{ isRegistrationSubmitting ? 'Criando conta...' : 'Criar conta' }}
         </button>
       </form>

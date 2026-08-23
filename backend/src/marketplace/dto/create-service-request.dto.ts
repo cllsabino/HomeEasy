@@ -8,6 +8,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Max,
   Min
@@ -18,6 +19,10 @@ export class CreateServiceRequestDto {
   @IsString()
   @Length(1, 12)
   serviceId: string;
+
+  @IsOptional()
+  @IsUUID()
+  preferredProfessionalId?: string;
 
   @IsString()
   @Length(20, 3000)

@@ -136,7 +136,8 @@ export class StorageService implements OnModuleInit {
       `SELECT EXISTS(
         SELECT 1 FROM service_requests request
         WHERE request.id = $1 AND (
-          request.client_id = $2 OR EXISTS(
+          request.client_id = $2 OR
+          request.preferred_professional_id = $2 OR EXISTS(
             SELECT 1 FROM proposals proposal
             WHERE proposal.request_id = request.id AND proposal.professional_id = $2
           )

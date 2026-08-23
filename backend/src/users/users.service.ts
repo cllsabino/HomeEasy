@@ -80,7 +80,7 @@ export class UsersService {
   async updateOwnProfile(userId: string, dto: UpdateUserProfileDto) {
     try {
       await this.dataSource.transaction(async (manager) => {
-        if (dto.profilePhotoMediaId !== undefined) {
+        if (dto.profilePhotoMediaId) {
           await this.storageService.attachToContext(
             dto.profilePhotoMediaId,
             userId,
@@ -95,23 +95,25 @@ export class UsersService {
         const existingProfile = await manager.findOne(UserProfile, { where: { userId } });
         const profile = existingProfile || manager.create(UserProfile, { userId });
         if (dto.phone !== undefined) {
-          profile.phone = normalizePhone(dto.phone);
+          profile.phone = dto.phone ? normalizePhone(dto.phone) : null;
         }
         if (dto.birthDate !== undefined) {
-          assertAdultBirthDate(dto.birthDate);
-          profile.birthDate = dto.birthDate;
+          if (dto.birthDate) {
+            assertAdultBirthDate(dto.birthDate);
+          }
+          profile.birthDate = dto.birthDate || null;
         }
         if (dto.profilePhotoMediaId !== undefined) {
-          profile.profilePhotoMediaId = dto.profilePhotoMediaId;
+          profile.profilePhotoMediaId = dto.profilePhotoMediaId || null;
         }
         if (dto.address !== undefined) {
-          profile.address = dto.address.trim() || null;
+          profile.address = dto.address?.trim() || null;
         }
         if (dto.city !== undefined) {
-          profile.city = dto.city.trim() || null;
+          profile.city = dto.city?.trim() || null;
         }
         if (dto.state !== undefined) {
-          profile.state = dto.state.toUpperCase();
+          profile.state = dto.state?.toUpperCase() || null;
         }
         if (dto.cpf !== undefined) {
           profile.cpf = dto.cpf ? normalizeDocument(dto.cpf) : null;
@@ -122,19 +124,19 @@ export class UsersService {
           profile.cpf = null;
         }
         if (dto.instagram !== undefined) {
-          profile.instagram = dto.instagram.trim() || null;
+          profile.instagram = dto.instagram?.trim() || null;
         }
         if (dto.facebook !== undefined) {
-          profile.facebook = dto.facebook.trim() || null;
+          profile.facebook = dto.facebook?.trim() || null;
         }
         if (dto.twitter !== undefined) {
-          profile.twitter = dto.twitter.trim() || null;
+          profile.twitter = dto.twitter?.trim() || null;
         }
         if (dto.website !== undefined) {
-          profile.website = dto.website.trim() || null;
+          profile.website = dto.website?.trim() || null;
         }
         if (dto.linkedin !== undefined) {
-          profile.linkedin = dto.linkedin.trim() || null;
+          profile.linkedin = dto.linkedin?.trim() || null;
         }
         await manager.save(profile);
       });

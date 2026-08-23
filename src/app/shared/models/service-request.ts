@@ -19,6 +19,7 @@ export class ServiceRequest {
   id?: string;
   clientId?: string;
   serviceId?: string;
+  preferredProfessionalId?: string;
   serviceName?: string;
   category?: string;
   description?: string;

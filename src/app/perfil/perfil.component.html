@@ -39,7 +39,7 @@
           <h2>{{ service.nome }}</h2>
           <p>{{ service.description || 'Serviço disponível para contratação pela plataforma.' }}</p>
           <strong *ngIf="service.basePrice">A partir de R$ {{ service.basePrice | number:'1.2-2' }}</strong>
-          <a class="button-primary" [routerLink]="['/solicitar', service.id]">Solicitar orçamento</a>
+          <a class="button-primary" [routerLink]="['/solicitar', service.id, 'profissional', usuario.id]">Solicitar orçamento</a>
         </article>
         <section class="empty-state" *ngIf="!servicosArray.length"><div class="empty-state-content"><h2>Nenhum serviço ativo</h2><p>Este profissional não está recebendo novas solicitações agora.</p></div></section>
       </section>

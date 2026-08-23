@@ -5,10 +5,11 @@ import { ProfissionalComponent } from './profissional.component';
 import { AddprofissioanlComponent } from './addprofissioanl/addprofissioanl.component';
 import { EditarInfoComponent } from './editar-info/editar-info.component';
 import { AuthGuardGuard } from './../guardas/auth-guard.guard';
+import { ProfessionalProfileGuard } from '../guardas/professional-profile.guard';
 
 const profissionalRoutes : Routes = [
     {path : 'profissional', component : ProfissionalComponent},
-    {path : 'serprofissional', component : AddprofissioanlComponent, canActivate : [AuthGuardGuard]},
+    {path : 'serprofissional', component : AddprofissioanlComponent, canActivate : [AuthGuardGuard, ProfessionalProfileGuard]},
     {path : 'serviços/:id/detalhe/:idd/editar', component : EditarInfoComponent, canActivate : [AuthGuardGuard]}
 ];
 

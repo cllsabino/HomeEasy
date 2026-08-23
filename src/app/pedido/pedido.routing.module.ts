@@ -15,12 +15,13 @@ import { ServiceRequestFormComponent } from './service-request-form/service-requ
 import { ServiceRequestListComponent } from './service-request-list/service-request-list.component';
 
 const pedidoRoutes : Routes = [
-    {path : 'serviço/:id/usuario/:idd/pedido', redirectTo : 'solicitar/:id', pathMatch : 'full' },
+    {path : 'serviço/:id/usuario/:idd/pedido', redirectTo : 'solicitar/:id/profissional/:idd', pathMatch : 'full' },
     {path : 'pedido-info', component : PedidoInfoComponent },
     {path : 'usuario/:id/pedidos-feitos', component : PedidoFeitoComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-feitos/:idd', component : PedidoFeitoDetalheComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-recebidos', component : PedidoRecebidoComponent, canActivate : [AuthGuardGuard] },
     {path : 'usuario/:id/pedidos-recebidos/:idd', component : PedidoRecebidoDetalheComponent, canActivate : [AuthGuardGuard] },
+    {path : 'solicitar/:serviceId/profissional/:professionalId', component : ServiceRequestFormComponent, canActivate : [AuthGuardGuard] },
     {path : 'solicitar/:serviceId', component : ServiceRequestFormComponent, canActivate : [AuthGuardGuard] },
     {path : 'solicitacoes', component : ServiceRequestListComponent, canActivate : [AuthGuardGuard] },
     {path : 'solicitacoes/:requestId', component : ServiceRequestDetailComponent, canActivate : [AuthGuardGuard] },

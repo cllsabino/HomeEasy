@@ -89,18 +89,18 @@ export class ServicosService {
 
   async updateProfessionalServiceDetails(
     user: Usuario,
-    serviceId: string,
+    selectedService: Servico,
     basePrice: number,
     description: string,
     serviceRadiusKm: number
   ) {
-    const services = await firstValueFrom(this.getUserServico(''));
-    const updatedServices = services.map(service => {
-      if (service.id !== serviceId) {
-        return service;
-      }
-      return Object.assign({}, service, { basePrice, description, available: true });
-    });
+    const services = await firstValueFrom(this.getUserServico(user.id || ''));
+    const updatedServices = services.filter(service => service.id !== selectedService.id);
+    updatedServices.push(Object.assign({}, selectedService, {
+      basePrice,
+      description,
+      available: true
+    }));
     await this.saveProfessionalProfile(user, updatedServices, serviceRadiusKm);
   }
 

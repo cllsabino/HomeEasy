@@ -15,6 +15,7 @@ import { ServiceRequest, ServiceUrgency } from '../../shared/models/service-requ
 import { RequestAttachment, ServiceRequestAnswer, ServiceRequestField } from '../../shared/models/service-request-field';
 import { normalizeBrazilStateCode } from '../../shared/utils/brazil-state.utils';
 import { createCompressedImageAttachment } from '../../shared/utils/image-attachment.utils';
+import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   standalone: false,
@@ -26,7 +27,9 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   authenticated = false;
   userId: string;
   serviceId: string;
+  professionalId: string;
   service: Servico = {};
+  directedProfessional: Usuario = {};
   user: Usuario = {};
   request: ServiceRequest = { urgency: ServiceUrgency.Flexible };
   states = new Array<BrazilState>();
@@ -49,6 +52,7 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   private routeSubscription: Subscription;
   private serviceSubscription: Subscription;
   private userSubscription: Subscription;
+  private professionalSubscription: Subscription;
   private statesSubscription: Subscription;
   private citiesSubscription: Subscription;
 
@@ -68,7 +72,10 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     this.userId = currentUser ? currentUser.uid : '';
     this.routeSubscription = this.activeRoute.params.subscribe((params: Params) => {
       this.serviceId = params['serviceId'];
+      this.professionalId = params['professionalId'] || '';
+      this.request.preferredProfessionalId = this.professionalId || undefined;
       this.loadService();
+      this.loadDirectedProfessional();
     });
     this.loadUser();
     this.loadStates();
@@ -78,6 +85,7 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
     this.unsubscribe(this.routeSubscription);
     this.unsubscribe(this.serviceSubscription);
     this.unsubscribe(this.userSubscription);
+    this.unsubscribe(this.professionalSubscription);
     this.unsubscribe(this.statesSubscription);
     this.unsubscribe(this.citiesSubscription);
   }
@@ -123,7 +131,10 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
       this.router.navigate(['/solicitacoes', requestId]);
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível criar sua solicitação.';
+      this.feedbackMessage = resolveHttpErrorMessage(
+        error,
+        'Não foi possível criar sua solicitação.'
+      );
     } finally {
       this.isSubmitting = false;
     }
@@ -137,6 +148,20 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
   get hasInvalidBudget() {
     return Boolean(this.request.budgetMinimum && this.request.budgetMaximum &&
       Number(this.request.budgetMinimum) > Number(this.request.budgetMaximum));
+  }
+
+  get isDirectedRequest() {
+    return Boolean(this.professionalId);
+  }
+
+  get submitButtonLabel() {
+    if (this.isSubmitting) {
+      return 'Enviando...';
+    }
+    if (this.isDirectedRequest) {
+      return `Enviar para ${this.directedProfessional.nome || 'o profissional'}`;
+    }
+    return 'Receber propostas';
   }
 
   get hasInvalidSpecificFields() {
@@ -178,6 +203,17 @@ export class ServiceRequestFormComponent implements OnInit, OnDestroy {
       this.specificFields = this.service.requestForm || [];
       this.isLoading = false;
     });
+  }
+
+  private loadDirectedProfessional() {
+    this.unsubscribe(this.professionalSubscription);
+    this.directedProfessional = {};
+    if (!this.professionalId) {
+      return;
+    }
+    this.professionalSubscription = this.userService
+      .getPublicUsuario(this.professionalId)
+      .subscribe(professional => this.directedProfessional = professional || {});
   }
 
   private createAnswers(): ServiceRequestAnswer[] {

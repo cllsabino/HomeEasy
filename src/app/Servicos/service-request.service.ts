@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { firstValueFrom, forkJoin, Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 import { OrderStatus } from '../Usuarios/pedido';
@@ -9,10 +9,17 @@ import { ServiceProposal, ServiceRequest } from '../shared/models/service-reques
 import { MediaPurpose, MediaUploadService } from './media-upload.service';
 import { CancellationReason } from '../shared/models/cancellation-reason';
 
-interface ApiServiceRequest extends Omit<ServiceRequest, 'answers'> {
+interface ApiRequestAttachment {
+  mediaId: string;
+  fileName: string;
+  contentType: string;
+}
+
+interface ApiServiceRequest extends Omit<ServiceRequest, 'answers' | 'attachments'> {
   service?: { id: string; name: string; category: string };
   preferredAt?: string;
   answers?: Record<string, string | number | boolean>;
+  attachments?: ApiRequestAttachment[];
 }
 
 interface ApiProposal {
@@ -47,6 +54,7 @@ export class ServiceRequestService {
     const createdRequest = await firstValueFrom(
       this.http.post<ApiServiceRequest>(`${environment.apiUrl}/marketplace/requests`, {
         serviceId: request.serviceId,
+        preferredProfessionalId: request.preferredProfessionalId,
         description: request.description,
         urgency: request.urgency,
         answers: this.toAnswerRecord(request),
@@ -89,7 +97,10 @@ export class ServiceRequestService {
   getRequest(requestId: string) {
     return this.http
       .get<ApiServiceRequest>(`${environment.apiUrl}/marketplace/requests/${requestId}`)
-      .pipe(map(request => this.toServiceRequest(request)));
+      .pipe(
+        map(request => this.toServiceRequest(request)),
+        switchMap(request => this.resolveAttachmentUrls(request))
+      );
   }
 
   getRequestProposals(requestId: string) {
@@ -162,6 +173,12 @@ export class ServiceRequestService {
       preferredDate: preferredAt ? preferredAt.toISOString().slice(0, 10) : undefined,
       preferredTime: preferredAt ? preferredAt.toTimeString().slice(0, 5) : undefined,
       answers: Object.entries(request.answers || {}).map(([key, value]) => ({ key, label: key, value })),
+      attachments: (request.attachments || []).map(attachment => ({
+        mediaId: attachment.mediaId,
+        name: attachment.fileName,
+        mimeType: attachment.contentType,
+        dataUrl: ''
+      })),
       status: request.status as OrderStatus
     });
   }
@@ -190,5 +207,20 @@ export class ServiceRequestService {
   private parseDuration(duration: string) {
     const durationValue = Number(String(duration || '').match(/\d+/)?.[0] || 60);
     return Math.max(15, Math.min(durationValue, 43200));
+  }
+
+  private resolveAttachmentUrls(request: ServiceRequest): Observable<ServiceRequest> {
+    const attachments = request.attachments || [];
+    if (!attachments.length) {
+      return of(request);
+    }
+    const attachmentRequests = attachments.map(attachment =>
+      this.http
+        .get<{ downloadUrl: string }>(`${environment.apiUrl}/media/${attachment.mediaId}/download`)
+        .pipe(map(response => Object.assign({}, attachment, { dataUrl: response.downloadUrl })))
+    );
+    return forkJoin(attachmentRequests).pipe(
+      map(resolvedAttachments => Object.assign({}, request, { attachments: resolvedAttachments }))
+    );
   }
 }

@@ -11,6 +11,7 @@ import { Usuario } from './../../Usuarios/usuario';
 import { Servico } from './../../Usuarios/servico';
 import { ServicoPedido } from './../../Usuarios/serico-pedido';
 import { NotificationService } from '../../shared/notification/notification.service';
+import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   standalone: false,
@@ -80,12 +81,14 @@ export class AddprofissioanlComponent implements OnInit {
     this.isSubmitting = true;
     this.servePedido.id = this.servicoSelecionado.id;
     try {
-      await this.servico.addUsuario(this.usuario, this.servicoSelecionado);
       await this.servicoPedido.addServicoPedido(this.usuario, this.servicoSelecionado, this.servePedido);
       this.notificationService.showSuccess('Serviço cadastrado', 'Sua especialidade já está disponível para novos clientes.');
       this.router.navigate(['/feed']);
     } catch (error) {
-      this.notificationService.showError('Não foi possível cadastrar', 'Verifique sua conexão e tente publicar o serviço novamente.');
+      this.notificationService.showError(
+        'Não foi possível cadastrar',
+        resolveHttpErrorMessage(error, 'Verifique os dados e tente publicar o serviço novamente.')
+      );
     } finally {
       this.isSubmitting = false;
     }
@@ -101,5 +104,9 @@ export class AddprofissioanlComponent implements OnInit {
       availableWeekdays.splice(weekdayIndex, 1);
     }
     this.servePedido.availableWeekdays = availableWeekdays;
+  }
+
+  get hasRequiredProfessionalProfile() {
+    return Boolean(this.usuario.telefone && this.usuario.cidade && this.usuario.estado);
   }
 }

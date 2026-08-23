@@ -6,7 +6,11 @@ import { Usuario } from './../Usuarios/usuario';
 import { LoginServiceService } from '../Servicos/login-service.service';
 import { FeedbackType } from '../shared/action-feedback/action-feedback.component';
 import { resolveAuthErrorMessage } from '../shared/utils/auth-error.utils';
-import { getLatestAdultBirthDate } from '../shared/utils/birth-date.utils';
+import {
+  formatBrazilianBirthDate,
+  isAdultBirthDate,
+  parseBrazilianBirthDate
+} from '../shared/utils/birth-date.utils';
 
 type AuthMode = 'login' | 'register';
 
@@ -27,7 +31,8 @@ export class LoginCadastroComponent implements OnInit {
   authenticated = false;
   userId: string;
   returnUrl = '/feed';
-  maximumBirthDate = getLatestAdultBirthDate();
+  registrationBirthDateInput = '';
+  isRegistrationBirthDateValid = false;
 
   constructor(
     private loginService: LoginServiceService,
@@ -54,6 +59,13 @@ export class LoginCadastroComponent implements OnInit {
     this.feedbackMessage = '';
   }
 
+  updateRegistrationBirthDate(value: string) {
+    this.registrationBirthDateInput = formatBrazilianBirthDate(value);
+    const birthDate = parseBrazilianBirthDate(this.registrationBirthDateInput);
+    this.isRegistrationBirthDateValid = isAdultBirthDate(birthDate);
+    this.registrationUser.birthDate = this.isRegistrationBirthDateValid ? birthDate : '';
+  }
+
   async signIn() {
     if (this.isLoginSubmitting) {
       return;
@@ -67,7 +79,7 @@ export class LoginCadastroComponent implements OnInit {
       this.router.navigateByUrl(this.returnUrl);
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = resolveAuthErrorMessage(error.code, 'login');
+      this.feedbackMessage = resolveAuthErrorMessage(error, 'login');
     } finally {
       this.isLoginSubmitting = false;
     }
@@ -86,7 +98,7 @@ export class LoginCadastroComponent implements OnInit {
       this.router.navigateByUrl(this.returnUrl);
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = resolveAuthErrorMessage(error.code, 'register');
+      this.feedbackMessage = resolveAuthErrorMessage(error, 'register');
     } finally {
       this.isRegistrationSubmitting = false;
     }

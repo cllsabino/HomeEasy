@@ -46,7 +46,7 @@ export class ServicoPedidoService {
     }
     await this.servicosService.updateProfessionalServiceDetails(
       usuario,
-      servico.id,
+      servico,
       Number(serviceDetails.preco || 0),
       serviceDetails.detalhe || '',
       Number(serviceDetails.serviceRadiusKm || 25)

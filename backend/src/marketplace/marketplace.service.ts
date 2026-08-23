@@ -62,30 +62,59 @@ export class MarketplaceService {
     }
     validateServiceAnswers(service.requestForm, dto.answers);
 
-    const request = this.requestsRepository.create({
-      clientId,
-      serviceId: dto.serviceId,
-      description: dto.description.trim(),
-      urgency: dto.urgency,
-      answers: dto.answers,
-      attachments: [],
-      address: dto.address.trim(),
-      city: dto.city.trim(),
-      state: dto.state.toUpperCase(),
-      location:
-        dto.latitude === undefined || dto.longitude === undefined
-          ? null
-          : { type: 'Point', coordinates: [dto.longitude, dto.latitude] },
-      budgetMinimum: dto.budgetMinimum === undefined ? null : dto.budgetMinimum.toFixed(2),
-      budgetMaximum: dto.budgetMaximum === undefined ? null : dto.budgetMaximum.toFixed(2),
-      preferredAt: dto.preferredAt ? new Date(dto.preferredAt) : null,
-      status: ServiceRequestStatus.Requested,
-      proposalCount: 0,
-      maximumProposals,
-      preferredProfessionalId: null,
-      expiresAt: new Date(Date.now() + requestLifetimeMilliseconds)
+    return this.dataSource.transaction(async (manager) => {
+      if (dto.preferredProfessionalId) {
+        if (dto.preferredProfessionalId === clientId) {
+          throw new BadRequestException('Você não pode solicitar um orçamento para si mesmo.');
+        }
+        const professionalService = await manager.findOne(ProfessionalService, {
+          where: {
+            professionalId: dto.preferredProfessionalId,
+            serviceId: dto.serviceId,
+            isActive: true
+          },
+          relations: { professional: true }
+        });
+        if (!professionalService?.professional.isAvailable) {
+          throw new BadRequestException('Este profissional não está disponível para o serviço selecionado.');
+        }
+      }
+
+      const request = manager.create(ServiceRequest, {
+        clientId,
+        serviceId: dto.serviceId,
+        description: dto.description.trim(),
+        urgency: dto.urgency,
+        answers: dto.answers,
+        attachments: [],
+        address: dto.address.trim(),
+        city: dto.city.trim(),
+        state: dto.state.toUpperCase(),
+        location:
+          dto.latitude === undefined || dto.longitude === undefined
+            ? null
+            : { type: 'Point', coordinates: [dto.longitude, dto.latitude] },
+        budgetMinimum: dto.budgetMinimum === undefined ? null : dto.budgetMinimum.toFixed(2),
+        budgetMaximum: dto.budgetMaximum === undefined ? null : dto.budgetMaximum.toFixed(2),
+        preferredAt: dto.preferredAt ? new Date(dto.preferredAt) : null,
+        status: ServiceRequestStatus.Requested,
+        proposalCount: 0,
+        maximumProposals: dto.preferredProfessionalId ? 1 : maximumProposals,
+        preferredProfessionalId: dto.preferredProfessionalId || null,
+        expiresAt: new Date(Date.now() + requestLifetimeMilliseconds)
+      });
+      const savedRequest = await manager.save(request);
+      if (dto.preferredProfessionalId) {
+        await createNotification(manager, {
+          userId: dto.preferredProfessionalId,
+          type: NotificationType.NewServiceRequest,
+          title: 'Nova solicitação de orçamento',
+          body: `Um cliente solicitou diretamente seu serviço de ${service.name}.`,
+          actionUrl: `/oportunidades/${savedRequest.id}`
+        });
+      }
+      return savedRequest;
     });
-    return this.requestsRepository.save(request);
   }
 
   async findOwnRequests(clientId: string) {
@@ -115,6 +144,12 @@ export class MarketplaceService {
     });
     if (!professionalService || !professionalService.professional.isAvailable) {
       throw new ForbiddenException('Esta solicitação não pertence aos seus serviços ativos.');
+    }
+    if (request.preferredProfessionalId) {
+      if (request.preferredProfessionalId !== userId) {
+        throw new ForbiddenException('Esta solicitação foi direcionada a outro profissional.');
+      }
+      return request;
     }
     const profile = professionalService.professional;
     const isSameRegion =
@@ -202,7 +237,12 @@ export class MarketplaceService {
         '(request.preferredProfessionalId IS NULL OR request.preferredProfessionalId = :professionalId)'
       )
       .andWhere(
-        '(request.location IS NOT NULL AND ST_DWithin(request.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, :radiusMeters)) OR (request.location IS NULL AND request.state = :state AND LOWER(request.city) = LOWER(:city))'
+        `request.preferredProfessionalId = :professionalId OR (
+          request.preferredProfessionalId IS NULL AND (
+            (request.location IS NOT NULL AND ST_DWithin(request.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, :radiusMeters))
+            OR (request.location IS NULL AND request.state = :state AND LOWER(request.city) = LOWER(:city))
+          )
+        )`
       )
       .setParameters({
         longitude: profile.location.coordinates[0],
@@ -234,6 +274,9 @@ export class MarketplaceService {
         }
         if (request.clientId === professionalId) {
           throw new ForbiddenException('Você não pode enviar uma proposta para a própria solicitação.');
+        }
+        if (request.preferredProfessionalId && request.preferredProfessionalId !== professionalId) {
+          throw new ForbiddenException('Esta solicitação foi direcionada a outro profissional.');
         }
         if (!canServiceRequestReceiveProposal(request)) {
           throw new ConflictException('Esta solicitação não aceita mais propostas.');

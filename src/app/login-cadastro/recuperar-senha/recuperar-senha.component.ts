@@ -47,7 +47,7 @@ export class RecuperarSenhaComponent implements OnInit {
       this.feedbackMessage = 'Enviamos o link de recuperação. Confira sua caixa de entrada e a pasta de spam.';
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = resolveAuthErrorMessage(error.code, 'recovery');
+      this.feedbackMessage = resolveAuthErrorMessage(error, 'recovery');
     } finally {
       this.isSubmitting = false;
     }

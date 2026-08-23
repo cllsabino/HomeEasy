@@ -9,63 +9,63 @@ export class UpdateUserProfileDto {
   @IsOptional()
   @IsString()
   @Matches(/^\+?[0-9]{10,15}$/)
-  phone?: string;
+  phone?: string | null;
 
   @IsOptional()
   @IsDateString({ strict: true })
-  birthDate?: string;
+  birthDate?: string | null;
 
   @IsOptional()
   @IsUUID()
-  profilePhotoMediaId?: string;
+  profilePhotoMediaId?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(200)
-  address?: string;
+  address?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  city?: string;
+  city?: string | null;
 
   @IsOptional()
   @IsString()
   @Length(2, 2)
-  state?: string;
+  state?: string | null;
 
   @IsOptional()
   @IsString()
   @Matches(/^\d{11}$/)
-  cpf?: string;
+  cpf?: string | null;
 
   @IsOptional()
   @IsString()
   @Matches(/^\d{14}$/)
-  cnpj?: string;
+  cnpj?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  instagram?: string;
+  instagram?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(300)
-  facebook?: string;
+  facebook?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  twitter?: string;
+  twitter?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(300)
-  website?: string;
+  website?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(300)
-  linkedin?: string;
+  linkedin?: string | null;
 }

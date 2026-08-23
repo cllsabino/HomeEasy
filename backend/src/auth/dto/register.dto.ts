@@ -13,7 +13,7 @@ export class RegisterDto {
   birthDate: string;
 
   @IsString()
-  @Length(10, 72)
+  @Length(8, 72, { message: 'A senha deve ter entre 8 e 72 caracteres.' })
   @Matches(/[a-z]/, { message: 'A senha deve conter uma letra minúscula.' })
   @Matches(/[A-Z]/, { message: 'A senha deve conter uma letra maiúscula.' })
   @Matches(/[0-9]/, { message: 'A senha deve conter um número.' })
