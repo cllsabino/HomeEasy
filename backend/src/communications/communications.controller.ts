@@ -76,6 +76,11 @@ export class CommunicationsController {
     );
   }
 
+  @Put('presence/heartbeat')
+  updateHeartbeat(@AuthenticatedUser() authenticatedUser: PublicUser) {
+    return this.communicationsService.updateHeartbeat(authenticatedUser.id);
+  }
+
   @Get('conversations/:conversationId/presence')
   findPresence(
     @Param('conversationId', ParseUUIDPipe) conversationId: string,

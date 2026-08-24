@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { MailModule } from '../mail/mail.module';
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
 import { ProfessionalsModule } from '../professionals/professionals.module';
 import { Service } from '../services/service.entity';
@@ -15,6 +16,7 @@ import { ServiceRequest } from './service-request.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ServiceRequest, Proposal, Order, Service, ProfessionalProfile]),
+    MailModule,
     StorageModule,
     ProfessionalsModule
   ],

@@ -208,6 +208,23 @@ export class CommunicationsService {
     return { lastSeenAt: now };
   }
 
+  async updateHeartbeat(userId: string) {
+    const now = new Date();
+    await this.presenceRepository
+      .createQueryBuilder()
+      .insert()
+      .into(UserPresence)
+      .values({
+        userId,
+        typingConversationId: null,
+        typingExpiresAt: null,
+        lastSeenAt: now
+      })
+      .orUpdate(['lastSeenAt'], ['userId'])
+      .execute();
+    return { lastSeenAt: now };
+  }
+
   async findPresence(conversationId: string, userId: string) {
     const conversation = await this.findAccessibleConversation(conversationId, userId);
     const otherUserId =

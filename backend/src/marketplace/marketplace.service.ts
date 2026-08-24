@@ -3,12 +3,14 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
+import { MailService, MarketplaceMailDetails } from '../mail/mail.service';
 import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
 import { ProfessionalsService } from '../professionals/professionals.service';
 import { NotificationType } from '../communications/communication.enums';
@@ -38,6 +40,8 @@ const maximumProposals = 4;
 
 @Injectable()
 export class MarketplaceService {
+  private readonly logger = new Logger(MarketplaceService.name);
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(ServiceRequest)
@@ -51,7 +55,8 @@ export class MarketplaceService {
     @InjectRepository(ProfessionalProfile)
     private readonly profilesRepository: Repository<ProfessionalProfile>,
     private readonly storageService: StorageService,
-    private readonly professionalsService: ProfessionalsService
+    private readonly professionalsService: ProfessionalsService,
+    private readonly mailService: MailService
   ) {}
 
   async createRequest(clientId: string, dto: CreateServiceRequestDto) {
@@ -357,7 +362,7 @@ export class MarketplaceService {
   }
 
   async acceptProposal(requestId: string, proposalId: string, clientId: string) {
-    return this.dataSource.transaction(async (manager) => {
+    const savedOrder = await this.dataSource.transaction(async (manager) => {
       const request = await manager.findOne(ServiceRequest, {
         where: { id: requestId },
         lock: { mode: 'pessimistic_write' }
@@ -420,6 +425,8 @@ export class MarketplaceService {
       });
       return savedOrder;
     });
+    await this.sendMarketplaceEmail(savedOrder.id, 'accepted');
+    return savedOrder;
   }
 
   async findOwnOrders(userId: string) {
@@ -474,7 +481,7 @@ export class MarketplaceService {
   }
 
   async updateOrderStatus(orderId: string, actorId: string, nextStatus: OrderStatus) {
-    return this.dataSource.transaction(async (manager) => {
+    const savedOrder = await this.dataSource.transaction(async (manager) => {
       const order = await manager.findOne(Order, {
         where: { id: orderId },
         lock: { mode: 'pessimistic_write' }
@@ -491,6 +498,10 @@ export class MarketplaceService {
       await this.notifyOrderParticipant(manager, savedOrder, actorId, 'O status do pedido foi atualizado.');
       return savedOrder;
     });
+    if (nextStatus === OrderStatus.Completed) {
+      await this.sendMarketplaceEmail(savedOrder.id, 'completed');
+    }
+    return savedOrder;
   }
 
   async cancelOrder(orderId: string, actorId: string, dto: CancelOrderDto) {
@@ -612,5 +623,44 @@ export class MarketplaceService {
 
   private isUniqueConstraintViolation(error: unknown) {
     return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
+  }
+
+  private async sendMarketplaceEmail(orderId: string, event: 'accepted' | 'completed') {
+    try {
+      const details = await this.findMarketplaceMailDetails(orderId);
+      if (event === 'accepted') {
+        await this.mailService.sendProposalAccepted(details);
+        return;
+      }
+      await this.mailService.sendServiceCompleted(details);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Falha desconhecida no serviço SMTP.';
+      this.logger.error(`Não foi possível enviar o e-mail do pedido ${orderId}: ${reason}`);
+    }
+  }
+
+  private async findMarketplaceMailDetails(orderId: string): Promise<MarketplaceMailDetails> {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: { client: true, professional: { user: true }, request: { service: true } }
+    });
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado para envio do e-mail.');
+    }
+    return {
+      orderId: order.id,
+      serviceName: order.request.service.name,
+      client: { id: order.client.id, name: order.client.name, email: order.client.email },
+      professional: {
+        id: order.professional.user.id,
+        name: order.professional.user.name,
+        email: order.professional.user.email
+      },
+      agreedPrice: Number(order.agreedPrice),
+      scheduledAt: order.scheduledAt,
+      address: order.request.address,
+      city: order.request.city,
+      state: order.request.state
+    };
   }
 }
