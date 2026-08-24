@@ -28,6 +28,7 @@ import { Order } from './order.entity';
 import { Proposal } from './proposal.entity';
 import { ServiceRequest } from './service-request.entity';
 import {
+  canServiceRequestAcceptProposal,
   canServiceRequestReceiveProposal,
   canTransitionOrder,
   validateServiceAnswers,
@@ -387,7 +388,7 @@ export class MarketplaceService {
         }
       }
       if (
-        !canServiceRequestReceiveProposal(request) ||
+        !canServiceRequestAcceptProposal(request) ||
         proposal.status !== ProposalStatus.Sent ||
         proposal.validUntil <= new Date()
       ) {

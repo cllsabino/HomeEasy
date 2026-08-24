@@ -3,6 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { ServiceRequestFieldType } from '../services/service-request-field.types';
 import { OrderStatus, ServiceRequestStatus, ServiceUrgency } from './marketplace.enums';
 import {
+  canServiceRequestAcceptProposal,
   canServiceRequestReceiveProposal,
   canTransitionOrder,
   validateServiceAnswers,
@@ -36,6 +37,7 @@ describe('marketplace rules', () => {
       maximumProposals: 4
     } as ServiceRequest;
     expect(canServiceRequestReceiveProposal(request)).toBe(false);
+    expect(canServiceRequestAcceptProposal(request)).toBe(true);
   });
 
   it('allows either participant to confirm an in-progress order as completed', () => {

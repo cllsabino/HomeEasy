@@ -68,6 +68,13 @@ export function canServiceRequestReceiveProposal(request: ServiceRequest, now = 
   );
 }
 
+export function canServiceRequestAcceptProposal(request: ServiceRequest, now = new Date()) {
+  return (
+    [ServiceRequestStatus.Requested, ServiceRequestStatus.ProposalReceived].includes(request.status) &&
+    request.expiresAt > now
+  );
+}
+
 export function canTransitionOrder(order: Order, actorId: string, nextStatus: OrderStatus) {
   if (nextStatus === OrderStatus.Disputed) {
     return [OrderStatus.Scheduled, OrderStatus.InProgress].includes(order.status);
