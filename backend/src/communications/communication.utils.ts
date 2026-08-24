@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
+import { OrderStatus } from '../marketplace/marketplace.enums';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessageType } from './communication.enums';
 
@@ -13,4 +14,12 @@ export function validateMessage(message: SendMessageDto) {
   if (message.type === MessageType.Image && !message.mediaId) {
     throw new BadRequestException('Envie e conclua a imagem antes de anexá-la à conversa.');
   }
+}
+
+export function isConversationWritable(orderStatus: OrderStatus) {
+  return ![
+    OrderStatus.Completed,
+    OrderStatus.CancelledByClient,
+    OrderStatus.CancelledByProfessional
+  ].includes(orderStatus);
 }

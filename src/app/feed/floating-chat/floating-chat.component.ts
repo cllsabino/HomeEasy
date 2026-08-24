@@ -59,7 +59,7 @@ export class FloatingChatComponent implements OnChanges, OnDestroy {
   }
 
   trackByContactId(index: number, contact: Usuario) {
-    return contact.id;
+    return contact.conversationId;
   }
 
   get filteredContacts() {
@@ -68,7 +68,10 @@ export class FloatingChatComponent implements OnChanges, OnDestroy {
       return this.contacts;
     }
 
-    return this.contacts.filter(contact => normalizeSearchText(contact.nome || '').indexOf(normalizedSearch) >= 0);
+    return this.contacts.filter(contact => {
+      const searchableText = `${contact.nome || ''} ${contact.conversationServiceName || ''}`;
+      return normalizeSearchText(searchableText).indexOf(normalizedSearch) >= 0;
+    });
   }
 
   hideUnavailableContactPhoto(contact: Usuario) {

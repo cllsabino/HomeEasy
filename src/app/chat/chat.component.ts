@@ -23,6 +23,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   servidorSubscription: Subscription;
   servidorId: string;
   servidorIdSubscription: Subscription;
+  conversationId: string;
+  conversationSubscription: Subscription;
+  conversationServiceName = '';
+  conversationWritable = true;
   entrarSair: boolean;
   mensagensArray = new Array<Chat>();
   mensagensArraySubscription: Subscription;
@@ -53,22 +57,33 @@ export class ChatComponent implements OnInit, OnDestroy {
       this.entrarSair = false;
     }
 
-    this.servidorIdSubscription = this.active.params.subscribe(
-      (params: Params) => { this.servidorId = params['id']; }
-    );
-    this.servidorSubscription = this.usuarioService.getUserWithProfilePhoto(this.servidorId).subscribe(data => {
-      this.servidor = data;
+    this.servidorIdSubscription = this.active.params.subscribe((params: Params) => {
+      this.conversationId = params['id'];
+      this.conversationSubscription = this.chatService.getConversation(this.conversationId).subscribe(conversation => {
+        this.servidorId = conversation.otherUser.id;
+        this.conversationServiceName = conversation.service.name;
+        this.conversationWritable = conversation.isWritable;
+        this.servidorSubscription = this.usuarioService.getUserWithProfilePhoto(this.servidorId).subscribe(data => {
+          this.servidor = data;
+        });
+        this.mensagensArraySubscription = this.chatService.getMessagesByConversation(this.conversationId).subscribe(data => {
+          this.mensagensArray = data;
+        });
+      });
     });
     this.userSubscription = this.usuarioService.getUserWithProfilePhoto(this.userId).subscribe(data => {
       this.usuario = data;
-    });
-    this.mensagensArraySubscription = this.chatService.getMensagens(this.userId, this.servidorId).subscribe(data => {
-      this.mensagensArray = data;
     });
   }
 
   async enviarMensagem() {
     if (this.isSending) {
+      return;
+    }
+
+    if (!this.conversationWritable) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'Este serviço foi encerrado. A conversa está disponível somente para consulta.';
       return;
     }
 
@@ -90,7 +105,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.isSending = true;
 
     try {
-      const savedMessage = await this.chatService.sendMessage(this.usuario, this.servidor, messageToSend);
+      const savedMessage = await this.chatService.sendMessageByConversation(this.conversationId, messageToSend);
       this.mensagensArray = [...this.mensagensArray, savedMessage];
       this.mensagem.mensagem = '';
     } catch (error) {
@@ -103,6 +118,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.servidorIdSubscription?.unsubscribe();
+    this.conversationSubscription?.unsubscribe();
     this.servidorSubscription?.unsubscribe();
     this.mensagensArraySubscription?.unsubscribe();
     this.userSubscription?.unsubscribe();

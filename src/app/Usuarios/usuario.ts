@@ -41,6 +41,10 @@ export class Usuario {
     verificationReviewNote? : string;
     role? : UserRole;
     conversationId? : string;
+    conversationOrderId? : string;
+    conversationServiceName? : string;
+    conversationWritable? : boolean;
+    conversationOrderStatus? : string;
     unreadMessageCount? : number;
     verificationDocumentId? : string;
     verificationMediaId? : string;

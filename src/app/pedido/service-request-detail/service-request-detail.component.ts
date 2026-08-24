@@ -1,4 +1,5 @@
 import { getCurrentUser } from '../../shared/utils/session-user.utils';
+import { resolveHttpErrorMessage } from '../../shared/utils/http-error.utils';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -88,7 +89,7 @@ export class ServiceRequestDetailComponent implements OnInit, OnDestroy {
       this.feedbackMessage = 'Proposta aceita. O profissional foi informado e o pedido está confirmado.';
     } catch (error) {
       this.feedbackType = 'error';
-      this.feedbackMessage = error && error.message ? error.message : 'Não foi possível aceitar a proposta.';
+      this.feedbackMessage = resolveHttpErrorMessage(error, 'Não foi possível aceitar a proposta.');
     } finally {
       this.isSubmitting = false;
       this.dismissProposalAcceptance();

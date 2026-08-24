@@ -380,6 +380,12 @@ export class MarketplaceService {
       if (!proposal) {
         throw new NotFoundException('Proposta não encontrada para esta solicitação.');
       }
+      if (proposal.status === ProposalStatus.Accepted) {
+        const existingOrder = await manager.findOne(Order, { where: { proposalId } });
+        if (existingOrder) {
+          return existingOrder;
+        }
+      }
       if (
         !canServiceRequestReceiveProposal(request) ||
         proposal.status !== ProposalStatus.Sent ||

@@ -3,12 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { Order } from '../marketplace/order.entity';
+import { OrderStatus } from '../marketplace/marketplace.enums';
 import { MediaPurpose } from '../storage/media-purpose.enum';
 import { StorageService } from '../storage/storage.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { MessageType, NotificationType } from './communication.enums';
-import { validateMessage } from './communication.utils';
+import { isConversationWritable, validateMessage } from './communication.utils';
 import { ContactMessage } from './contact-message.entity';
 import { Conversation } from './conversation.entity';
 import { Message } from './message.entity';
@@ -66,6 +67,9 @@ export class CommunicationsService {
       .createQueryBuilder('conversation')
       .innerJoinAndSelect('conversation.client', 'client')
       .innerJoinAndSelect('conversation.professional', 'professional')
+      .innerJoinAndSelect('conversation.order', 'order')
+      .innerJoinAndSelect('order.request', 'request')
+      .innerJoinAndSelect('request.service', 'service')
       .addSelect(
         `(SELECT COUNT(*) FROM messages unread
           WHERE unread.conversation_id = conversation.id
@@ -84,6 +88,9 @@ export class CommunicationsService {
       return {
         id: conversation.id,
         orderId: conversation.orderId,
+        service: { id: conversation.order.request.service.id, name: conversation.order.request.service.name },
+        orderStatus: conversation.order.status,
+        isWritable: isConversationWritable(conversation.order.status),
         otherUser: { id: otherUser.id, name: otherUser.name },
         unreadCount: Number(raw?.unread_count || 0),
         lastMessageAt: conversation.lastMessageAt,
@@ -115,12 +122,20 @@ export class CommunicationsService {
     return this.dataSource.transaction(async (manager) => {
       const conversation = await manager.findOne(Conversation, {
         where: { id: conversationId },
+        relations: { order: true },
         lock: { mode: 'pessimistic_write' }
       });
       if (!conversation) {
         throw new NotFoundException('Conversa não encontrada.');
       }
       this.assertParticipant(conversation.clientId, conversation.professionalId, senderId);
+      if (!isConversationWritable(conversation.order.status)) {
+        throw new ConflictException(
+          conversation.order.status === OrderStatus.Completed
+            ? 'Este serviço foi concluído. A conversa está disponível somente para consulta.'
+            : 'Este serviço foi encerrado. A conversa está disponível somente para consulta.'
+        );
+      }
       const recipientId =
         conversation.clientId === senderId ? conversation.professionalId : conversation.clientId;
       const blockExists = await manager

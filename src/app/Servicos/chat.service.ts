@@ -10,6 +10,10 @@ import { ApiSessionService } from './api-session.service';
 
 interface ApiConversation {
   id: string;
+  orderId: string;
+  service: { id: string; name: string };
+  orderStatus: string;
+  isWritable: boolean;
   otherUser: { id: string; name: string };
   unreadCount: number;
   lastMessageAt?: string;
@@ -45,6 +49,31 @@ export class ChatService {
     );
   }
 
+  getMessagesByConversation(conversationId: string) {
+    return timer(0, 4000).pipe(
+      switchMap(() => this.http.get<ApiMessage[]>(
+        `${environment.apiUrl}/conversations/${conversationId}/messages`
+      )),
+      map(messages => messages.map(message => this.toChat(message)))
+    );
+  }
+
+  getConversation(conversationId: string) {
+    return this.http.get<ApiConversation[]>(`${environment.apiUrl}/conversations`).pipe(
+      map(conversations => {
+        const conversation = conversations.find(current => current.id === conversationId);
+        if (!conversation) {
+          throw new Error('Conversa não encontrada para este serviço.');
+        }
+        return conversation;
+      })
+    );
+  }
+
+  createFromOrder(orderId: string) {
+    return this.http.post<ApiConversation>(`${environment.apiUrl}/conversations/orders/${orderId}`, {});
+  }
+
   addCliente(client: Usuario, professional: Usuario) {
     return Promise.resolve({ clientId: client.id, professionalId: professional.id });
   }
@@ -66,10 +95,24 @@ export class ChatService {
           id: conversation.otherUser.id,
           nome: conversation.otherUser.name,
           conversationId: conversation.id,
+          conversationOrderId: conversation.orderId,
+          conversationServiceName: conversation.service.name,
+          conversationWritable: conversation.isWritable,
+          conversationOrderStatus: conversation.orderStatus,
           unreadMessageCount: conversation.unreadCount
         } as Usuario))
       )
     );
+  }
+
+  async sendMessageByConversation(conversationId: string, message: Chat) {
+    const savedMessage = await firstValueFrom(
+      this.http.post<ApiMessage>(`${environment.apiUrl}/conversations/${conversationId}/messages`, {
+        type: 'text',
+        content: message.mensagem
+      })
+    );
+    return this.toChat(savedMessage);
   }
 
   private async sendMessageByParticipant(otherUserId: string, message: Chat) {

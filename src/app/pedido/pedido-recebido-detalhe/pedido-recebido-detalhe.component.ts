@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 import { LoginServiceService } from '../../Servicos/login-service.service';
 import { ServicoPedidoService } from './../../Servicos/servico-pedido.service';
@@ -16,6 +16,7 @@ import {
   professionalCancellationReasons
 } from '../../shared/models/cancellation-reason';
 import { getCurrentUser } from '../../shared/utils/session-user.utils';
+import { ChatService } from '../../Servicos/chat.service';
 
 @Component({
   standalone: false,
@@ -52,6 +53,7 @@ export class PedidoRecebidoDetalheComponent implements OnInit, OnDestroy {
     public usuarioService: UsuarioService,
     public avaliacaoService: AvalicaoService,
     public servicosService: ServicosService,
+    public chatService: ChatService,
     public router: Router,
     public active: ActivatedRoute
   ) {}
@@ -137,6 +139,16 @@ export class PedidoRecebidoDetalheComponent implements OnInit, OnDestroy {
       this.feedbackMessage = error && error.message ? error.message : 'Não foi possível iniciar o serviço.';
     } finally {
       this.isSubmitting = false;
+    }
+  }
+
+  async openConversation() {
+    try {
+      const conversation = await firstValueFrom(this.chatService.createFromOrder(this.pedidoId));
+      this.router.navigate(['/chat', conversation.id]);
+    } catch (error) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'Não foi possível abrir a conversa deste serviço.';
     }
   }
 
