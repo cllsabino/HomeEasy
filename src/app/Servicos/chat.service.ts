@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timer } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
@@ -35,8 +35,10 @@ export class ChatService {
   getMensagens(clientId: string, professionalId: string) {
     return this.findConversation(professionalId).pipe(
       switchMap(conversation =>
-        this.http.get<ApiMessage[]>(
-          `${environment.apiUrl}/conversations/${conversation.id}/messages`
+        timer(0, 4000).pipe(
+          switchMap(() => this.http.get<ApiMessage[]>(
+            `${environment.apiUrl}/conversations/${conversation.id}/messages`
+          ))
         )
       ),
       map(messages => messages.map(message => this.toChat(message)))
@@ -72,12 +74,13 @@ export class ChatService {
 
   private async sendMessageByParticipant(otherUserId: string, message: Chat) {
     const conversation = await firstValueFrom(this.findConversation(otherUserId));
-    return firstValueFrom(
-      this.http.post(`${environment.apiUrl}/conversations/${conversation.id}/messages`, {
+    const savedMessage = await firstValueFrom(
+      this.http.post<ApiMessage>(`${environment.apiUrl}/conversations/${conversation.id}/messages`, {
         type: 'text',
         content: message.mensagem
       })
     );
+    return this.toChat(savedMessage);
   }
 
   private findConversation(otherUserId: string) {

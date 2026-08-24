@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseFilePipeBuilder, ParseUUIDPipe, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
@@ -24,12 +25,24 @@ export class StorageController {
     return this.storageService.completeUpload(mediaId, authenticatedUser.id);
   }
 
+  @Post(':mediaId/content')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  uploadContent(
+    @Param('mediaId', ParseUUIDPipe) mediaId: string,
+    @UploadedFile(new ParseFilePipeBuilder().addMaxSizeValidator({ maxSize: 10 * 1024 * 1024 }).build())
+    file: { buffer: Buffer; mimetype: string; size: number },
+    @AuthenticatedUser() authenticatedUser: PublicUser
+  ) {
+    return this.storageService.uploadContent(mediaId, authenticatedUser.id, file);
+  }
+
   @Public()
   @Get(':mediaId/public')
   async openPublicProfilePhoto(@Param('mediaId', ParseUUIDPipe) mediaId: string, @Res() response: Response) {
-    const downloadUrl = await this.storageService.createPublicProfilePhotoUrl(mediaId);
+    const photo = await this.storageService.openPublicProfilePhoto(mediaId);
     response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    return response.redirect(downloadUrl);
+    response.setHeader('Content-Type', photo.contentType);
+    return photo.stream.pipe(response);
   }
 
   @Get(':mediaId/download')

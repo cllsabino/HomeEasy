@@ -90,7 +90,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.isSending = true;
 
     try {
-      await this.chatService.sendMessage(this.usuario, this.servidor, messageToSend);
+      const savedMessage = await this.chatService.sendMessage(this.usuario, this.servidor, messageToSend);
+      this.mensagensArray = [...this.mensagensArray, savedMessage];
       this.mensagem.mensagem = '';
     } catch (error) {
       this.feedbackType = 'error';

@@ -70,6 +70,22 @@ export class StorageService implements OnModuleInit {
     return this.mediaRepository.save(media);
   }
 
+  async uploadContent(
+    mediaId: string,
+    ownerId: string,
+    file: { buffer: Buffer; mimetype: string; size: number }
+  ) {
+    const media = await this.findOwnedMedia(mediaId, ownerId);
+    if (file.size !== media.size || file.mimetype.toLowerCase() !== media.contentType) {
+      throw new ForbiddenException('O arquivo enviado não corresponde ao arquivo autorizado.');
+    }
+    await this.client.putObject(this.bucket, media.objectKey, file.buffer, file.size, {
+      'Content-Type': media.contentType
+    });
+    media.uploadedAt = new Date();
+    return this.mediaRepository.save(media);
+  }
+
   async createDownloadUrl(mediaId: string, userId: string, role: UserRole) {
     const media = await this.mediaRepository.findOne({ where: { id: mediaId } });
     if (!media || !media.uploadedAt) {
@@ -83,7 +99,7 @@ export class StorageService implements OnModuleInit {
     return { downloadUrl, expiresInSeconds: 300 };
   }
 
-  async createPublicProfilePhotoUrl(mediaId: string) {
+  async openPublicProfilePhoto(mediaId: string) {
     const media = await this.mediaRepository.findOne({ where: { id: mediaId } });
     if (
       !media ||
@@ -93,7 +109,10 @@ export class StorageService implements OnModuleInit {
     ) {
       throw new NotFoundException('Foto de perfil não encontrada.');
     }
-    return this.client.presignedGetObject(this.bucket, media.objectKey, 5 * 60);
+    return {
+      contentType: media.contentType,
+      stream: await this.client.getObject(this.bucket, media.objectKey)
+    };
   }
 
   async attachToContext(
