@@ -122,16 +122,22 @@ export class CommunicationsService {
     return this.dataSource.transaction(async (manager) => {
       const conversation = await manager.findOne(Conversation, {
         where: { id: conversationId },
-        relations: { order: true },
         lock: { mode: 'pessimistic_write' }
       });
       if (!conversation) {
         throw new NotFoundException('Conversa não encontrada.');
       }
       this.assertParticipant(conversation.clientId, conversation.professionalId, senderId);
-      if (!isConversationWritable(conversation.order.status)) {
+      const order = await manager.findOne(Order, {
+        where: { id: conversation.orderId },
+        lock: { mode: 'pessimistic_read' }
+      });
+      if (!order) {
+        throw new NotFoundException('Pedido associado à conversa não encontrado.');
+      }
+      if (!isConversationWritable(order.status)) {
         throw new ConflictException(
-          conversation.order.status === OrderStatus.Completed
+          order.status === OrderStatus.Completed
             ? 'Este serviço foi concluído. A conversa está disponível somente para consulta.'
             : 'Este serviço foi encerrado. A conversa está disponível somente para consulta.'
         );
@@ -225,18 +231,15 @@ export class CommunicationsService {
 
   async updateHeartbeat(userId: string) {
     const now = new Date();
-    await this.presenceRepository
-      .createQueryBuilder()
-      .insert()
-      .into(UserPresence)
-      .values({
+    await this.presenceRepository.upsert(
+      {
         userId,
         typingConversationId: null,
         typingExpiresAt: null,
         lastSeenAt: now
-      })
-      .orUpdate(['lastSeenAt'], ['userId'])
-      .execute();
+      },
+      ['userId']
+    );
     return { lastSeenAt: now };
   }
 
