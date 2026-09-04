@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
@@ -23,6 +24,13 @@ export class AuthController {
   @Post('login')
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('google')
+  loginWithGoogle(@Body() googleLoginDto: GoogleLoginDto) {
+    return this.authService.loginWithGoogle(googleLoginDto);
   }
 
   @Public()

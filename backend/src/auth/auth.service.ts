@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   ServiceUnavailableException,
@@ -17,7 +18,9 @@ import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
 import { AccessTokenPayload, AuthResponse } from './auth.types';
 import { LoginDto } from './dto/login.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { GoogleIdentityService } from './google-identity.service';
 import { RefreshToken } from './refresh-token.entity';
 import { PasswordResetToken } from './password-reset-token.entity';
 
@@ -29,6 +32,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly mailService: MailService,
+    private readonly googleIdentityService: GoogleIdentityService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
     @InjectRepository(PasswordResetToken)
@@ -63,6 +67,35 @@ export class AuthService {
     const passwordMatches = user ? await compare(loginDto.password, user.passwordHash) : false;
     if (!user || !passwordMatches) {
       throw new UnauthorizedException('E-mail ou senha incorretos.');
+    }
+
+    return this.createSession(user);
+  }
+
+  async loginWithGoogle(googleLoginDto: GoogleLoginDto): Promise<AuthResponse> {
+    const identity = await this.googleIdentityService.verify(googleLoginDto.idToken);
+    let user = await this.usersService.findByGoogleSubject(identity.subject);
+
+    if (!user) {
+      user = await this.usersService.findByEmailWithPassword(identity.email);
+      if (user?.googleSubject && user.googleSubject !== identity.subject) {
+        throw new UnauthorizedException('Este e-mail já está vinculado a outra conta Google.');
+      }
+      if (user) {
+        user = await this.usersService.linkGoogleSubject(user.id, identity.subject);
+      } else {
+        if (!googleLoginDto.birthDate) {
+          throw new BadRequestException('Informe sua data de nascimento para criar uma conta com Google.');
+        }
+        const generatedPasswordHash = await hash(randomBytes(48).toString('base64url'), 12);
+        user = await this.usersService.create(
+          identity.name,
+          identity.email,
+          generatedPasswordHash,
+          googleLoginDto.birthDate,
+          identity.subject
+        );
+      }
     }
 
     return this.createSession(user);

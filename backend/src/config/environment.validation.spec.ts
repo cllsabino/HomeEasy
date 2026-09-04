@@ -22,6 +22,7 @@ describe('validateEnvironment', () => {
     expect(environment.DATABASE_POOL_SIZE).toBe(5);
     expect(environment.REFRESH_TOKEN_DAYS).toBe(30);
     expect(environment.MINIO_USE_SSL).toBe(false);
+    expect(environment.GOOGLE_OAUTH_CLIENT_IDS).toBe('');
   });
 
   it('accepts pooled and direct database URLs in production', () => {

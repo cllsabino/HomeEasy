@@ -34,14 +34,30 @@ export class UsersService {
       .getOne();
   }
 
-  create(name: string, email: string, passwordHash: string, birthDate: string) {
+  findByGoogleSubject(googleSubject: string) {
+    return this.usersRepository.findOne({ where: { googleSubject, isActive: true } });
+  }
+
+  async linkGoogleSubject(userId: string, googleSubject: string) {
+    await this.usersRepository.update({ id: userId, isActive: true }, { googleSubject });
+    return this.usersRepository.findOneOrFail({ where: { id: userId, isActive: true } });
+  }
+
+  create(
+    name: string,
+    email: string,
+    passwordHash: string,
+    birthDate: string,
+    googleSubject: string | null = null
+  ) {
     assertAdultBirthDate(birthDate);
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.save(
         manager.create(User, {
           name: name.trim(),
           email: normalizeEmail(email),
-          passwordHash
+          passwordHash,
+          googleSubject
         })
       );
       await manager.save(manager.create(UserProfile, { userId: user.id, birthDate }));

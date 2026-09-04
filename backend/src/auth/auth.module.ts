@@ -9,6 +9,7 @@ import { MailModule } from '../mail/mail.module';
 import { AccessTokenGuard } from './access-token.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GoogleIdentityService } from './google-identity.service';
 import { RefreshToken } from './refresh-token.entity';
 import { PasswordResetToken } from './password-reset-token.entity';
 
@@ -25,6 +26,6 @@ import { PasswordResetToken } from './password-reset-token.entity';
     UsersModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: AccessTokenGuard }]
+  providers: [AuthService, GoogleIdentityService, { provide: APP_GUARD, useClass: AccessTokenGuard }]
 })
 export class AuthModule {}

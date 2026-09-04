@@ -11,6 +11,7 @@ function createProfile(): ProfessionalProfile {
       name: 'Maria Silva',
       email: 'maria@example.com',
       passwordHash: '',
+      googleSubject: null,
       role: UserRole.User,
       isActive: true,
       createdAt: new Date('2026-01-01T00:00:00Z'),

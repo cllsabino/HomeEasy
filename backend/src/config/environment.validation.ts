@@ -27,6 +27,7 @@ interface EnvironmentVariables {
   SMTP_FROM: string;
   SMTP_USER: string;
   SMTP_PASSWORD: string;
+  GOOGLE_OAUTH_CLIENT_IDS: string;
 }
 
 export function validateEnvironment(environment: Record<string, unknown>): EnvironmentVariables {
@@ -97,7 +98,8 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
     SMTP_SECURE: readString(environment.SMTP_SECURE, 'false') === 'true',
     SMTP_FROM: readString(environment.SMTP_FROM, 'Home Easy <nao-responda@homeeasy.local>'),
     SMTP_USER: readString(environment.SMTP_USER),
-    SMTP_PASSWORD: readString(environment.SMTP_PASSWORD)
+    SMTP_PASSWORD: readString(environment.SMTP_PASSWORD),
+    GOOGLE_OAUTH_CLIENT_IDS: readString(environment.GOOGLE_OAUTH_CLIENT_IDS)
   };
 }
 

@@ -48,6 +48,13 @@ DATABASE_POOL_SIZE=5
 - As credenciais devem existir somente no `.env` local ou nas variáveis secretas da hospedagem.
 - Não execute `db:seed:dev` em produção. Para cadastrar apenas o catálogo inicial, use `npm run seed:services` após as migrations.
 
+Para habilitar o login com Google, configure os IDs dos clientes OAuth aceitos,
+separados por vírgula. O backend valida a assinatura e a audiência de cada ID token:
+
+```env
+GOOGLE_OAUTH_CLIENT_IDS=seu-cliente-web.apps.googleusercontent.com
+```
+
 Prepare um banco novo nesta ordem:
 
 ```bash
@@ -65,6 +72,7 @@ As migrations ativam `pgcrypto` e PostGIS, necessários para UUIDs e buscas geog
 | `GET` | `/api/services` | Público |
 | `POST` | `/api/auth/register` | Público |
 | `POST` | `/api/auth/login` | Público |
+| `POST` | `/api/auth/google` | Público; recebe um ID token Google verificado |
 | `POST` | `/api/auth/refresh` | Público |
 | `POST` | `/api/auth/logout` | Público |
 | `GET` | `/api/users/me` | Bearer token |

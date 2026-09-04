@@ -24,6 +24,9 @@ export class User {
   @Column({ name: 'password_hash', select: false })
   passwordHash: string;
 
+  @Column({ name: 'google_subject', type: 'varchar', length: 255, nullable: true })
+  googleSubject: string | null;
+
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
   role: UserRole;
 
