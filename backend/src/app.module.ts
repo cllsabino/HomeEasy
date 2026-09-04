@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { CommunicationsModule } from './communications/communications.module';
 import { DatabaseModule } from './database/database.module';
+import { createDatabaseOptions } from './database/database-options';
 import { EngagementModule } from './engagement/engagement.module';
 import { HealthModule } from './health/health.module';
 import { MarketplaceModule } from './marketplace/marketplace.module';
@@ -22,12 +23,7 @@ import { validateEnvironment } from './config/environment.validation';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.getOrThrow<string>('DATABASE_HOST'),
-        port: configService.getOrThrow<number>('DATABASE_PORT'),
-        database: configService.getOrThrow<string>('DATABASE_NAME'),
-        username: configService.getOrThrow<string>('DATABASE_USER'),
-        password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
+        ...createDatabaseOptions((key) => configService.get(key)),
         autoLoadEntities: true,
         synchronize: false
       })

@@ -31,6 +31,32 @@ O seed é idempotente e bloqueia execução quando `NODE_ENV=production`.
 
 A API fica disponível em `http://localhost:3000/api`.
 
+## PostgreSQL no Neon
+
+Para homologação ou início da produção com o plano gratuito do Neon, crie um projeto na mesma região da API e copie as duas conexões exibidas pelo painel:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://user:password@endpoint-pooler.neon.tech/neondb?sslmode=verify-full&channel_binding=require
+DATABASE_DIRECT_URL=postgresql://user:password@endpoint.neon.tech/neondb?sslmode=verify-full&channel_binding=require
+DATABASE_SSL=true
+DATABASE_POOL_SIZE=5
+```
+
+- `DATABASE_URL` usa o endpoint com `-pooler` e atende as conexões da API.
+- `DATABASE_DIRECT_URL` usa o endpoint direto e é reservada para migrations e rotinas administrativas.
+- As credenciais devem existir somente no `.env` local ou nas variáveis secretas da hospedagem.
+- Não execute `db:seed:dev` em produção. Para cadastrar apenas o catálogo inicial, use `npm run seed:services` após as migrations.
+
+Prepare um banco novo nesta ordem:
+
+```bash
+npm run migration:run
+npm run seed:services
+```
+
+As migrations ativam `pgcrypto` e PostGIS, necessários para UUIDs e buscas geográficas. O plano gratuito do Neon reduz a capacidade quando fica ocioso, então a primeira conexão após um período sem uso pode levar mais tempo.
+
 ## Rotas iniciais
 
 | Método | Rota | Acesso |
