@@ -41,6 +41,14 @@ export class ModerationController {
     return this.moderationService.createDispute(orderId, authenticatedUser.id, createDisputeDto);
   }
 
+  @Get('orders/:orderId/dispute')
+  findDispute(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @AuthenticatedUser() authenticatedUser: PublicUser
+  ) {
+    return this.moderationService.findDispute(orderId, authenticatedUser.id);
+  }
+
   @UseGuards(AdminGuard)
   @Get('admin/moderation')
   findAdminQueue() {

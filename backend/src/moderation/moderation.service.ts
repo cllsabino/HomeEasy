@@ -155,6 +155,20 @@ export class ModerationService {
     });
   }
 
+  async findDispute(orderId: string, userId: string) {
+    const dispute = await this.disputesRepository.findOne({
+      where: { orderId },
+      relations: { order: true }
+    });
+    if (!dispute) {
+      throw new NotFoundException('Este pedido não possui uma disputa.');
+    }
+    if (dispute.order.clientId !== userId && dispute.order.professionalId !== userId) {
+      throw new ForbiddenException('Você não participa deste pedido.');
+    }
+    return dispute;
+  }
+
   findAdminQueue() {
     return Promise.all([
       this.documentsRepository.find({
