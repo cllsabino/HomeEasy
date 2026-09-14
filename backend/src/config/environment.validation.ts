@@ -24,6 +24,7 @@ interface EnvironmentVariables {
   SMTP_FROM: string;
   RESEND_API_KEY: string;
   GOOGLE_OAUTH_CLIENT_IDS: string;
+  ADMIN_EMAIL: string;
 }
 
 export function validateEnvironment(environment: Record<string, unknown>): EnvironmentVariables {
@@ -94,7 +95,8 @@ export function validateEnvironment(environment: Record<string, unknown>): Envir
       environment.RESEND_API_KEY,
       readString(environment.SMTP_PASSWORD)
     ),
-    GOOGLE_OAUTH_CLIENT_IDS: readString(environment.GOOGLE_OAUTH_CLIENT_IDS)
+    GOOGLE_OAUTH_CLIENT_IDS: readString(environment.GOOGLE_OAUTH_CLIENT_IDS),
+    ADMIN_EMAIL: readString(environment.ADMIN_EMAIL)
   };
 }
 
