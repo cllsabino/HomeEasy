@@ -182,6 +182,14 @@ export class ModerationService {
       }),
       this.disputesRepository.find({
         where: { status: ModerationStatus.Pending },
+        relations: {
+          opener: true,
+          order: {
+            client: true,
+            professional: { user: true },
+            request: { service: true }
+          }
+        },
         order: { createdAt: 'ASC' }
       })
     ]).then(([documents, reports, disputes]) => ({ documents, reports, disputes }));
