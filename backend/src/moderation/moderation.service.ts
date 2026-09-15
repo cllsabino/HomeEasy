@@ -169,8 +169,8 @@ export class ModerationService {
     return dispute;
   }
 
-  findAdminQueue() {
-    return Promise.all([
+  async findAdminQueue() {
+    const [documents, reports, disputes] = await Promise.all([
       this.documentsRepository.find({
         where: { status: ModerationStatus.Pending },
         relations: { professional: true, media: true },
@@ -192,7 +192,43 @@ export class ModerationService {
         },
         order: { createdAt: 'ASC' }
       })
-    ]).then(([documents, reports, disputes]) => ({ documents, reports, disputes }));
+    ]);
+    return {
+      documents: documents.map((document) => ({
+        id: document.id,
+        type: document.type,
+        mediaId: document.mediaId,
+        createdAt: document.createdAt,
+        professional: {
+          name: document.professional.name,
+          email: document.professional.email
+        },
+        media: {
+          fileName: document.media.fileName,
+          contentType: document.media.contentType
+        }
+      })),
+      reports: reports.map((report) => ({
+        id: report.id,
+        category: report.category,
+        description: report.description
+      })),
+      disputes: disputes.map((dispute) => ({
+        id: dispute.id,
+        reason: dispute.reason,
+        description: dispute.description,
+        createdAt: dispute.createdAt,
+        opener: {
+          name: dispute.opener.name,
+          email: dispute.opener.email
+        },
+        order: {
+          client: { name: dispute.order.client.name },
+          professional: { user: { name: dispute.order.professional.user.name } },
+          request: { service: { name: dispute.order.request.service.name } }
+        }
+      }))
+    };
   }
 
   async findAdminMetrics() {
