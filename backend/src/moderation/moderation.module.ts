@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Order } from '../marketplace/order.entity';
+import { MarketplaceModule } from '../marketplace/marketplace.module';
 import { AdminGuard } from '../auth/admin.guard';
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
 import { StorageModule } from '../storage/storage.module';
@@ -14,6 +15,7 @@ import { VerificationDocument } from './verification-document.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([VerificationDocument, Report, Dispute, Order, ProfessionalProfile]),
+    MarketplaceModule,
     StorageModule
   ],
   controllers: [ModerationController],

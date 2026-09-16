@@ -10,6 +10,8 @@ import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { NotificationType } from '../communications/communication.enums';
 import { createNotification } from '../communications/notification.utils';
+import { resolveDisputeReasonLabel } from '../mail/mail-event-labels.utils';
+import { MarketplaceService } from '../marketplace/marketplace.service';
 import { OrderStatus } from '../marketplace/marketplace.enums';
 import { Order } from '../marketplace/order.entity';
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
@@ -29,6 +31,7 @@ export class ModerationService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly storageService: StorageService,
+    private readonly marketplaceService: MarketplaceService,
     @InjectRepository(VerificationDocument)
     private readonly documentsRepository: Repository<VerificationDocument>,
     @InjectRepository(Report)
@@ -108,7 +111,7 @@ export class ModerationService {
   }
 
   async createDispute(orderId: string, userId: string, dto: CreateDisputeDto) {
-    return this.dataSource.transaction(async (manager) => {
+    const dispute = await this.dataSource.transaction(async (manager) => {
       const order = await manager.findOne(Order, {
         where: { id: orderId },
         lock: { mode: 'pessimistic_write' }
@@ -153,6 +156,13 @@ export class ModerationService {
       });
       return dispute;
     });
+    await this.marketplaceService.sendDisputeOpenedEmail(
+      orderId,
+      userId,
+      resolveDisputeReasonLabel(dto.reason),
+      dto.description.trim()
+    );
+    return dispute;
   }
 
   async findDispute(orderId: string, userId: string) {

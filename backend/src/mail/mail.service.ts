@@ -17,6 +17,18 @@ export interface MarketplaceMailDetails {
   state: string;
 }
 
+export interface OrderCancelledMailDetails extends MarketplaceMailDetails {
+  cancelledByName: string;
+  cancellationReason: string;
+  cancellationDetails: string | null;
+}
+
+export interface DisputeOpenedMailDetails extends MarketplaceMailDetails {
+  openedByName: string;
+  disputeReason: string;
+  disputeDescription: string;
+}
+
 @Injectable()
 export class MailService {
   private readonly frontendBaseUrl: string;
@@ -99,6 +111,78 @@ export class MailService {
         actionLabel: 'Consultar pedido',
         actionUrl: `${this.frontendBaseUrl}/usuario/${details.professional.id}/pedidos-recebidos/${details.orderId}`,
         footer: 'Obrigado por oferecer seus serviços pela Home Easy.'
+      })
+    ]);
+  }
+
+  async sendOrderCancelled(details: OrderCancelledMailDetails) {
+    const cancellationDetails = [
+      ...this.buildOrderDetails(details),
+      { label: 'Cancelado por', value: details.cancelledByName },
+      { label: 'Motivo', value: details.cancellationReason }
+    ];
+    if (details.cancellationDetails) {
+      cancellationDetails.push({ label: 'Detalhes', value: details.cancellationDetails });
+    }
+    await Promise.all([
+      this.sendBrandedMail({
+        to: details.client.email,
+        subject: `Pedido cancelado: ${details.serviceName}`,
+        eyebrow: 'Pedido cancelado',
+        title: 'O atendimento foi cancelado',
+        greeting: `Olá, ${details.client.name}!`,
+        message: `${details.cancelledByName} cancelou o atendimento. O motivo e os dados do pedido permanecem disponíveis no seu histórico.`,
+        details: cancellationDetails,
+        actionLabel: 'Consultar pedido',
+        actionUrl: `${this.frontendBaseUrl}/usuario/${details.client.id}/pedidos-feitos/${details.orderId}`,
+        footer: 'Você recebeu este e-mail porque participa deste pedido na Home Easy.'
+      }),
+      this.sendBrandedMail({
+        to: details.professional.email,
+        subject: `Pedido cancelado: ${details.serviceName}`,
+        eyebrow: 'Pedido cancelado',
+        title: 'O atendimento foi cancelado',
+        greeting: `Olá, ${details.professional.name}!`,
+        message: `${details.cancelledByName} cancelou o atendimento. O motivo e os dados do pedido permanecem disponíveis no seu histórico.`,
+        details: cancellationDetails,
+        actionLabel: 'Consultar pedido',
+        actionUrl: `${this.frontendBaseUrl}/usuario/${details.professional.id}/pedidos-recebidos/${details.orderId}`,
+        footer: 'Você recebeu este e-mail porque participa deste pedido na Home Easy.'
+      })
+    ]);
+  }
+
+  async sendDisputeOpened(details: DisputeOpenedMailDetails) {
+    const disputeDetails = [
+      ...this.buildOrderDetails(details),
+      { label: 'Aberta por', value: details.openedByName },
+      { label: 'Motivo', value: details.disputeReason },
+      { label: 'Relato', value: details.disputeDescription }
+    ];
+    await Promise.all([
+      this.sendBrandedMail({
+        to: details.client.email,
+        subject: `Disputa aberta: ${details.serviceName}`,
+        eyebrow: 'Mediação iniciada',
+        title: 'Uma disputa foi aberta',
+        greeting: `Olá, ${details.client.name}!`,
+        message: `${details.openedByName} abriu uma disputa para este atendimento. A moderação analisará o relato e as atualizações ficarão disponíveis no pedido.`,
+        details: disputeDetails,
+        actionLabel: 'Acompanhar disputa',
+        actionUrl: `${this.frontendBaseUrl}/usuario/${details.client.id}/pedidos-feitos/${details.orderId}`,
+        footer: 'A Home Easy mantém este registro para apoiar a mediação do atendimento.'
+      }),
+      this.sendBrandedMail({
+        to: details.professional.email,
+        subject: `Disputa aberta: ${details.serviceName}`,
+        eyebrow: 'Mediação iniciada',
+        title: 'Uma disputa foi aberta',
+        greeting: `Olá, ${details.professional.name}!`,
+        message: `${details.openedByName} abriu uma disputa para este atendimento. A moderação analisará o relato e as atualizações ficarão disponíveis no pedido.`,
+        details: disputeDetails,
+        actionLabel: 'Acompanhar disputa',
+        actionUrl: `${this.frontendBaseUrl}/usuario/${details.professional.id}/pedidos-recebidos/${details.orderId}`,
+        footer: 'A Home Easy mantém este registro para apoiar a mediação do atendimento.'
       })
     ]);
   }

@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { ProfessionalProfile } from '../professionals/professional-profile.entity';
+import { resolveCancellationReasonLabel } from '../mail/mail-event-labels.utils';
 import { MailService, MarketplaceMailDetails } from '../mail/mail.service';
 import { toPublicProfessionalProfile } from '../professionals/professional-profile.utils';
 import { ProfessionalsService } from '../professionals/professionals.service';
@@ -512,7 +513,7 @@ export class MarketplaceService {
   }
 
   async cancelOrder(orderId: string, actorId: string, dto: CancelOrderDto) {
-    return this.dataSource.transaction(async (manager) => {
+    const savedOrder = await this.dataSource.transaction(async (manager) => {
       const order = await manager.findOne(Order, {
         where: { id: orderId },
         lock: { mode: 'pessimistic_write' }
@@ -549,6 +550,8 @@ export class MarketplaceService {
       await this.notifyOrderParticipant(manager, savedOrder, actorId, 'O pedido foi cancelado.');
       return savedOrder;
     });
+    await this.sendOrderCancelledEmail(savedOrder.id, actorId, dto);
+    return savedOrder;
   }
 
   async cancelRequest(requestId: string, clientId: string, dto: CancelOrderDto) {
@@ -643,6 +646,43 @@ export class MarketplaceService {
     } catch (error) {
       const reason = error instanceof Error ? error.message : 'Falha desconhecida no serviço SMTP.';
       this.logger.error(`Não foi possível enviar o e-mail do pedido ${orderId}: ${reason}`);
+    }
+  }
+
+  private async sendOrderCancelledEmail(orderId: string, actorId: string, dto: CancelOrderDto) {
+    try {
+      const details = await this.findMarketplaceMailDetails(orderId);
+      const cancelledByName = actorId === details.client.id ? details.client.name : details.professional.name;
+      await this.mailService.sendOrderCancelled({
+        ...details,
+        cancelledByName,
+        cancellationReason: resolveCancellationReasonLabel(dto.reason),
+        cancellationDetails: dto.details?.trim() || null
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Falha desconhecida no serviço SMTP.';
+      this.logger.error(`Não foi possível enviar o e-mail de cancelamento do pedido ${orderId}: ${reason}`);
+    }
+  }
+
+  async sendDisputeOpenedEmail(
+    orderId: string,
+    openedBy: string,
+    disputeReason: string,
+    disputeDescription: string
+  ) {
+    try {
+      const details = await this.findMarketplaceMailDetails(orderId);
+      const openedByName = openedBy === details.client.id ? details.client.name : details.professional.name;
+      await this.mailService.sendDisputeOpened({
+        ...details,
+        openedByName,
+        disputeReason,
+        disputeDescription
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Falha desconhecida no serviço SMTP.';
+      this.logger.error(`Não foi possível enviar o e-mail da disputa do pedido ${orderId}: ${reason}`);
     }
   }
 
