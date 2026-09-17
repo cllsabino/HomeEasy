@@ -11,6 +11,7 @@ import { FeedbackType } from '../../shared/action-feedback/action-feedback.compo
   styleUrls: ['./redefinir-senha.component.css']
 })
 export class RedefinirSenhaComponent implements OnInit {
+  readonly passwordPattern = '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{10,72}$';
   token = '';
   password = '';
   passwordConfirmation = '';
@@ -40,6 +41,11 @@ export class RedefinirSenhaComponent implements OnInit {
     if (this.password !== this.passwordConfirmation) {
       this.feedbackType = 'error';
       this.feedbackMessage = 'As senhas informadas não são iguais.';
+      return;
+    }
+    if (!new RegExp(this.passwordPattern).test(this.password)) {
+      this.feedbackType = 'error';
+      this.feedbackMessage = 'Use entre 10 e 72 caracteres, incluindo maiúscula, minúscula e número.';
       return;
     }
 

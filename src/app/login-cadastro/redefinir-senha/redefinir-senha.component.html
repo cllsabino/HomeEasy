@@ -5,19 +5,21 @@
       <div class="page-heading-copy">
         <span class="page-kicker">Segurança</span>
         <h1>Crie uma nova senha.</h1>
-        <p>Use uma senha forte, exclusiva e com pelo menos oito caracteres.</p>
+        <p>Use uma senha forte e exclusiva, com maiúscula, minúscula e número.</p>
       </div>
     </header>
 
     <form class="surface-card form-stack" #passwordForm="ngForm" (ngSubmit)="resetPassword()">
       <div class="field-group">
         <label for="newPassword">Nova senha</label>
-        <input id="newPassword" type="password" name="password" [(ngModel)]="password" required minlength="8" autocomplete="new-password" #passwordInput="ngModel">
-        <span class="field-error" *ngIf="passwordInput.invalid && passwordInput.touched">Use pelo menos oito caracteres.</span>
+        <input id="newPassword" type="password" name="password" [(ngModel)]="password" required minlength="10" maxlength="72" [pattern]="passwordPattern" autocomplete="new-password" #passwordInput="ngModel" aria-describedby="newPasswordRequirements">
+        <span id="newPasswordRequirements" class="field-help">Use entre 10 e 72 caracteres, com maiúscula, minúscula e número.</span>
+        <span class="field-error" *ngIf="passwordInput.invalid && passwordInput.touched">A senha ainda não atende aos requisitos.</span>
       </div>
       <div class="field-group">
         <label for="passwordConfirmation">Confirme a nova senha</label>
-        <input id="passwordConfirmation" type="password" name="passwordConfirmation" [(ngModel)]="passwordConfirmation" required minlength="8" autocomplete="new-password">
+        <input id="passwordConfirmation" type="password" name="passwordConfirmation" [(ngModel)]="passwordConfirmation" required minlength="10" maxlength="72" autocomplete="new-password">
+        <span class="field-error" *ngIf="passwordConfirmation && password !== passwordConfirmation">As senhas precisam ser iguais.</span>
       </div>
       <app-action-feedback [message]="feedbackMessage" [type]="feedbackType"></app-action-feedback>
       <div class="form-actions">
