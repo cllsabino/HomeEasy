@@ -10,6 +10,9 @@ import { ContactMessage } from './contact-message.entity';
 import { Conversation } from './conversation.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
+import { NotificationSubscriber } from './notification.subscriber';
+import { PushDevice } from './push-device.entity';
+import { PushNotificationService } from './push-notification.service';
 import { UserBlock } from './user-block.entity';
 import { UserPresence } from './user-presence.entity';
 
@@ -19,6 +22,7 @@ import { UserPresence } from './user-presence.entity';
       Conversation,
       Message,
       Notification,
+      PushDevice,
       UserBlock,
       UserPresence,
       Order,
@@ -27,6 +31,6 @@ import { UserPresence } from './user-presence.entity';
     StorageModule
   ],
   controllers: [CommunicationsController],
-  providers: [CommunicationsService, AdminGuard]
+  providers: [CommunicationsService, PushNotificationService, NotificationSubscriber, AdminGuard]
 })
 export class CommunicationsModule {}

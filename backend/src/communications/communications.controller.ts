@@ -17,8 +17,10 @@ import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { Public } from '../auth/public.decorator';
 import { PublicUser } from '../shared/utils/public-user.utils';
 import { CreateContactMessageDto } from './dto/create-contact-message.dto';
+import { RegisterPushDeviceDto } from './dto/register-push-device.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { UpdateTypingDto } from './dto/update-typing.dto';
+import { UnregisterPushDeviceDto } from './dto/unregister-push-device.dto';
 import { CommunicationsService } from './communications.service';
 
 @Controller()
@@ -108,6 +110,25 @@ export class CommunicationsController {
   @Get('notifications')
   findNotifications(@AuthenticatedUser() authenticatedUser: PublicUser) {
     return this.communicationsService.findNotifications(authenticatedUser.id);
+  }
+
+  @Put('notifications/devices')
+  registerPushDevice(
+    @AuthenticatedUser() authenticatedUser: PublicUser,
+    @Body() registerPushDeviceDto: RegisterPushDeviceDto
+  ) {
+    return this.communicationsService.registerPushDevice(authenticatedUser.id, registerPushDeviceDto);
+  }
+
+  @Delete('notifications/devices')
+  unregisterPushDevice(
+    @AuthenticatedUser() authenticatedUser: PublicUser,
+    @Body() unregisterPushDeviceDto: UnregisterPushDeviceDto
+  ) {
+    return this.communicationsService.unregisterPushDevice(
+      authenticatedUser.id,
+      unregisterPushDeviceDto.token
+    );
   }
 
   @Patch('notifications/:notificationId/read')

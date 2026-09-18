@@ -7,6 +7,7 @@ import { OrderStatus } from '../marketplace/marketplace.enums';
 import { MediaPurpose } from '../storage/media-purpose.enum';
 import { StorageService } from '../storage/storage.service';
 import { SendMessageDto } from './dto/send-message.dto';
+import { RegisterPushDeviceDto } from './dto/register-push-device.dto';
 import { CreateContactMessageDto } from './dto/create-contact-message.dto';
 import { MessageType, NotificationType } from './communication.enums';
 import { isConversationWritable, validateMessage } from './communication.utils';
@@ -15,6 +16,7 @@ import { Conversation } from './conversation.entity';
 import { Message } from './message.entity';
 import { Notification } from './notification.entity';
 import { createNotification } from './notification.utils';
+import { PushNotificationService } from './push-notification.service';
 import { UserBlock } from './user-block.entity';
 import { UserPresence } from './user-presence.entity';
 
@@ -39,7 +41,8 @@ export class CommunicationsService {
     private readonly ordersRepository: Repository<Order>,
     @InjectRepository(ContactMessage)
     private readonly contactMessagesRepository: Repository<ContactMessage>,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly pushNotificationService: PushNotificationService
   ) {}
 
   async createFromOrder(orderId: string, userId: string) {
@@ -279,6 +282,14 @@ export class CommunicationsService {
       order: { createdAt: 'DESC' },
       take: 50
     });
+  }
+
+  registerPushDevice(userId: string, dto: RegisterPushDeviceDto) {
+    return this.pushNotificationService.registerDevice(userId, dto.token, dto.platform);
+  }
+
+  unregisterPushDevice(userId: string, token: string) {
+    return this.pushNotificationService.unregisterDevice(userId, token);
   }
 
   async markNotificationRead(notificationId: string, userId: string) {
